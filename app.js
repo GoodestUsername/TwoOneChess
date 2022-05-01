@@ -1,7 +1,7 @@
 const socketIO = require("socket.io");
 const express = require("express");
 const http = require("http");
-const initializeConnection = require('./gameLogic/game_logic')
+const initializeConnection = require('./server/gameLogic/game_logic')
 
 const port = process.env.PORT || 3001;;
 
