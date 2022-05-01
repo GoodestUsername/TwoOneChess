@@ -19,7 +19,7 @@ const io = new socketIO.Server(server, {
 
 const getApiAndEmit = socket => {
     const response = new Date();
-    // Emitting a new message. Will be consumed by the client
+    // Emitting message to verify connection.
     socket.emit("FromAPI", response);
 };
 
@@ -27,7 +27,6 @@ let interval;
 
 io.on("connection", async (socket) => {
     const userId = socket.id;
-    // const userId = await socketIO.fetchUserId(socket);
     initializeConnection.initializeConnection(io, socket, userId)
 
     console.log("New client connected");
@@ -40,5 +39,3 @@ io.on("connection", async (socket) => {
         clearInterval(interval);
     });
 }, {multiplex: false});
-
-server.listen(port, () => console.log(`Listening on port ${port}`));
