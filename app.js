@@ -39,3 +39,5 @@ io.on("connection", async (socket) => {
         clearInterval(interval);
     });
 }, {multiplex: false});
+
+server.listen(port, () => console.log(`Listening on port ${port}`));
