@@ -1,53 +1,53 @@
 var serverIO;
 var gameSocket;
-var userID;
-var opponentId;
 
-const initializeConnection = (io, client, userId) => {
+var allSessions = []
+
+const initializeConnection = (io, client) => {
     serverIO = io;
     gameSocket = client;
-    userID = userId;
+
+    allSessions.push(gameSocket);
+    // #region count
+    const count = io.engine.clientsCount;
+    const count2 = io.of("/").sockets.size;
+    console.log("clients: ", count)
+    console.log("sockets: ", count2)
+    // #endregion count
 
     // create match
-    gameSocket.on("createGame", onCreateGame)
+    gameSocket.on("createGame", onCreateGame);
 
     // join match
-    gameSocket.on("joinGame", (roomCode) => onJoinGame(roomCode))
-
-    // receive opponent ID
-    gameSocket.on("opponentID", (sentOpponentId) => onOpponentID(sentOpponentId))
+    gameSocket.on("joinGame", onJoinGame);
 
     // send move to clients
-    gameSocket.on("sendMove", (move) => onSendMove(move))
-
-    // end match
-    gameSocket.on("disconnect", onDisconnect)
+    gameSocket.on("sendMove",onSendMove);
 }
 
-const onCreateGame = () => {
-    gameSocket.join(userID);
-    gameSocket.emit("createRoom", userID);
+// const onCreateGame = () => {
+//     this.join(gameSocket.id);
+//     this.emit("createRoom", gameSocket.id);
+// }
+function onCreateGame() {
+    this.join(this.id)
+    // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
+    this.emit('createRoom', this.id);
+
+    // Join the Room and wait for the other player
+
 }
 
-const onJoinGame = (roomCode) => {
-    gameSocket.join(roomCode);
-    opponentID = roomCode;
-    serverIO.to(roomCode).emit("opponentID", userID);
-    console.log("joined game")
-}
+function onJoinGame(roomCode) {
+    this.join(roomCode);
 
-const onOpponentID = (sentOpponentId) => {
-    opponentId = sentOpponentId;
-    console.log("opponent joined game")
+    var room = serverIO.sockets.adapter.rooms[roomCode]
+    serverIO.to(roomCode).emit("startGame")
+    console.log("joined game");
 }
 
 const onSendMove = (move) => {
     console.log(move);
-    serverIO.to(opponentId).emit(move);
+    serverIO.to(move.roomId).emit("opponentMove", move.move);
 }
-
-const onDisconnect = () => {
-    // gameSocket.
-}
-
 exports.initializeConnection = initializeConnection
