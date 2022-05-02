@@ -1,24 +1,93 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Chessboard } from "react-chessboard";
+import { useEffect, useRef, useState } from "react";
+import { Chess } from 'chess.js';
+import { io, Socket } from "socket.io-client";
+// const URL = 'http://localhost:3001';
+const URL = "";
 
-function App() {
+
+const App = () => {
+  const [game, setGame] = useState(new Chess());
+  const [roomCode, setRoomCode] = useState<string>("");
+  const [response, setResponse] = useState("");
+  const [gameOn, setGameOn] = useState(false);
+  const socketRef = useRef<Socket>();
+
+  useEffect(() => {
+    socketRef.current = io(URL, {
+      transports: ['websocket'],
+      forceNew: true
+    });
+    const {current: socket} = socketRef;
+
+    socket.on("FromAPI", data => {
+      setResponse(data);
+    });
+
+    socketRef.current?.on("createRoom", data => {
+      setRoomCode(data);
+    });
+
+    socketRef.current?.on("startGame", data => {
+      setGameOn(true);
+      setGame(new Chess())
+    })
+
+    return () => { socket.disconnect(); };
+  }, []);
+
+  useEffect(()=>{
+    socketRef.current?.on("opponentMove", data => {
+      safeGameMutate((game: any) => {
+        game.move(data);
+      });
+      console.log("received move", data)
+    });
+  }, [game, gameOn])
+
+  function safeGameMutate(modify: any) {
+    setGame((g: any) => {
+      const update = { ...g };
+      modify(update);
+      return update;
+    });
+  }
+
+  function onDrop(sourceSquare: any, targetSquare: any) {
+    console.log("will move")
+    let move = null;
+    let moveData = {
+      from: sourceSquare,
+      to: targetSquare,
+      promotion: "q",
+    }
+    if (gameOn) {
+      safeGameMutate((game: any) => {
+        move = game.move(moveData);
+      });
+    }
+
+    if (move === null) return false; // illegal move
+    else {
+      socketRef.current?.emit("sendMove", {
+        move: moveData,
+        roomId: roomCode,
+      });
+      return true;
+    }
+  }
+  const handleRoomCodeChange = (event: { target: { value: string }}) => {
+      setRoomCode(event.target.value)
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <p>Current date: {response}</p>
+      <button onClick={() => {socketRef.current?.emit("createGame", roomCode)}}>Create Game</button>
+      <p>Your room code: {roomCode}</p>
+      <input type="text" placeholder="Enter Room Code" onChange={handleRoomCodeChange}></input>
+      <button onClick={() => {socketRef.current?.emit("joinGame", roomCode)}}>join</button>
+       <Chessboard position={game.fen()} onPieceDrop={onDrop}/>
     </div>
   );
 }
