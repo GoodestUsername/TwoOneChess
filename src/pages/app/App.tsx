@@ -12,7 +12,14 @@ const App = () => {
   const [response, setResponse] = useState("");
   const [gameOn, setGameOn] = useState(false);
   const socketRef = useRef<Socket>();
+  var wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
 
+  var stockfish = new Worker('stockfish.js');
+  stockfish.addEventListener('message', function (e) {
+    console.log(e.data);
+  });
+
+  stockfish.postMessage('uci');
   useEffect(() => {
     socketRef.current = io(URL, {
       transports: ['websocket'],
