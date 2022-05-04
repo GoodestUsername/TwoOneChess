@@ -10,47 +10,52 @@ const App = () => {
   const [game, setGame] = useState(new Chess());
   const [roomCode, setRoomCode] = useState<string>("");
   const [response, setResponse] = useState("");
-  const [gameOn, setGameOn] = useState(false);
-  const socketRef = useRef<Socket>();
-  var wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+  const [gameOn, setGameOn] = useState(true);
+  // const socketRef = useRef<Socket>();
 
-  var stockfish = new Worker('stockfish.js');
-  stockfish.addEventListener('message', function (e) {
-    console.log(e.data);
-  });
 
-  stockfish.postMessage('uci');
   useEffect(() => {
-    socketRef.current = io(URL, {
-      transports: ['websocket'],
-      forceNew: true
+    var stockfish = new Worker('stockfish.js');
+    stockfish.addEventListener('message', function (e) {
+      console.log(e.data);
     });
-    const {current: socket} = socketRef;
+  
+    // stockfish.postMessage('uci');
+    stockfish.postMessage(`position fen ${game.fen()}`);
+    stockfish.postMessage('setoption name Skill Level value 0')
+    stockfish.postMessage('go depth 10');
+    // stockfish.postMessage('eval');
+    // stockfish.postMessage('position startpos moves' + game.moves());
+    // socketRef.current = io(URL, {
+    //   transports: ['websocket'],
+    //   forceNew: true
+    // });
+    // const {current: socket} = socketRef;
 
-    socket.on("FromAPI", data => {
-      setResponse(data);
-    });
+    // socket.on("FromAPI", data => {
+    //   setResponse(data);
+    // });
 
-    socketRef.current?.on("createRoom", data => {
-      setRoomCode(data);
-    });
+    // socketRef.current?.on("createRoom", data => {
+    //   setRoomCode(data);
+    // });
 
-    socketRef.current?.on("startGame", data => {
-      setGameOn(true);
-      setGame(new Chess())
-    })
+    // socketRef.current?.on("startGame", data => {
+    //   setGameOn(true);
+    //   setGame(new Chess())
+    // })
 
-    return () => { socket.disconnect(); };
-  }, []);
+    // return () => { socket.disconnect(); };
+  }, [game]);
 
-  useEffect(()=>{
-    socketRef.current?.on("opponentMove", data => {
-      safeGameMutate((game: any) => {
-        game.move(data);
-      });
-      console.log("received move", data)
-    });
-  }, [game, gameOn])
+  // useEffect(()=>{
+  //   socketRef.current?.on("opponentMove", data => {
+  //     safeGameMutate((game: any) => {
+  //       game.move(data);
+  //     });
+  //     console.log("received move", data)
+  //   });
+  // }, [game, gameOn])
 
   function safeGameMutate(modify: any) {
     setGame((g: any) => {
@@ -76,10 +81,10 @@ const App = () => {
 
     if (move === null) return false; // illegal move
     else {
-      socketRef.current?.emit("sendMove", {
-        move: moveData,
-        roomId: roomCode,
-      });
+      // socketRef.current?.emit("sendMove", {
+      //   move: moveData,
+      //   roomId: roomCode,
+      // });
       return true;
     }
   }
@@ -88,13 +93,20 @@ const App = () => {
   }
 
   return (
-    <div className="App">
-      <p>Current date: {response}</p>
-      <button onClick={() => {socketRef.current?.emit("createGame", roomCode)}}>Create Game</button>
-      <p>Your room code: {roomCode}</p>
-      <input type="text" placeholder="Enter Room Code" onChange={handleRoomCodeChange}></input>
-      <button onClick={() => {socketRef.current?.emit("joinGame", roomCode)}}>join</button>
-       <Chessboard position={game.fen()} onPieceDrop={onDrop}/>
+    <div className="App container">
+      <div className="row align-items-center">
+        <div className="col">
+          <div className="col-1">
+          <p>Current date: {response}</p>
+            {/* <button onClick={() => {socketRef.current?.emit("createGame", roomCode)}}>Create Game</button> */}
+            <p>Your room code: {roomCode}</p>
+            <input type="text" placeholder="Enter Room Code" onChange={handleRoomCodeChange}></input>
+            {/* <button onClick={() => {socketRef.current?.emit("joinGame", roomCode)}}>join</button> */}
+            <Chessboard position={game.fen()} onPieceDrop={onDrop}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
