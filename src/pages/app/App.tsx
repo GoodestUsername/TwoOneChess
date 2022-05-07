@@ -5,8 +5,8 @@ import { io, Socket } from "socket.io-client";
 import { CalculatedMove } from "features/workers/stockfish";
 import { ShortMove } from "chess.js";
 import UciEngineWorker from "features/workers/stockfish";
-// const URL = 'http://localhost:3001';
-const URL = "";
+const URL = 'http://localhost:3001';
+// const URL = "";
 
 type MoveWithAssignment = {
   move: ShortMove,
@@ -34,62 +34,58 @@ const App = () => {
   const [secondCalculatedMove, setSecondCalculatedMove] = useState<MoveWithAssignment>(null);
   const [thirdCalculatedMove,  setThirdCalculatedMove]  = useState<MoveWithAssignment>(null);
   const stockfishRef = useRef<UciEngineWorker>();
-  // const socketRef = useRef<Socket>();
+  const socketRef = useRef<Socket>();
 
   useEffect(() => {
     stockfishRef.current = new UciEngineWorker("stockfish.js");  
-    // socketRef.current = io(URL, {
-    //   transports: ['websocket'],
-    //   forceNew: true
-    // });
-    // const {current: socket} = socketRef;
+    socketRef.current = io(URL, {
+      transports: ['websocket'],
+      forceNew: true
+    });
+    const {current: socket} = socketRef;
 
-    // socket.on("FromAPI", data => {
-    //   setResponse(data);
-    // });
+    socket.on("FromAPI", data => {
+      setResponse(data);
+    });
 
-    // socketRef.current?.on("createRoom", data => {
-    //   setRoomCode(data);
-    // });
+    socketRef.current?.on("createRoom", data => {
+      setRoomCode(data);
+    });
 
-    // socketRef.current?.on("startGame", data => {
-    //   setGameOn(true);
-    //   setGame(new Chess())
-    // })
+    socketRef.current?.on("startGame", data => {
+      setGameOn(true);
+      setGame(new Chess())
+    })
 
-    // return () => { socket.disconnect(); };
+    return () => { socket.disconnect(); };
   }, [])
-  useEffect(() => {
+
+  useEffect(()=>{
+    socketRef.current?.on("opponentMove", data => {
+      safeGameMutate((game: any) => {
+        game.move(data);
+      });
+      stockfishRef.current?.addMoveToHistory(data)
+      console.log("received move", data)
+    });
+  }, [game, gameOn])
+
+  function calculateMoves() {
     stockfishRef.current?.getMoves().then(({allMoves, bestMove}: any) => {
-        let availableMoves = game.moves({verbose: true});
-        let randomlySelectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
-        let calculatedBestMove: MoveWithAssignment = {move: bestMove, assignment: MoveAssignment.best};
-        let randomCalculatedMove: MoveWithAssignment = {move: allMoves[Math.floor(Math.random() * allMoves.length)].move, assignment: MoveAssignment.best};
-        let randomMove: MoveWithAssignment = {
-          move: randomlySelectedMove,
-          assignment: MoveAssignment.random
-        };
-        setFirstCalculatedMove(calculatedBestMove);
-        setSecondCalculatedMove(randomCalculatedMove);
-        setThirdCalculatedMove(randomMove);
-        // console.log(game.moves());
-        // console.log(moves)
-        // get game history from class property later
-        console.log(bestMove)
-        // console.log("asd")
-      }
-    )
-  }, [game]);
-
-  // useEffect(()=>{
-  //   socketRef.current?.on("opponentMove", data => {
-  //     safeGameMutate((game: any) => {
-  //       game.move(data);
-  //     });
-  //     console.log("received move", data)
-  //   });
-  // }, [game, gameOn])
-
+      let availableMoves = game.moves({verbose: true});
+      let randomlySelectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+      let calculatedBestMove: MoveWithAssignment = {move: bestMove, assignment: MoveAssignment.best};
+      let randomCalculatedMove: MoveWithAssignment = {move: allMoves[Math.floor(Math.random() * allMoves.length)].move, assignment: MoveAssignment.best};
+      let randomMove: MoveWithAssignment = {
+        move: randomlySelectedMove,
+        assignment: MoveAssignment.random
+      };
+      setFirstCalculatedMove(calculatedBestMove);
+      setSecondCalculatedMove(randomCalculatedMove);
+      setThirdCalculatedMove(randomMove);
+    }
+  )
+  }
   function safeGameMutate(modify: any) {
     setGame((g: any) => {
       const update = { ...g };
@@ -142,10 +138,10 @@ const App = () => {
     if (move === null) return false; // illegal move
     else {
       stockfishRef.current?.addMoveToHistory(move);
-      // socketRef.current?.emit("sendMove", {
-      //   move: moveData,
-      //   roomId: roomCode,
-      // });
+      socketRef.current?.emit("sendMove", {
+        move: moveData,
+        roomId: roomCode,
+      });
       return true;
     }
   }
@@ -166,33 +162,39 @@ const App = () => {
             <button 
               value={"Calculating"}
               onClick={() => {
-                if (game && firstCalculatedMove) 
-                safeGameMutate((game: any) => {
-                  game.move(firstCalculatedMove.move);
-                })
+                if (game && firstCalculatedMove) {
+                  stockfishRef.current?.addMoveToHistory(firstCalculatedMove.move)
+                  safeGameMutate((game: any) => {
+                    game.move(firstCalculatedMove.move);
+                  })
+                }
               }
             }>{firstCalculatedMove?.move.from}{firstCalculatedMove?.move.to}</button>
             <button 
               value={"Calculating"}
               onClick={() => {
-                if (game && secondCalculatedMove)
-                safeGameMutate((game: any) => {
-                  game.move(secondCalculatedMove.move);
-                })
+                if (game && secondCalculatedMove) {
+                  stockfishRef.current?.addMoveToHistory(secondCalculatedMove.move)
+                  safeGameMutate((game: any) => {
+                    game.move(secondCalculatedMove.move);
+                  })
+                }
               }
             }>{secondCalculatedMove?.move.from}{secondCalculatedMove?.move.to}</button>
             <button 
               value={"Calculating"}
               onClick={() => {
-                if (game && thirdCalculatedMove) 
-                safeGameMutate((game: any) => {
-                  game.move(thirdCalculatedMove.move);
-                })
+                if (game && thirdCalculatedMove) {
+                  stockfishRef.current?.addMoveToHistory(thirdCalculatedMove.move)
+                  safeGameMutate((game: any) => {
+                    game.move(thirdCalculatedMove.move);
+                  })
+                }
               }
             }>{thirdCalculatedMove?.move.from}{thirdCalculatedMove?.move.to}</button>
             <Chessboard
               // customSquareStyles =    {{"e1": {fontWeight: "bold"}}}
-              customArrows={ [ ['a3', 'a5'], ['g1', 'f3'] ]}
+              // customArrows={ [ ['a3', 'a5'], ['g1', 'f3'] ]}
               customDropSquareStyle = {{boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'}}
               customArrowColor =      {"rgb(255,170,0)"} 
               customDarkSquareStyle=  {{ backgroundColor: '#B58863' }}
