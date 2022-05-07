@@ -4,6 +4,10 @@ export type CalculatedMove = {
     cp: number
 }
 
+const shortMoveToString = (move: ShortMove) => {
+    return move.from + move.to + (move.promotion || "")
+}
+
 class UciEngineWorker {
     worker: Worker;
     moves: CalculatedMove[] = []
@@ -24,17 +28,22 @@ class UciEngineWorker {
             let move  = e.data.match(/pv ([a-h][1-8])([a-h][1-8])([qrbn])?/);
             let cp    = e.data.match(/cp ([0-9]+)?/);
           if (move) {
-              _self.moves.push({move: {from: move[1], to: move[2]}, cp: parseInt(cp[1])})
+              _self.moves.push({move: {from: move[1], to: move[2], promotion: move[3]}, cp: parseInt(cp[1])})
           }
           if (best && _self.resolver) {
+              console.log(best)
             _self.resolver(_self.moves);
             _self.resolver = null;
             _self.moves = [];
           }
           });
     }
+    
+    addMoveToHistory(move: ShortMove) {
+        this.moveHistory += " " + shortMoveToString(move);
+    }
 
-    async getMoves() {
+    getMoves() {
         //  this.worker.postMessage('uci');
         //  this.worker.postMessage(`position fen ${game.fen()}`);
         //  this.worker.postMessage('setoption name Skill Level value 0');
@@ -48,7 +57,10 @@ class UciEngineWorker {
             this.resolver = resolve;
             this.worker.postMessage('setoption name MultiPV value 3');
             // this.worker.postMessage('setoption name Use NNUE value true');
-            this.worker.postMessage(`position startpos moves`);
+            let positionMessage = "position startpos moves"
+            if (this.moveHistory) positionMessage += this.moveHistory
+            console.log(positionMessage)
+            this.worker.postMessage(positionMessage);
             //  this.worker.postMessage('eval');
             //  this.worker.postMessage('position startpos moves' + game.moves());
             this.worker.postMessage('go movetime 1000');

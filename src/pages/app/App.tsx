@@ -33,58 +33,11 @@ const App = () => {
   const [firstCalculatedMove,  setFirstCalculatedMove]  = useState<MoveWithAssignment>(null);
   const [secondCalculatedMove, setSecondCalculatedMove] = useState<MoveWithAssignment>(null);
   const [thirdCalculatedMove,  setThirdCalculatedMove]  = useState<MoveWithAssignment>(null);
-  // const stockfish = useRef<UciEngineWorker>();
+  const stockfishRef = useRef<UciEngineWorker>();
   // const socketRef = useRef<Socket>();
 
-
   useEffect(() => {
-    // var stockfish = new Worker('stockfish.js');
-    // var stuff = "";
-    // var moves: { move: { from: any; to: any; }; cp: any; }[] = []
-    // stockfish.addEventListener('message', function (e) {  
-    //   var best  = e.data.match(/^bestmove ([a-h][1-8])([a-h][1-8])([qrbn])?/);
-    //   var move  = e.data.match(/pv ([a-h][1-8])([a-h][1-8])([qrbn])?/);
-    //   var cp    = e.data.match(/cp ([0-9]+)?/);
-    //   var match = e.data.match(/^bestmove ([a-h][1-8])([a-h][1-8])([qrbn])?/);
-    //   if (move) moves.push({move: {from: move[1], to: move[2]}, cp: cp[1]})
-    //   // console.log(`${best}`)
-
-    //   // console.log(e.data);
-    // });
-    var stockfish = new UciEngineWorker("stockfish.js");  
-    console.log("asd")
-    // let moves;
-    stockfish.getMoves().then((moves: CalculatedMove[] | any) => {
-        // moves = stockfish.moves;
-        let sortedMoves = moves.sort((a: CalculatedMove, b: CalculatedMove) => b.cp - a.cp)
-        let availableMoves = game.moves({verbose: true});
-        let randomlySelectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)]
-        let bestMove: MoveWithAssignment = {move: sortedMoves[0].move, assignment: MoveAssignment.best};
-        let middleMove: MoveWithAssignment = {move: sortedMoves[sortedMoves.length - 1].move, assignment: MoveAssignment.best};
-        let randomMove: MoveWithAssignment = {
-          move: randomlySelectedMove,
-          assignment: MoveAssignment.random
-        }
-        setFirstCalculatedMove(bestMove)
-        setSecondCalculatedMove(middleMove)
-        setThirdCalculatedMove(randomMove)
-        console.log(moves)
-        console.log(bestMove)
-        console.log("asd")
-      }
-    )
-    // stockfish.postMessage('uci');
-    // stockfish.postMessage(`position fen ${game.fen()}`);
-    // stockfish.postMessage(`position startpos moves`);
-    // stockfish.postMessage('setoption name Skill Level value 0');
-    // stockfish.postMessage('setoption name MultiPV value 3');
-    // stockfish.postMessage('setoption name Use NNUE value true');
-    // stockfish.postMessage('go depth 10');
-    // stockfish.postMessage('go movetime 1000');
-    // console.log(`unsorted: ${moves}`)
-    // console.log("sorted: " + moves.sort((a, b) => parseInt(a.cp) - parseInt(b.cp)))
-    // stockfish.postMessage('eval');
-    // stockfish.postMessage('position startpos moves' + game.moves());
+    stockfishRef.current = new UciEngineWorker("stockfish.js");  
     // socketRef.current = io(URL, {
     //   transports: ['websocket'],
     //   forceNew: true
@@ -105,6 +58,28 @@ const App = () => {
     // })
 
     // return () => { socket.disconnect(); };
+  }, [])
+  useEffect(() => {
+    stockfishRef.current?.getMoves().then((moves: CalculatedMove[] | any) => {
+        let sortedMoves = moves.sort((a: CalculatedMove, b: CalculatedMove) => b.cp - a.cp);
+        let availableMoves = game.moves({verbose: true});
+        let randomlySelectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+        let bestMove: MoveWithAssignment = {move: sortedMoves[0].move, assignment: MoveAssignment.best};
+        let middleMove: MoveWithAssignment = {move: sortedMoves[sortedMoves.length - 1].move, assignment: MoveAssignment.best};
+        let randomMove: MoveWithAssignment = {
+          move: randomlySelectedMove,
+          assignment: MoveAssignment.random
+        };
+        setFirstCalculatedMove(bestMove);
+        setSecondCalculatedMove(middleMove);
+        setThirdCalculatedMove(randomMove);
+        // console.log(game.moves());
+        // console.log(moves)
+        // get game history from class property later
+        console.log(bestMove)
+        // console.log("asd")
+      }
+    )
   }, [game]);
 
   // useEffect(()=>{
@@ -123,14 +98,42 @@ const App = () => {
       return update;
     });
   }
-
+  function isPromoting(fen: string, move: ShortMove): boolean {
+    // @author: varunpvp
+    // @from  : https://github.com/jhlywa/chess.js/issues/131
+    const chess = new Chess(fen);
+  
+    const piece = chess.get(move.from);
+  
+    if (piece?.type !== "p") {
+      return false;
+    }
+  
+    if (piece.color !== chess.turn()) {
+      return false;
+    }
+  
+    if (!["1", "8"].some((it) => move.to.endsWith(it))) {
+      return false;
+    }
+  
+    return chess
+      .moves({ square: move.from, verbose: true })
+      .map((it) => it.to)
+      .includes(move.to);
+  }
+  
   function onDrop(sourceSquare: Square, targetSquare: Square) {
     let move = null;
-    let moveData = {
+    let moveData: ShortMove = {
       from: sourceSquare,
       to: targetSquare,
-      promotion: "q",
+      promotion: undefined,
     }
+    if (isPromoting(game.fen(), moveData)) { moveData.promotion = "q" }
+    console.log("moveData")
+    console.log(isPromoting(game.fen(), moveData))
+    console.log(moveData)
     if (gameOn) {
       safeGameMutate((game: any) => {
         move = game.move(moveData);
@@ -139,6 +142,7 @@ const App = () => {
 
     if (move === null) return false; // illegal move
     else {
+      stockfishRef.current?.addMoveToHistory(move);
       // socketRef.current?.emit("sendMove", {
       //   move: moveData,
       //   roomId: roomCode,
@@ -163,13 +167,30 @@ const App = () => {
             <button 
               value={"Calculating"}
               onClick={() => {
+                if (game && firstCalculatedMove) 
                 safeGameMutate((game: any) => {
-                  if (game && firstCalculatedMove) game.move(firstCalculatedMove.move);
+                  game.move(firstCalculatedMove.move);
                 })
               }
-            }>{firstCalculatedMove?.move.from}</button>
-            <button value={"Calculating"}>{secondCalculatedMove?.move.from}</button>
-            <button value={"Calculating"}>{thirdCalculatedMove?.move.from}</button>
+            }>{firstCalculatedMove?.move.from}{firstCalculatedMove?.move.to}</button>
+            <button 
+              value={"Calculating"}
+              onClick={() => {
+                if (game && secondCalculatedMove)
+                safeGameMutate((game: any) => {
+                  game.move(secondCalculatedMove.move);
+                })
+              }
+            }>{secondCalculatedMove?.move.from}{secondCalculatedMove?.move.to}</button>
+            <button 
+              value={"Calculating"}
+              onClick={() => {
+                if (game && thirdCalculatedMove) 
+                safeGameMutate((game: any) => {
+                  game.move(thirdCalculatedMove.move);
+                })
+              }
+            }>{thirdCalculatedMove?.move.from}{thirdCalculatedMove?.move.to}</button>
             <Chessboard
               // customSquareStyles =    {{"e1": {fontWeight: "bold"}}}
               customArrows={ [ ['a3', 'a5'], ['g1', 'f3'] ]}
