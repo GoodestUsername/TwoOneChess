@@ -22,17 +22,17 @@ const initializeConnection = (io, client) => {
     gameSocket.on("joinGame", onJoinGame);
 
     // send move to clients
-    gameSocket.on("sendMove",onSendMove);
+    gameSocket.on("sendMove", onSendMove);
 }
 
 // const onCreateGame = () => {
 //     this.join(gameSocket.id);
 //     this.emit("createRoom", gameSocket.id);
 // }
-function onCreateGame() {
-    this.join(this.id)
+function onCreateGame(gameRoom) {
+    this.join(gameRoom)
     // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
-    this.emit('createRoom', this.id);
+    this.emit('createRoom', gameRoom);
 
     // Join the Room and wait for the other player
 
@@ -41,13 +41,11 @@ function onCreateGame() {
 function onJoinGame(roomCode) {
     this.join(roomCode);
 
-    var room = serverIO.sockets.adapter.rooms[roomCode]
     serverIO.to(roomCode).emit("startGame")
     console.log("joined game");
 }
 
-const onSendMove = (move) => {
-    console.log(move);
-    serverIO.to(move.roomId).emit("opponentMove", move.move);
+function onSendMove(move_info) {
+    this.to(move_info.roomId).emit("opponentMove", move_info.move);
 }
 exports.initializeConnection = initializeConnection
