@@ -5,6 +5,7 @@ import { io, Socket } from "socket.io-client";
 import { CalculatedMove } from "features/workers/stockfish";
 import { ShortMove } from "chess.js";
 import UciEngineWorker from "features/workers/stockfish";
+import { v4 as uuidv4 } from 'uuid';
 const URL = 'http://localhost:3001';
 // const URL = "";
 
@@ -29,7 +30,7 @@ const App = () => {
   const [game, setGame] = useState(new Chess());
   const [roomCode, setRoomCode] = useState<string>("");
   const [response, setResponse] = useState("");
-  const [gameOn, setGameOn] = useState(true);
+  const [gameOn, setGameOn] = useState(false);
   const [firstCalculatedMove,  setFirstCalculatedMove]  = useState<MoveWithAssignment>(null);
   const [secondCalculatedMove, setSecondCalculatedMove] = useState<MoveWithAssignment>(null);
   const [thirdCalculatedMove,  setThirdCalculatedMove]  = useState<MoveWithAssignment>(null);
@@ -54,38 +55,36 @@ const App = () => {
 
     socketRef.current?.on("startGame", data => {
       setGameOn(true);
-      setGame(new Chess())
+      setGame(new Chess());
     })
 
     return () => { socket.disconnect(); };
   }, [])
-
   useEffect(()=>{
     socketRef.current?.on("opponentMove", data => {
       safeGameMutate((game: any) => {
         game.move(data);
       });
       stockfishRef.current?.addMoveToHistory(data)
-      console.log("received move", data)
+      stockfishRef.current?.getMoves().then(({allMoves, bestMove}: any) => {
+        let availableMoves = game.moves({verbose: true});
+        let randomlySelectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+        let calculatedBestMove: MoveWithAssignment = {move: bestMove, assignment: MoveAssignment.best};
+        let randomCalculatedMove: MoveWithAssignment = {move: allMoves[Math.floor(Math.random() * allMoves.length)].move, assignment: MoveAssignment.best};
+        let randomMove: MoveWithAssignment = {
+          move: randomlySelectedMove,
+          assignment: MoveAssignment.random
+        };
+        setFirstCalculatedMove(calculatedBestMove);
+        setSecondCalculatedMove(randomCalculatedMove);
+        setThirdCalculatedMove(randomMove);
+      }).catch((msg) => {
+        console.log(msg)
+      })
     });
   }, [game, gameOn])
 
-  function calculateMoves() {
-    stockfishRef.current?.getMoves().then(({allMoves, bestMove}: any) => {
-      let availableMoves = game.moves({verbose: true});
-      let randomlySelectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
-      let calculatedBestMove: MoveWithAssignment = {move: bestMove, assignment: MoveAssignment.best};
-      let randomCalculatedMove: MoveWithAssignment = {move: allMoves[Math.floor(Math.random() * allMoves.length)].move, assignment: MoveAssignment.best};
-      let randomMove: MoveWithAssignment = {
-        move: randomlySelectedMove,
-        assignment: MoveAssignment.random
-      };
-      setFirstCalculatedMove(calculatedBestMove);
-      setSecondCalculatedMove(randomCalculatedMove);
-      setThirdCalculatedMove(randomMove);
-    }
-  )
-  }
+
   function safeGameMutate(modify: any) {
     setGame((g: any) => {
       const update = { ...g };
@@ -117,8 +116,8 @@ const App = () => {
       .map((it) => it.to)
       .includes(move.to);
   }
-  
-  function onDrop(sourceSquare: Square, targetSquare: Square) {
+
+  function handleMove(sourceSquare: Square, targetSquare: Square) {
     let move = null;
     let moveData: ShortMove = {
       from: sourceSquare,
@@ -126,9 +125,6 @@ const App = () => {
       promotion: undefined,
     }
     if (isPromoting(game.fen(), moveData)) { moveData.promotion = "q" }
-    console.log("moveData")
-    console.log(isPromoting(game.fen(), moveData))
-    console.log(moveData)
     if (gameOn) {
       safeGameMutate((game: any) => {
         move = game.move(moveData);
@@ -145,62 +141,63 @@ const App = () => {
       return true;
     }
   }
+
+
   const handleRoomCodeChange = (event: { target: { value: string }}) => {
       setRoomCode(event.target.value)
   }
 
   return (
-    <div className="App container">
-      <div className="row align-items-center">
-        <div className="col">
-          <div className="col-1">
+    <div className="App">
+      <div className="">
+        <div className="">
+          <div className="">
           <p>Current date: {response}</p>
-            {/* <button onClick={() => {socketRef.current?.emit("createGame", roomCode)}}>Create Game</button> */}
+            <button onClick={() => {socketRef.current?.emit("createGame", uuidv4())}}>Create Game</button>
             <p>Your room code: {roomCode}</p>
             <input type="text" placeholder="Enter Room Code" onChange={handleRoomCodeChange}></input>
-            {/* <button onClick={() => {socketRef.current?.emit("joinGame", roomCode)}}>join</button> */}
+            <button onClick={() => {socketRef.current?.emit("joinGame", roomCode)}}>join</button>
             <button 
-              value={"Calculating"}
               onClick={() => {
                 if (game && firstCalculatedMove) {
-                  stockfishRef.current?.addMoveToHistory(firstCalculatedMove.move)
-                  safeGameMutate((game: any) => {
-                    game.move(firstCalculatedMove.move);
-                  })
+                  handleMove(firstCalculatedMove.move.from, firstCalculatedMove.move.to );
                 }
               }
-            }>{firstCalculatedMove?.move.from}{firstCalculatedMove?.move.to}</button>
+            }>{"Calculating" || firstCalculatedMove?.move.from}{firstCalculatedMove?.move.to}</button>
             <button 
-              value={"Calculating"}
               onClick={() => {
                 if (game && secondCalculatedMove) {
-                  stockfishRef.current?.addMoveToHistory(secondCalculatedMove.move)
-                  safeGameMutate((game: any) => {
-                    game.move(secondCalculatedMove.move);
-                  })
+                  handleMove(secondCalculatedMove.move.from, secondCalculatedMove.move.to );
+
                 }
               }
-            }>{secondCalculatedMove?.move.from}{secondCalculatedMove?.move.to}</button>
+            }>{"Calculating" || secondCalculatedMove?.move.from}{secondCalculatedMove?.move.to}</button>
             <button 
-              value={"Calculating"}
               onClick={() => {
                 if (game && thirdCalculatedMove) {
-                  stockfishRef.current?.addMoveToHistory(thirdCalculatedMove.move)
-                  safeGameMutate((game: any) => {
-                    game.move(thirdCalculatedMove.move);
-                  })
+                  handleMove(thirdCalculatedMove.move.from, thirdCalculatedMove.move.to );
                 }
               }
-            }>{thirdCalculatedMove?.move.from}{thirdCalculatedMove?.move.to}</button>
-            <Chessboard
-              // customSquareStyles =    {{"e1": {fontWeight: "bold"}}}
-              // customArrows={ [ ['a3', 'a5'], ['g1', 'f3'] ]}
-              customDropSquareStyle = {{boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'}}
-              customArrowColor =      {"rgb(255,170,0)"} 
-              customDarkSquareStyle=  {{ backgroundColor: '#B58863' }}
-              customLightSquareStyle= {{ backgroundColor: '#F0D9B5' }}
-              position=               {game.fen()} onPieceDrop={onDrop}
-            />
+            }>{"Calculating" || thirdCalculatedMove?.move.from}{thirdCalculatedMove?.move.to}</button>
+            <div
+              style={{ 
+                display: 'flex', 
+                justifyContent: 'center '
+              }}>
+              <Chessboard
+                // customBoardStyle={
+
+                // }
+                // customSquareStyles =    {{"e1": {fontWeight: "bold"}}}
+                // customArrows={ [ ['a3', 'a5'], ['g1', 'f3'] ]}
+                customDropSquareStyle = {{boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'}}
+                customArrowColor =      {"rgb(255,170,0)"} 
+                customDarkSquareStyle=  {{ backgroundColor: '#B58863' }}
+                customLightSquareStyle= {{ backgroundColor: '#F0D9B5' }}
+                position=               {game.fen()} onPieceDrop={handleMove}
+              />
+            </div>
+
           </div>
         </div>
       </div>
