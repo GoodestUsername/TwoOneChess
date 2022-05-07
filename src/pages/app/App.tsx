@@ -60,18 +60,17 @@ const App = () => {
     // return () => { socket.disconnect(); };
   }, [])
   useEffect(() => {
-    stockfishRef.current?.getMoves().then((moves: CalculatedMove[] | any) => {
-        let sortedMoves = moves.sort((a: CalculatedMove, b: CalculatedMove) => b.cp - a.cp);
+    stockfishRef.current?.getMoves().then(({allMoves, bestMove}: any) => {
         let availableMoves = game.moves({verbose: true});
         let randomlySelectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
-        let bestMove: MoveWithAssignment = {move: sortedMoves[0].move, assignment: MoveAssignment.best};
-        let middleMove: MoveWithAssignment = {move: sortedMoves[sortedMoves.length - 1].move, assignment: MoveAssignment.best};
+        let calculatedBestMove: MoveWithAssignment = {move: bestMove, assignment: MoveAssignment.best};
+        let randomCalculatedMove: MoveWithAssignment = {move: allMoves[Math.floor(Math.random() * allMoves.length)].move, assignment: MoveAssignment.best};
         let randomMove: MoveWithAssignment = {
           move: randomlySelectedMove,
           assignment: MoveAssignment.random
         };
-        setFirstCalculatedMove(bestMove);
-        setSecondCalculatedMove(middleMove);
+        setFirstCalculatedMove(calculatedBestMove);
+        setSecondCalculatedMove(randomCalculatedMove);
         setThirdCalculatedMove(randomMove);
         // console.log(game.moves());
         // console.log(moves)

@@ -12,7 +12,7 @@ class UciEngineWorker {
     worker: Worker;
     moves: CalculatedMove[] = []
     moveHistory: string;
-    resolver: ((value: CalculatedMove[]) => void) | null 
+    resolver: (({allMoves, bestMove}: {allMoves: CalculatedMove[], bestMove: ShortMove}) => void) | null 
 
     constructor(file: string) {
         this.worker = new Worker(file);
@@ -31,8 +31,9 @@ class UciEngineWorker {
               _self.moves.push({move: {from: move[1], to: move[2], promotion: move[3]}, cp: parseInt(cp[1])})
           }
           if (best && _self.resolver) {
-              console.log(best)
-            _self.resolver(_self.moves);
+            console.log(best)
+            let bestMove: ShortMove = { from: best[1], to: best[2], promotion: best[3]}
+            _self.resolver({allMoves:_self.moves, bestMove: bestMove});
             _self.resolver = null;
             _self.moves = [];
           }
