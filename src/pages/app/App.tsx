@@ -2,10 +2,11 @@ import { Chessboard } from "react-chessboard";
 import { useEffect, useRef, useState } from "react";
 import { Chess, Square } from 'chess.js';
 import { io, Socket } from "socket.io-client";
-import { CalculatedMove } from "features/workers/stockfish";
 import { ShortMove } from "chess.js";
 import UciEngineWorker from "features/workers/stockfish";
+import { shortMoveToString } from "features/workers/stockfish";
 import { v4 as uuidv4 } from 'uuid';
+import ConfirmButton from "features/components/confirmationButton";
 const URL = 'http://localhost:3001';
 // const URL = "";
 
@@ -75,6 +76,7 @@ const App = () => {
           move: randomlySelectedMove,
           assignment: MoveAssignment.random
         };
+        console.log(bestMove);
         setFirstCalculatedMove(calculatedBestMove);
         setSecondCalculatedMove(randomCalculatedMove);
         setThirdCalculatedMove(randomMove);
@@ -83,6 +85,7 @@ const App = () => {
       })
     });
   }, [game, gameOn])
+// }, [game])
 
 
   function safeGameMutate(modify: any) {
@@ -116,32 +119,37 @@ const App = () => {
       .map((it) => it.to)
       .includes(move.to);
   }
-
-  function handleMove(sourceSquare: Square, targetSquare: Square) {
-    let move = null;
-    let moveData: ShortMove = {
-      from: sourceSquare,
-      to: targetSquare,
-      promotion: undefined,
-    }
-    if (isPromoting(game.fen(), moveData)) { moveData.promotion = "q" }
-    if (gameOn) {
-      safeGameMutate((game: any) => {
-        move = game.move(moveData);
-      });
-    }
-
-    if (move === null) return false; // illegal move
-    else {
-      stockfishRef.current?.addMoveToHistory(move);
-      socketRef.current?.emit("sendMove", {
-        move: moveData,
-        roomId: roomCode,
-      });
-      return true;
-    }
+  function onDrop(sourceSquare: Square, targetSquare: Square) {
+    return handleMove({from: sourceSquare, to: targetSquare})
   }
+  function handleMove(inputtedMove: ShortMove) {
+    if (gameOn) {
+      let move = null;
+      let moveData: ShortMove = {
+        from: inputtedMove.from,
+        to: inputtedMove.to,
+        promotion: undefined,
+      }
+      // check for promotion, and set to queen for simplicity
+      if (isPromoting(game.fen(), moveData)) { moveData.promotion = "q" }
 
+      // check if move is valid
+      if (safeGameMutate((game: any) => { 
+        move = game.move(moveData);
+        return move;
+      }) === null) return false; // illegal move, return false
+      else {
+        stockfishRef.current?.addMoveToHistory(moveData);
+        console.log("sending move")
+        socketRef.current?.emit("sendMove", {
+          move: moveData,
+          roomId: roomCode,
+        });
+        return true;
+      }
+    }
+    return false;
+  }
 
   const handleRoomCodeChange = (event: { target: { value: string }}) => {
       setRoomCode(event.target.value)
@@ -152,19 +160,24 @@ const App = () => {
       <div className="">
         <div className="">
           <div className="">
-          <p>Current date: {response}</p>
+            <p>Current date: {response}</p>
             <button onClick={() => {socketRef.current?.emit("createGame", uuidv4())}}>Create Game</button>
             <p>Your room code: {roomCode}</p>
             <input type="text" placeholder="Enter Room Code" onChange={handleRoomCodeChange}></input>
             <button onClick={() => {socketRef.current?.emit("joinGame", roomCode)}}>join</button>
-            <button 
+            <ConfirmButton
+              defaultText     ={ "Calculating" }
+              buttonText      ={ shortMoveToString(firstCalculatedMove?.move) }
+              submissionValue ={ firstCalculatedMove?.move }
+              onClickEvent    ={ handleMove }/>
+            {/* <button
               onClick={() => {
                 if (game && firstCalculatedMove) {
                   handleMove(firstCalculatedMove.move.from, firstCalculatedMove.move.to );
                 }
               }
-            }>{"Calculating" || firstCalculatedMove?.move.from}{firstCalculatedMove?.move.to}</button>
-            <button 
+            }>{"Calculating" || firstCalculatedMove?.move.from}{firstCalculatedMove?.move.to}</button> */}
+            {/* <button 
               onClick={() => {
                 if (game && secondCalculatedMove) {
                   handleMove(secondCalculatedMove.move.from, secondCalculatedMove.move.to );
@@ -178,7 +191,7 @@ const App = () => {
                   handleMove(thirdCalculatedMove.move.from, thirdCalculatedMove.move.to );
                 }
               }
-            }>{"Calculating" || thirdCalculatedMove?.move.from}{thirdCalculatedMove?.move.to}</button>
+            }>{"Calculating" || thirdCalculatedMove?.move.from}{thirdCalculatedMove?.move.to}</button> */}
             <div
               style={{ 
                 display: 'flex', 
@@ -194,10 +207,9 @@ const App = () => {
                 customArrowColor =      {"rgb(255,170,0)"} 
                 customDarkSquareStyle=  {{ backgroundColor: '#B58863' }}
                 customLightSquareStyle= {{ backgroundColor: '#F0D9B5' }}
-                position=               {game.fen()} onPieceDrop={handleMove}
+                position=               {game.fen()} onPieceDrop={onDrop}
               />
             </div>
-
           </div>
         </div>
       </div>

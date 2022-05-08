@@ -4,8 +4,13 @@ export type CalculatedMove = {
     cp: number
 }
 
-const shortMoveToString = (move: ShortMove) => {
-    return move.from + move.to + (move.promotion || "")
+export const shortMoveToString = (move: ShortMove | undefined) => {
+    if (move) {
+        return move.from + move.to + (move.promotion || "")
+    } 
+    else {
+        return ""
+    }
 }
 
 class UciEngineWorker {
