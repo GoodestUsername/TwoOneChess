@@ -29,12 +29,16 @@ class MoveAssignment {
 
 const App = () => {
   const [game, setGame] = useState(new Chess());
-  const [roomCode, setRoomCode] = useState<string>("");
-  const [response, setResponse] = useState("");
   const [gameOn, setGameOn] = useState(false);
+
   const [firstCalculatedMove,  setFirstCalculatedMove]  = useState<MoveWithAssignment>(null);
   const [secondCalculatedMove, setSecondCalculatedMove] = useState<MoveWithAssignment>(null);
   const [thirdCalculatedMove,  setThirdCalculatedMove]  = useState<MoveWithAssignment>(null);
+
+  const [roomCode, setRoomCode] = useState<string>("");
+  const [response, setResponse] = useState("");
+  const [botMovePreviews, setBotMovePreviews] = useState<string[]>(["", ""]);
+
   const stockfishRef = useRef<UciEngineWorker>();
   const socketRef = useRef<Socket>();
 
@@ -141,6 +145,9 @@ const App = () => {
       }) === null) return false; // illegal move, return false
       else {
         console.log("sending move")
+        setFirstCalculatedMove(null);
+        setSecondCalculatedMove(null);
+        setThirdCalculatedMove(null);
         socketRef.current?.emit("sendMove", {
           moveData: moveData,
           moveHistory: stockfishRef.current?.moveHistory + " " + shortMoveToString(moveData),
@@ -170,17 +177,38 @@ const App = () => {
 
             <section>
               <ConfirmButton
-                defaultText     ={ "Calculating" }
-                buttonText      ={ shortMoveToString(firstCalculatedMove?.move) }
-                onClickEvent    ={ () => {if (firstCalculatedMove?.move) handleMove(firstCalculatedMove?.move)} }/>
+                defaultText    = { "Calculating" }
+                isBtnDisabled  = { (disabledSetter: Function) => {disabledSetter(firstCalculatedMove === null)}}
+                buttonText     = { shortMoveToString(firstCalculatedMove?.move) }
+                onClickInitial = { () => { console.log("Preview first move") }}
+                // onClickInitial = { () => { if (firstCalculatedMove !== null) setBotMovePreviews([
+                //   firstCalculatedMove?.move.from,
+                //   firstCalculatedMove?.move.to
+                // ]) }}
+                onClickConfirm = { () => { if (firstCalculatedMove?.move) handleMove(firstCalculatedMove?.move)}}
+                onClickCancel  = { () => { console.log("Preview first cancelled")}} />
               <ConfirmButton
-                defaultText     ={ "Calculating" }
-                buttonText      ={ shortMoveToString(secondCalculatedMove?.move) }
-                onClickEvent    ={ () => {if (secondCalculatedMove?.move) handleMove(secondCalculatedMove?.move)} }/>
+                defaultText    = { "Calculating" }
+                isBtnDisabled  = { (disabledSetter: Function) => {disabledSetter(secondCalculatedMove === null)}}
+                buttonText     = { shortMoveToString(secondCalculatedMove?.move) }
+                onClickInitial = { () => { console.log("Preview second move") }}
+                // onClickInitial = { () => { if (secondCalculatedMove !== null) setBotMovePreviews([
+                //   secondCalculatedMove?.move.from,
+                //   secondCalculatedMove?.move.to
+                // ]) }}
+                onClickConfirm = { () => {if (secondCalculatedMove?.move) handleMove(secondCalculatedMove?.move)}}
+                onClickCancel  = { () => { console.log("Preview second cancelled")}} />
               <ConfirmButton
-                defaultText     ={ "Calculating" }
-                buttonText      ={ shortMoveToString(thirdCalculatedMove?.move) }
-                onClickEvent    ={ () => {if (thirdCalculatedMove?.move) handleMove(thirdCalculatedMove?.move)} }/>
+                defaultText    = { "Calculating" }
+                isBtnDisabled  = { (disabledSetter: Function) => {disabledSetter(thirdCalculatedMove === null)}}
+                buttonText     = { shortMoveToString(thirdCalculatedMove?.move) }
+                onClickInitial = { () => { console.log("Preview third move") }}
+                // onClickInitial = { () => { if (thirdCalculatedMove !== null) setBotMovePreviews([
+                //   thirdCalculatedMove?.move.from,
+                //   thirdCalculatedMove?.move.to
+                // ]) }}
+                onClickConfirm = { () => {if (thirdCalculatedMove?.move) handleMove(thirdCalculatedMove?.move)}}
+                onClickCancel  = { () => { console.log("Preview second cancelled")}} />
             </section>
             <div
               style={{ 
@@ -189,10 +217,10 @@ const App = () => {
               }}>
               <Chessboard
                 // customBoardStyle={
-
                 // }
                 // customSquareStyles =    {{"e1": {fontWeight: "bold"}}}
-                // customArrows={ [ ['a3', 'a5'], ['g1', 'f3'] ]}
+                // customArrows={ [["", ""]]}
+                // customArrows={ [botMovePreviews]}
                 customDropSquareStyle = {{boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'}}
                 customArrowColor =      {"rgb(255,170,0)"} 
                 customDarkSquareStyle=  {{ backgroundColor: '#B58863' }}
