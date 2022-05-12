@@ -4,7 +4,7 @@ import { Chess, Square } from 'chess.js';
 import { io, Socket } from "socket.io-client";
 import { ShortMove } from "chess.js";
 import UciEngineWorker from "features/workers/stockfish";
-import { shortMoveToString } from "features/workers/stockfish";
+import { shortMoveToString } from "features/engine/chessEngine";
 import { v4 as uuidv4 } from 'uuid';
 import ConfirmButton from "features/components/confirmationButton";
 const URL = 'http://localhost:3001';
@@ -61,14 +61,15 @@ const App = () => {
 
     return () => { socket.disconnect(); };
   }, [])
+
   useEffect(()=>{
     socketRef.current?.on("opponentMove", data => {
-      safeGameMutate((game: any) => {
-        game.move(data);
-      });
-      stockfishRef.current?.addMoveToHistory(data)
+      let proxyGame = new Chess(data.fen);
+      proxyGame.move(data.moveData);
+      setGame(proxyGame);
+      let availableMoves = proxyGame.moves({verbose: true});
+      stockfishRef.current?.setMoveHistory(data.moveHistory)
       stockfishRef.current?.getMoves().then(({allMoves, bestMove}: any) => {
-        let availableMoves = game.moves({verbose: true});
         let randomlySelectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
         let calculatedBestMove: MoveWithAssignment = {move: bestMove, assignment: MoveAssignment.best};
         let randomCalculatedMove: MoveWithAssignment = {move: allMoves[Math.floor(Math.random() * allMoves.length)].move, assignment: MoveAssignment.best};
@@ -76,7 +77,6 @@ const App = () => {
           move: randomlySelectedMove,
           assignment: MoveAssignment.random
         };
-        console.log(bestMove);
         setFirstCalculatedMove(calculatedBestMove);
         setSecondCalculatedMove(randomCalculatedMove);
         setThirdCalculatedMove(randomMove);
@@ -84,9 +84,7 @@ const App = () => {
         console.log(msg)
       })
     });
-  }, [game, gameOn])
-// }, [game])
-
+  }, [])
 
   function safeGameMutate(modify: any) {
     setGame((g: any) => {
@@ -95,6 +93,7 @@ const App = () => {
       return update;
     });
   }
+
   function isPromoting(fen: string, move: ShortMove): boolean {
     // @author: varunpvp
     // @from  : https://github.com/jhlywa/chess.js/issues/131
@@ -119,9 +118,11 @@ const App = () => {
       .map((it) => it.to)
       .includes(move.to);
   }
+
   function onDrop(sourceSquare: Square, targetSquare: Square) {
     return handleMove({from: sourceSquare, to: targetSquare})
   }
+
   function handleMove(inputtedMove: ShortMove) {
     if (gameOn) {
       let move = null;
@@ -139,11 +140,12 @@ const App = () => {
         return move;
       }) === null) return false; // illegal move, return false
       else {
-        stockfishRef.current?.addMoveToHistory(moveData);
         console.log("sending move")
         socketRef.current?.emit("sendMove", {
-          move: moveData,
+          moveData: moveData,
+          moveHistory: stockfishRef.current?.moveHistory + " " + shortMoveToString(moveData),
           roomId: roomCode,
+          fen: game.fen()
         });
         return true;
       }
@@ -165,33 +167,21 @@ const App = () => {
             <p>Your room code: {roomCode}</p>
             <input type="text" placeholder="Enter Room Code" onChange={handleRoomCodeChange}></input>
             <button onClick={() => {socketRef.current?.emit("joinGame", roomCode)}}>join</button>
-            <ConfirmButton
-              defaultText     ={ "Calculating" }
-              buttonText      ={ shortMoveToString(firstCalculatedMove?.move) }
-              submissionValue ={ firstCalculatedMove?.move }
-              onClickEvent    ={ handleMove }/>
-            {/* <button
-              onClick={() => {
-                if (game && firstCalculatedMove) {
-                  handleMove(firstCalculatedMove.move.from, firstCalculatedMove.move.to );
-                }
-              }
-            }>{"Calculating" || firstCalculatedMove?.move.from}{firstCalculatedMove?.move.to}</button> */}
-            {/* <button 
-              onClick={() => {
-                if (game && secondCalculatedMove) {
-                  handleMove(secondCalculatedMove.move.from, secondCalculatedMove.move.to );
 
-                }
-              }
-            }>{"Calculating" || secondCalculatedMove?.move.from}{secondCalculatedMove?.move.to}</button>
-            <button 
-              onClick={() => {
-                if (game && thirdCalculatedMove) {
-                  handleMove(thirdCalculatedMove.move.from, thirdCalculatedMove.move.to );
-                }
-              }
-            }>{"Calculating" || thirdCalculatedMove?.move.from}{thirdCalculatedMove?.move.to}</button> */}
+            <section>
+              <ConfirmButton
+                defaultText     ={ "Calculating" }
+                buttonText      ={ shortMoveToString(firstCalculatedMove?.move) }
+                onClickEvent    ={ () => {if (firstCalculatedMove?.move) handleMove(firstCalculatedMove?.move)} }/>
+              <ConfirmButton
+                defaultText     ={ "Calculating" }
+                buttonText      ={ shortMoveToString(secondCalculatedMove?.move) }
+                onClickEvent    ={ () => {if (secondCalculatedMove?.move) handleMove(secondCalculatedMove?.move)} }/>
+              <ConfirmButton
+                defaultText     ={ "Calculating" }
+                buttonText      ={ shortMoveToString(thirdCalculatedMove?.move) }
+                onClickEvent    ={ () => {if (thirdCalculatedMove?.move) handleMove(thirdCalculatedMove?.move)} }/>
+            </section>
             <div
               style={{ 
                 display: 'flex', 

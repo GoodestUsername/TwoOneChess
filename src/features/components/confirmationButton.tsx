@@ -1,35 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 
 interface ConfirmationButtonInterface {
     onClickEvent: Function,
     buttonText: string,
-    submissionValue: any
     defaultText: string
 }
 
-// class ConfirmButton extends React.Component<ConfirmationButtonInterface> {
-// class ConfirmButton extends React.Component {
-    // constructor(props: any) {
-    //     super(props);
-    //     this.handleClick = this.handleClick.bind(this);
-    // }
 const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
     onClickEvent,
     buttonText,
-    submissionValue,
     defaultText}) => {
+    const [clickedInitial, setClickedInitial] = useState(false); 
     return (
         <>
-            <button
-                onClick={() => {onClickEvent(submissionValue)}}
-            >{buttonText|| defaultText} </button>
+        {/* <button onClick={() => {onClickEvent(); setClickedInitial(true)}}>
+                {buttonText|| defaultText}</button> */}
+        {clickedInitial && 
+            <button onClick={() => {onClickEvent(); setClickedInitial(false)}}>
+                {buttonText|| defaultText}</button>
+        }
+        {!clickedInitial && 
+            <button onClick={() => {onClickEvent(); setClickedInitial(true)}}>
+                {buttonText|| defaultText}</button>
+        }
         </>
     )
 };
-// pass text to initial button from higher state
-
-// change state for switching to confirmation button
-// pass handle click for confirmation button from higher state
-// pass actual button to reveal
-
 export default ConfirmButton;
