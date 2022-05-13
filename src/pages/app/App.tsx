@@ -7,6 +7,8 @@ import UciEngineWorker from "features/workers/stockfish";
 import { shortMoveToString } from "features/engine/chessEngine";
 import { v4 as uuidv4 } from 'uuid';
 import ConfirmButton from "features/components/confirmationButton";
+import { isPromoting } from "features/engine/chessEngine";
+
 const URL = 'http://localhost:3001';
 // const URL = "";
 
@@ -37,7 +39,7 @@ const App = () => {
 
   const [roomCode, setRoomCode] = useState<string>("");
   const [response, setResponse] = useState("");
-  const [botMovePreviews, setBotMovePreviews] = useState<string[]>(["", ""]);
+  const [botMovePreviews, setBotMovePreviews] = useState<string[][]>([]);
 
   const stockfishRef = useRef<UciEngineWorker>();
   const socketRef = useRef<Socket>();
@@ -63,24 +65,30 @@ const App = () => {
       setGame(new Chess());
     })
 
-    return () => { socket.disconnect(); };
-  }, [])
-
-  useEffect(()=>{
     socketRef.current?.on("opponentMove", data => {
       let proxyGame = new Chess(data.fen);
       proxyGame.move(data.moveData);
       setGame(proxyGame);
       let availableMoves = proxyGame.moves({verbose: true});
+      
+      // set stockfish internal history
       stockfishRef.current?.setMoveHistory(data.moveHistory)
+
       stockfishRef.current?.getMoves().then(({allMoves, bestMove}: any) => {
-        let randomlySelectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
-        let calculatedBestMove: MoveWithAssignment = {move: bestMove, assignment: MoveAssignment.best};
-        let randomCalculatedMove: MoveWithAssignment = {move: allMoves[Math.floor(Math.random() * allMoves.length)].move, assignment: MoveAssignment.best};
+        // randomly select a move
         let randomMove: MoveWithAssignment = {
-          move: randomlySelectedMove,
+          move: availableMoves[Math.floor(Math.random() * availableMoves.length)],
           assignment: MoveAssignment.random
         };
+
+        // get best move
+        let calculatedBestMove: MoveWithAssignment = {move: bestMove, assignment: MoveAssignment.best};
+        
+        //pick a random calculated move
+        let randomCalculatedMove: MoveWithAssignment = {move: allMoves[Math.floor(Math.random() * allMoves.length)].move, assignment: MoveAssignment.best};
+
+
+        // set the calculated moves
         setFirstCalculatedMove(calculatedBestMove);
         setSecondCalculatedMove(randomCalculatedMove);
         setThirdCalculatedMove(randomMove);
@@ -88,6 +96,7 @@ const App = () => {
         console.log(msg)
       })
     });
+    return () => { socket.disconnect(); };
   }, [])
 
   function safeGameMutate(modify: any) {
@@ -97,30 +106,9 @@ const App = () => {
       return update;
     });
   }
-
-  function isPromoting(fen: string, move: ShortMove): boolean {
-    // @author: varunpvp
-    // @from  : https://github.com/jhlywa/chess.js/issues/131
-    const chess = new Chess(fen);
   
-    const piece = chess.get(move.from);
-  
-    if (piece?.type !== "p") {
-      return false;
-    }
-  
-    if (piece.color !== chess.turn()) {
-      return false;
-    }
-  
-    if (!["1", "8"].some((it) => move.to.endsWith(it))) {
-      return false;
-    }
-  
-    return chess
-      .moves({ square: move.from, verbose: true })
-      .map((it) => it.to)
-      .includes(move.to);
+  function handleRoomCodeChange(event: { target: { value: string }}) {
+      setRoomCode(event.target.value)
   }
 
   function onDrop(sourceSquare: Square, targetSquare: Square) {
@@ -160,10 +148,6 @@ const App = () => {
     return false;
   }
 
-  const handleRoomCodeChange = (event: { target: { value: string }}) => {
-      setRoomCode(event.target.value)
-  }
-
   return (
     <div className="App">
       <div className="">
@@ -180,11 +164,11 @@ const App = () => {
                 defaultText    = { "Calculating" }
                 isBtnDisabled  = { (disabledSetter: Function) => {disabledSetter(firstCalculatedMove === null)}}
                 buttonText     = { shortMoveToString(firstCalculatedMove?.move) }
-                onClickInitial = { () => { console.log("Preview first move") }}
-                // onClickInitial = { () => { if (firstCalculatedMove !== null) setBotMovePreviews([
-                //   firstCalculatedMove?.move.from,
-                //   firstCalculatedMove?.move.to
-                // ]) }}
+                // onClickInitial = { () => { console.log("Preview first move") }}
+                onClickInitial = { () => { if (firstCalculatedMove !== null) {
+                  setBotMovePreviews(botMovePreviews => ()
+                }
+              }}
                 onClickConfirm = { () => { if (firstCalculatedMove?.move) handleMove(firstCalculatedMove?.move)}}
                 onClickCancel  = { () => { console.log("Preview first cancelled")}} />
               <ConfirmButton
@@ -220,6 +204,7 @@ const App = () => {
                 // }
                 // customSquareStyles =    {{"e1": {fontWeight: "bold"}}}
                 // customArrows={ [["", ""]]}
+                customArrows={botMovePreviews }
                 // customArrows={ [botMovePreviews]}
                 customDropSquareStyle = {{boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'}}
                 customArrowColor =      {"rgb(255,170,0)"} 
