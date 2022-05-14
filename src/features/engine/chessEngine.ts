@@ -3,6 +3,23 @@ import type { ShortMove } from "chess.js";
 
 export type {ShortMove};
 
+export type MoveWithAssignment = {
+  move: ShortMove,
+  assignment: MoveAssignment
+} | null;
+
+export class MoveAssignment {
+  // Create new instances of the same class as static attributes
+  static best = new MoveAssignment("best")
+  static middle = new MoveAssignment("middle")
+  static random = new MoveAssignment("random")
+  name: string;
+
+  constructor(name: string) {
+    this.name = name
+  }
+}
+
 
 export const shortMoveToString = (move: ShortMove | undefined) => {
     if (move) {

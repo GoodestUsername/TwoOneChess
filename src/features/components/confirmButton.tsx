@@ -5,8 +5,10 @@ interface ConfirmationButtonInterface {
     onClickConfirm: Function,
     onClickCancel: Function,
     isBtnDisabled: Function,
+    fstBtnoffByDef: boolean,
     buttonText: string,
-    defaultText: string
+    defaultText: string,
+    confirmText: string
 }
 
 const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
@@ -14,10 +16,12 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
     onClickConfirm,
     onClickCancel,
     isBtnDisabled,
+    fstBtnoffByDef,
     buttonText,
-    defaultText}) => {
+    defaultText,
+    confirmText}) => {
     const [clickedInitial, setClickedInitial] = useState(false);
-    const [disableInitial, setDisableInitial] = useState(false);
+    const [disableInitial, setDisableInitial] = useState(fstBtnoffByDef);
     const [btnText, setBtnText] = useState(defaultText);
 
     useEffect(() => {
@@ -29,11 +33,12 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
         <>
         {clickedInitial && (<><button onClick={() => {
                                 onClickConfirm();
-                                setClickedInitial(false);} }> {"buttonText|| defaultText Confirm"}
+                                setClickedInitial(false);} }> {confirmText}
                             </button>
-                            <button onClick={onClickCancel()}>Cancel</button></>
-        )
-
+                            <button onClick={() => {
+                                onClickCancel() ;
+                                setClickedInitial(false);} }>Cancel</button>
+                            </>)
         }
         {!clickedInitial && 
             <button onClick={() => {
