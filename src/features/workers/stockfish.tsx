@@ -1,11 +1,8 @@
 import { ShortMove } from "chess.js";
+import { shortMoveToString } from "features/engine/chessEngine";
 export type CalculatedMove = {
     move: ShortMove
     cp: number
-}
-
-const shortMoveToString = (move: ShortMove) => {
-    return move.from + move.to + (move.promotion || "")
 }
 
 class UciEngineWorker {
@@ -31,7 +28,6 @@ class UciEngineWorker {
               _self.moves.push({move: {from: move[1], to: move[2], promotion: move[3]}, cp: parseInt(cp[1])})
           }
           if (best && _self.resolver) {
-            console.log(best)
             let bestMove: ShortMove = { from: best[1], to: best[2], promotion: best[3]}
             _self.resolver({allMoves:_self.moves, bestMove: bestMove});
             _self.resolver = null;
@@ -42,6 +38,10 @@ class UciEngineWorker {
     
     addMoveToHistory(move: ShortMove) {
         this.moveHistory += " " + shortMoveToString(move);
+    }
+
+    setMoveHistory(moveHistory: string) {
+        this.moveHistory = moveHistory;
     }
 
     getMoves() {
@@ -60,7 +60,6 @@ class UciEngineWorker {
             // this.worker.postMessage('setoption name Use NNUE value true');
             let positionMessage = "position startpos moves"
             if (this.moveHistory) positionMessage += this.moveHistory
-            console.log(positionMessage)
             this.worker.postMessage(positionMessage);
             //  this.worker.postMessage('eval');
             //  this.worker.postMessage('position startpos moves' + game.moves());
