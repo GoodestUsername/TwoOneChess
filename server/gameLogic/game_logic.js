@@ -8,6 +8,7 @@ const initializeConnection = (io, client) => {
     gameSocket = client;
 
     allSessions.push(gameSocket);
+
     // #region count
     const count = io.engine.clientsCount;
     const count2 = io.of("/").sockets.size;
@@ -21,7 +22,7 @@ const initializeConnection = (io, client) => {
     // join match
     gameSocket.on("joinGame", onJoinGame);
 
-    // send move to clients
+    // send move to opponent
     gameSocket.on("sendMove", onSendMove);
 }
 
@@ -32,7 +33,7 @@ const initializeConnection = (io, client) => {
 function onCreateGame(gameRoom) {
     this.join(gameRoom)
     // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
-    this.emit('createRoom', gameRoom);
+    this.emit('sendRoomCode', gameRoom);
 
     // Join the Room and wait for the other player
 
@@ -46,6 +47,7 @@ function onJoinGame(roomCode) {
 }
 
 function onSendMove(move_info) {
-    this.to(move_info.roomId).emit("opponentMove", move_info.move);
+    console.log(move_info)
+    this.to(move_info.roomId).emit("opponentMove", move_info);
 }
 exports.initializeConnection = initializeConnection

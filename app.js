@@ -4,11 +4,10 @@ const path = require("path");
 const http = require("http");
 const initializeConnection = require('./server/gameLogic/game_logic')
 
-const port = process.env.PORT || 3001;;
+const port = process.env.PORT || 3001;
 const index = require("./routes/index");
 
 const app = express();
-
 
 const server = http.createServer(app);
 
