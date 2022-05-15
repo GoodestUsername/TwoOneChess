@@ -14,6 +14,7 @@ const URL = 'http://localhost:3001';
 const App = () => {
   const [game, setGame] = useState(new Chess());
   const [gameOn, setGameOn] = useState(false);
+  const [playerColor, setPlayerColor] = useState(undefined);
 
   const [fBotMove, setFBotMove]  = useState<MoveWithAssignment>(null);
   const [sBotMove, setSBotMove] = useState<MoveWithAssignment>(null);
@@ -43,6 +44,8 @@ const App = () => {
     });
 
     socketRef.current?.on("startGame", data => {
+      setPlayerColor(data);
+      console.log(data)
       setGameOn(true);
       setGame(new Chess());
     })
@@ -89,6 +92,11 @@ const App = () => {
     });
   }
 
+  // check if it is the clients turn
+  function isPlayerTurn() {
+    return (gameOn && playerColor && game.turn() === playerColor[0])
+  }
+
   // handles sending move to game state with validation, and returns move if valid or false if not
   function handleMove(inputtedMove: ShortMove) {
     let move = null;
@@ -100,11 +108,14 @@ const App = () => {
     // check for promotion, and set to queen for simplicity
     if (isPromoting(game.fen(), moveData)) { moveData.promotion = "q" }
 
+    // check if it is the clients turn
+    if (!isPlayerTurn()) return null;
+
     // check if move is valid
-    if (gameOn && safeGameMutate((game: any) => { 
+    if (safeGameMutate((game: any) => { 
       move = game.move(moveData);
       return move;
-    }) === null) return null; // illegal move, return null
+      }) === null) return null; // illegal move, return null
     else {
       setFBotMove(null);
       setSBotMove(null);
@@ -172,13 +183,14 @@ const App = () => {
                 // }
                 // customSquareStyles =    {{"e1": {fontWeight: "bold"}}}
                 // customArrows={ [["", ""]]}
-                customArrows={botMovePreviews }
+                customArrows           = { botMovePreviews }
                 // customArrows={ [botMovePreviews]}
-                customDropSquareStyle = {{boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'}}
-                customArrowColor =      {"rgb(255,170,0)"} 
-                customDarkSquareStyle=  {{ backgroundColor: '#B58863' }}
-                customLightSquareStyle= {{ backgroundColor: '#F0D9B5' }}
-                position=               {game.fen()} onPieceDrop={onDrop}
+                boardOrientation       = { playerColor }
+                customDropSquareStyle  = { {boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'} }
+                customArrowColor       = { "rgb(255,170,0)" } 
+                customDarkSquareStyle  = { { backgroundColor: '#B58863' } }
+                customLightSquareStyle = { { backgroundColor: '#F0D9B5' } }
+                position               = { game.fen()} onPieceDrop={onDrop }
               />
             </div>
           </div>
