@@ -38,7 +38,7 @@ const App = () => {
       setResponse(data);
     });
 
-    socketRef.current?.on("createRoom", data => {
+    socketRef.current?.on("sendRoomCode", data => {
       setRoomCode(data);
     });
 
@@ -68,7 +68,6 @@ const App = () => {
         
         //pick a random calculated move
         let randomCalculatedMove: MoveWithAssignment = {move: allMoves[Math.floor(Math.random() * allMoves.length)].move, assignment: MoveAssignment.best};
-
 
         // set the calculated moves
         setFBotMove(calculatedBestMove);
