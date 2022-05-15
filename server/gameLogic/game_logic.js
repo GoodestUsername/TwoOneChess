@@ -1,7 +1,9 @@
 var serverIO;
 var gameSocket;
 
-var allSessions = []
+var allSessions  = [];
+var allGames     = new Map();
+var playerColors = ["white", "black"]
 
 const initializeConnection = (io, client) => {
     serverIO = io;
@@ -26,28 +28,34 @@ const initializeConnection = (io, client) => {
     gameSocket.on("sendMove", onSendMove);
 }
 
-// const onCreateGame = () => {
-//     this.join(gameSocket.id);
-//     this.emit("createRoom", gameSocket.id);
-// }
-function onCreateGame(gameRoom) {
-    this.join(gameRoom)
-    // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
-    this.emit('sendRoomCode', gameRoom);
+function onCreateGame(roomId) {
+    // join room and wait for the other player
+    this.join(roomId)
 
-    // Join the Room and wait for the other player
+    let newgameSession = {
+        players: [this.id]
+    }
+    allGames.set(roomId, newgameSession)
 
+    // Return the Room ID (gameId)
+    this.emit('sendRoomCode', roomId);
 }
 
-function onJoinGame(roomCode) {
-    this.join(roomCode);
-
-    serverIO.to(roomCode).emit("startGame")
-    console.log("joined game");
+function onJoinGame(roomId) {
+    let currentGame = allGames.get(roomId);
+    if (currentGame.players.length < 2) {
+        currentGame.players.push(this.id);
+        this.join(roomId);
+        let p1Color = playerColors[Math.floor(Math.random() * playerColors.length)]
+        let p2Color = (p1Color === playerColors[0]) ? playerColors[1] : playerColors[0];
+        serverIO.to(currentGame.players[0]).emit("startGame", p1Color);
+        serverIO.to(currentGame.players[1]).emit("startGame", p2Color);
+        console.log("joined")
+    }
 }
 
 function onSendMove(move_info) {
-    console.log(move_info)
+    // console.log(move_info);
     this.to(move_info.roomId).emit("opponentMove", move_info);
 }
 exports.initializeConnection = initializeConnection
