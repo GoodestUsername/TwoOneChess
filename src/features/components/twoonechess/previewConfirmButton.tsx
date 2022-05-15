@@ -8,18 +8,18 @@ interface PreviewConfirmButtonProps {
 }
 
 const PreviewConfirmButton: React.FC<PreviewConfirmButtonProps> = ({
-    botMove, setBotMovePreviews, handleMove}) => {
+    botMove, handleMove, setBotMovePreviews}) => {
     return(
         <ConfirmButton
+            buttonText     = { shortMoveToString(botMove?.move) }
             defaultText    = { "Calculating" }
             confirmText    = { "Confirm" }
-            buttonText     = { shortMoveToString(botMove?.move) }
-            fstBtnoffByDef = {true}
+            fstBtnoffByDef = { true }
             isBtnDisabled  = { (disabledSetter: Function) => {disabledSetter(botMove === null)}}
             onClickInitial = { () => { if (botMove !== null) {
                 setBotMovePreviews((oldArray: string[][]) => 
                     [...oldArray, [botMove.move.from, botMove.move.to]])
-                }}}
+            }}}
             onClickConfirm = { () => { if (botMove?.move) {
                 handleMove(botMove?.move);
                 setBotMovePreviews([]);
@@ -27,7 +27,7 @@ const PreviewConfirmButton: React.FC<PreviewConfirmButtonProps> = ({
             onClickCancel  = { () => { if (botMove !== null) {
                 setBotMovePreviews((oldArray: string[][]) => 
                     [...oldArray.filter((item, _) => item === [botMove.move.from, botMove.move.to])])
-                }}}
+            }}}
         />
     )
 }

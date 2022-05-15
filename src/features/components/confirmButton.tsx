@@ -26,7 +26,10 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
 
     useEffect(() => {
         setBtnText(buttonText || defaultText);
-        isBtnDisabled(setDisableInitial)
+        isBtnDisabled(setDisableInitial);
+        if (!isBtnDisabled) {
+            setClickedInitial(false);
+        }
     }, [buttonText, defaultText, isBtnDisabled])
 
     return (

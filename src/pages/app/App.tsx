@@ -146,55 +146,16 @@ const App = () => {
             <section>
               <PreviewConfirmButton
                 botMove={fBotMove}
-                setBotMovePreviews={setBotMovePreviews}
-                handleMove={handleMove}/>
+                handleMove={handleMove}
+                setBotMovePreviews={setBotMovePreviews}/>
               <PreviewConfirmButton
                 botMove={sBotMove}
-                setBotMovePreviews={setBotMovePreviews}
-                handleMove={handleMove}/>
+                handleMove={handleMove}
+                setBotMovePreviews={setBotMovePreviews}/>
               <PreviewConfirmButton
                 botMove={tBotMove}
-                setBotMovePreviews={setBotMovePreviews}
-                handleMove={handleMove}/>
-              {/* <ConfirmButton
-                defaultText    = { "Calculating" }
-                isBtnDisabled  = { (disabledSetter: Function) => {disabledSetter(fBotMove === null)}}
-                buttonText     = { shortMoveToString(fBotMove?.move) }
-                onClickInitial = { () => { if (fBotMove !== null) {
-                  setBotMovePreviews(oldArray => 
-                    [...oldArray, [fBotMove.move.from, fBotMove.move.to]])
-                }}}
-                onClickConfirm = { () => { if (fBotMove?.move) {
-                  handleMove(fBotMove?.move);
-                  setBotMovePreviews([]);
-                }}}
-                onClickCancel  = { () => { if (fBotMove !== null) {
-                  setBotMovePreviews(oldArray => 
-                    [...oldArray.filter((item, _) => item === [fBotMove.move.from, fBotMove.move.to])])
-                }}}
-                /> */}
-              {/* <ConfirmButton
-                defaultText    = { "Calculating" }
-                isBtnDisabled  = { (disabledSetter: Function) => {disabledSetter(sBotMove === null)}}
-                buttonText     = { shortMoveToString(sBotMove?.move) }
-                onClickInitial = { () => { console.log("Preview second move") }}
-                // onClickInitial = { () => { if (secondCalculatedMove !== null) setBotMovePreviews([
-                //   secondCalculatedMove?.move.from,
-                //   secondCalculatedMove?.move.to
-                // ]) }}
-                onClickConfirm = { () => {if (sBotMove?.move) handleMove(sBotMove?.move)}}
-                onClickCancel  = { () => { console.log("Preview second cancelled")}} /> */}
-              {/* <ConfirmButton
-                defaultText    = { "Calculating" }
-                isBtnDisabled  = { (disabledSetter: Function) => {disabledSetter(tBotMove === null)}}
-                buttonText     = { shortMoveToString(tBotMove?.move) }
-                onClickInitial = { () => { console.log("Preview third move") }}
-                // onClickInitial = { () => { if (thirdCalculatedMove !== null) setBotMovePreviews([
-                //   thirdCalculatedMove?.move.from,
-                //   thirdCalculatedMove?.move.to
-                // ]) }}
-                onClickConfirm = { () => {if (tBotMove?.move) handleMove(tBotMove?.move)}}
-                onClickCancel  = { () => { console.log("Preview third cancelled")}} /> */}
+                handleMove={handleMove}
+                setBotMovePreviews={setBotMovePreviews}/>
             </section>
             <div
               style={{ 
