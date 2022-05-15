@@ -1,14 +1,12 @@
-import { Chessboard } from "react-chessboard";
 import { useEffect, useRef, useState } from "react";
-import { Chess, Square } from 'chess.js';
+import { Chess, Square, ShortMove } from 'chess.js';
+import { Chessboard } from "react-chessboard";
 import { io, Socket } from "socket.io-client";
-import { ShortMove } from "chess.js";
-import UciEngineWorker from "features/workers/stockfish";
-import { MoveAssignment, MoveWithAssignment, shortMoveToString } from "features/engine/chessEngine";
 import { v4 as uuidv4 } from 'uuid';
-import ConfirmButton from "features/components/confirmButton";
-import { isPromoting } from "features/engine/chessEngine";
+
+import { MoveAssignment, MoveWithAssignment, shortMoveToString, isPromoting } from "features/engine/chessEngine";
 import PreviewConfirmButton from "features/components/twoonechess/previewConfirmButton";
+import UciEngineWorker from "features/workers/stockfish";
 
 const URL = 'http://localhost:3001';
 // const URL = "";
@@ -83,6 +81,7 @@ const App = () => {
     return () => { socket.disconnect(); };
   }, [])
 
+  // functions that handle game state changes
   function safeGameMutate(modify: any) {
     setGame((g: any) => {
       const update = { ...g };
@@ -90,46 +89,53 @@ const App = () => {
       return update;
     });
   }
+
+  // handles sending move to game state with validation, and returns move if valid or false if not
+  function handleMove(inputtedMove: ShortMove) {
+    let move = null;
+    let moveData: ShortMove = {
+      from: inputtedMove.from,
+      to: inputtedMove.to,
+      promotion: undefined,
+    }
+    // check for promotion, and set to queen for simplicity
+    if (isPromoting(game.fen(), moveData)) { moveData.promotion = "q" }
+
+    // check if move is valid
+    if (gameOn && safeGameMutate((game: any) => { 
+      move = game.move(moveData);
+      return move;
+    }) === null) return null; // illegal move, return null
+    else {
+      setFBotMove(null);
+      setSBotMove(null);
+      setTBotMove(null);
+      return moveData;
+    }
+  }
+
+  // calls handle move and emits move with socket, returns whether or not move is valid
+  function handleMoveAndSend(inputtedMove: ShortMove) {
+    let validMove = handleMove(inputtedMove)
+    if (validMove) {
+      socketRef.current?.emit("sendMove", {
+        moveData: validMove,
+        moveHistory: stockfishRef.current?.moveHistory + " " + shortMoveToString(validMove),
+        roomId: roomCode,
+        fen: game.fen()
+      });
+    }
+    return validMove === null;
+  }
+
+  // function called on piece drop
+  function onDrop(sourceSquare: Square, targetSquare: Square) {
+    return handleMoveAndSend({from: sourceSquare, to: targetSquare})
+  }
   
+  // handles room code changing
   function handleRoomCodeChange(event: { target: { value: string }}) {
       setRoomCode(event.target.value)
-  }
-
-  function onDrop(sourceSquare: Square, targetSquare: Square) {
-    return handleMove({from: sourceSquare, to: targetSquare})
-  }
-
-  function handleMove(inputtedMove: ShortMove) {
-    if (gameOn) {
-      let move = null;
-      let moveData: ShortMove = {
-        from: inputtedMove.from,
-        to: inputtedMove.to,
-        promotion: undefined,
-      }
-      // check for promotion, and set to queen for simplicity
-      if (isPromoting(game.fen(), moveData)) { moveData.promotion = "q" }
-
-      // check if move is valid
-      if (safeGameMutate((game: any) => { 
-        move = game.move(moveData);
-        return move;
-      }) === null) return false; // illegal move, return false
-      else {
-        console.log("sending move")
-        setFBotMove(null);
-        setSBotMove(null);
-        setTBotMove(null);
-        socketRef.current?.emit("sendMove", {
-          moveData: moveData,
-          moveHistory: stockfishRef.current?.moveHistory + " " + shortMoveToString(moveData),
-          roomId: roomCode,
-          fen: game.fen()
-        });
-        return true;
-      }
-    }
-    return false;
   }
 
   return (
@@ -146,15 +152,15 @@ const App = () => {
             <section>
               <PreviewConfirmButton
                 botMove={fBotMove}
-                handleMove={handleMove}
+                handleMove={handleMoveAndSend}
                 setBotMovePreviews={setBotMovePreviews}/>
               <PreviewConfirmButton
                 botMove={sBotMove}
-                handleMove={handleMove}
+                handleMove={handleMoveAndSend}
                 setBotMovePreviews={setBotMovePreviews}/>
               <PreviewConfirmButton
                 botMove={tBotMove}
-                handleMove={handleMove}
+                handleMove={handleMoveAndSend}
                 setBotMovePreviews={setBotMovePreviews}/>
             </section>
             <div
