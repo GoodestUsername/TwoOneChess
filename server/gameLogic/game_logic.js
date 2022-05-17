@@ -40,13 +40,12 @@ function onCreateGame(roomId) {
 function onJoinGame(roomId) {
     let gameRoom = serverIO.sockets.adapter.rooms.get(roomId);
     let roomSize = gameRoom ? gameRoom.size : 0;
-    console.log(gameRoom[0]);
     if (gameRoom === undefined) {
         this.emit("issueWarning", {message: "room does not exist"});
         return;
     }
     if (gameRoom.has(this.id)) {
-        this.emit("issueWarning", {message: "This is you code, try someone elses."});
+        this.emit("issueWarning", {message: "You have already joined this room."});
         return;
     }
     if (2 > roomSize) {
