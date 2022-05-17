@@ -23,7 +23,7 @@ const App = () => {
   const [roomId, setRoomId] = useState<string>("");
   const [response, setResponse] = useState("");
   const [warningMessage, setwarningMessage] = useState("");
-  const [serverMessage, setserverMessage] = useState("");
+  // const [serverMessage, setserverMessage] = useState("");
 
   const [botMovePreviews, setBotMovePreviews] = useState<string[][]>([]);
 
@@ -167,7 +167,7 @@ const App = () => {
           <div className="">
             <p>Current date: {response}</p>
             <p>{warningMessage}</p>
-            <p>{serverMessage}</p>
+            {/* <p>{serverMessage}</p> */}
             <button onClick={() => {socketRef.current?.emit("createGame", uuidv4())}}>Create Game</button>
             <p>Your room code: {roomId}</p>
             <input type="text" placeholder="Enter Room Code" onChange={handleRoomCodeChange}></input>
