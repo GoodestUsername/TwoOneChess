@@ -20,8 +20,11 @@ const App = () => {
   const [sBotMove, setSBotMove] = useState<MoveWithAssignment>(null);
   const [tBotMove, setTBotMove]  = useState<MoveWithAssignment>(null);
 
-  const [roomCode, setRoomCode] = useState<string>("");
+  const [roomId, setRoomId] = useState<string>("");
   const [response, setResponse] = useState("");
+  const [warningMessage, setwarningMessage] = useState("");
+  const [serverMessage, setserverMessage] = useState("");
+
   const [botMovePreviews, setBotMovePreviews] = useState<string[][]>([]);
 
   const stockfishRef = useRef<UciEngineWorker>();
@@ -40,16 +43,17 @@ const App = () => {
     });
 
     socketRef.current?.on("sendRoomCode", data => {
-      setRoomCode(data);
+      setRoomId(data);
     });
 
     socketRef.current?.on("startGame", data => {
       setPlayerColor(data);
-      console.log(data)
       setGameOn(true);
       setGame(new Chess());
     })
-
+    socketRef.current?.on("issueWarning", data => {
+      setwarningMessage(data.message);
+    }) 
     socketRef.current?.on("opponentMove", data => {
       let proxyGame = new Chess(data.fen);
       proxyGame.move(data.moveData);
@@ -71,8 +75,15 @@ const App = () => {
         
         //pick a random calculated move
         let randomCalculatedMove: MoveWithAssignment = {move: allMoves[Math.floor(Math.random() * allMoves.length)].move, assignment: MoveAssignment.best};
-
+        let moves = [randomMove, calculatedBestMove, randomCalculatedMove];
+        let assignedMoves: number[] = [0, 1, 2];
+        let setters = [setFBotMove, setSBotMove, setTBotMove]
         // set the calculated moves
+        setters.forEach(setter => {
+          let selectedMove:number = assignedMoves[Math.floor(Math.random() * assignedMoves.length)];
+          assignedMoves = [...assignedMoves.filter(aM => aM !== selectedMove)];
+          setter(moves[selectedMove]);
+        });
         setFBotMove(calculatedBestMove);
         setSBotMove(randomCalculatedMove);
         setTBotMove(randomMove);
@@ -80,7 +91,8 @@ const App = () => {
         console.log(msg)
       })
     });
-    return () => { socket.disconnect(); };
+    return () => { 
+      socket.disconnect(); };
   }, [])
 
   // functions that handle game state changes
@@ -131,7 +143,7 @@ const App = () => {
       socketRef.current?.emit("sendMove", {
         moveData: validMove,
         moveHistory: stockfishRef.current?.moveHistory + " " + shortMoveToString(validMove),
-        roomId: roomCode,
+        roomId: roomId,
         fen: game.fen()
       });
     }
@@ -145,7 +157,7 @@ const App = () => {
   
   // handles room code changing
   function handleRoomCodeChange(event: { target: { value: string }}) {
-      setRoomCode(event.target.value)
+      setRoomId(event.target.value)
   }
 
   return (
@@ -154,10 +166,12 @@ const App = () => {
         <div className="">
           <div className="">
             <p>Current date: {response}</p>
+            <p>{warningMessage}</p>
+            <p>{serverMessage}</p>
             <button onClick={() => {socketRef.current?.emit("createGame", uuidv4())}}>Create Game</button>
-            <p>Your room code: {roomCode}</p>
+            <p>Your room code: {roomId}</p>
             <input type="text" placeholder="Enter Room Code" onChange={handleRoomCodeChange}></input>
-            <button onClick={() => {socketRef.current?.emit("joinGame", roomCode)}}>join</button>
+            <button onClick={() => {socketRef.current?.emit("joinGame", roomId)}}>join</button>
 
             <section>
               <PreviewConfirmButton
