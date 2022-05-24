@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 
 import App from './pages/app/App';
 import reportWebVitals from './reportWebVitals';
-
+import { CookiesProvider } from 'react-cookie';
 // styles
 import 'bootstrap/dist/css/bootstrap.css';
 // import './scss/index.css'
@@ -11,12 +11,14 @@ import 'bootstrap/dist/css/bootstrap.css';
 // icons
 // import 'utils/fontawesome';
 
-
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
 root.render(
-    <App/>
+  <CookiesProvider>
+    <App />
+  </CookiesProvider>
 );
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

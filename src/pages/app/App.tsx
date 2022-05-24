@@ -1,21 +1,22 @@
-import { useEffect, useRef, useState } from "react";
+import { Context, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Chess, Square, ShortMove } from 'chess.js';
 import { Chessboard } from "react-chessboard";
 import { io, Socket } from "socket.io-client";
 import { v4 as uuidv4 } from 'uuid';
-
+import { useCookies } from 'react-cookie';
+import Cookies from 'universal-cookie';
 import { MoveAssignment, MoveWithAssignment, shortMoveToString, isPromoting } from "features/engine/chessEngine";
 import PreviewConfirmButton from "features/components/twoonechess/previewConfirmButton";
 import UciEngineWorker from "features/workers/stockfish";
-
+import { SocketContext } from "context/socketContext";
 const URL = 'http://localhost:3001';
 // const URL = "";
-
+const TOKEN_KEY = 'ACCESS_TOKEN';
 const App = () => {
   const [game, setGame] = useState(new Chess());
   const [gameOn, setGameOn] = useState(false);
   const [playerColor, setPlayerColor] = useState(undefined);
-
+  
   const [fBotMove, setFBotMove]  = useState<MoveWithAssignment>(null);
   const [sBotMove, setSBotMove] = useState<MoveWithAssignment>(null);
   const [tBotMove, setTBotMove]  = useState<MoveWithAssignment>(null);
@@ -23,45 +24,83 @@ const App = () => {
   const [roomId, setRoomId] = useState<string>("");
   const [response, setResponse] = useState("");
   const [warningMessage, setwarningMessage] = useState("");
-  // const [serverMessage, setserverMessage] = useState("");
+  const [serverMessage, setserverMessage] = useState("");
 
   const [botMovePreviews, setBotMovePreviews] = useState<string[][]>([]);
 
   const stockfishRef = useRef<UciEngineWorker>();
-  const socketRef = useRef<Socket>();
+  // const socketRef = useRef<Socket>();
+  const socket = useContext<Socket>(SocketContext);
 
   useEffect(() => {
+    const cookies = new Cookies();
     stockfishRef.current = new UciEngineWorker("stockfish.js");  
-    socketRef.current = io(URL, {
-      transports: ['websocket'],
-      forceNew: true
+    // socketRef.current = io(URL, {
+    //   transports: ['websocket'],
+    //   forceNew: true
+    // });
+    // const {current: socket} = socketRef;
+
+    socket.on("connect", () => {
+      socket.emit("register", cookies.get(TOKEN_KEY))
     });
-    const {current: socket} = socketRef;
+
+    socket.on("reconnectGame", (data: any) => {
+      socket.emit("syncGame", {
+        roomId: data.roomId,
+        gameHistory: stockfishRef.current?.moveHistory,
+        pgn: stockfishRef.current?.pgn,
+      })
+    })
 
     socket.on("FromAPI", data => {
       setResponse(data);
     });
 
-    socketRef.current?.on("sendRoomCode", data => {
+    socket.on("serverMessage", data => {
+      setserverMessage(data);
+    })
+
+    socket.on("sendRoomCode", data => {
       setRoomId(data);
     });
 
-    socketRef.current?.on("startGame", data => {
-      setPlayerColor(data);
+    socket.on("startGame", data => {
+      setPlayerColor(data.color);
       setGameOn(true);
-      setGame(new Chess());
+      const newGame = new Chess();
+      setGame(newGame);
+      stockfishRef.current?.setPgn(newGame.pgn());
+      cookies.set(TOKEN_KEY, {...data}, { path: '/', secure: true })
+    });
+
+    socket.on("restoreGame", data => {
+      const restoredGame = new Chess();
+      restoredGame.load_pgn(data.pgn);
+
+      stockfishRef.current?.setMoveHistory(data.gameHistory);
+      stockfishRef.current?.setPgn(data.pgn);
+
+      setRoomId(data.roomId)
+      setPlayerColor(cookies.get(TOKEN_KEY).color);
+      setGame(restoredGame);
+      setGameOn(true);
     })
-    socketRef.current?.on("issueWarning", data => {
+
+    socket.on("issueWarning", data => {
       setwarningMessage(data.message);
-    }) 
-    socketRef.current?.on("opponentMove", data => {
-      let proxyGame = new Chess(data.fen);
-      proxyGame.move(data.moveData);
+    });
+
+    socket.on("opponentMove", data => {
+      const proxyGame = new Chess();
+      proxyGame.load_pgn(data.pgn);
       setGame(proxyGame);
+
       let availableMoves = proxyGame.moves({verbose: true});
       
       // set stockfish internal history
       stockfishRef.current?.setMoveHistory(data.moveHistory)
+      stockfishRef.current?.setPgn(data.pgn)
 
       stockfishRef.current?.getMoves().then(({allMoves, bestMove}: any) => {
         // randomly select a move
@@ -77,7 +116,8 @@ const App = () => {
         let randomCalculatedMove: MoveWithAssignment = {move: allMoves[Math.floor(Math.random() * allMoves.length)].move, assignment: MoveAssignment.best};
         let moves = [randomMove, calculatedBestMove, randomCalculatedMove];
         let assignedMoves: number[] = [0, 1, 2];
-        let setters = [setFBotMove, setSBotMove, setTBotMove]
+        let setters = [setFBotMove, setSBotMove, setTBotMove];
+
         // set the calculated moves
         setters.forEach(setter => {
           let selectedMove:number = assignedMoves[Math.floor(Math.random() * assignedMoves.length)];
@@ -91,9 +131,10 @@ const App = () => {
         console.log(msg)
       })
     });
+
     return () => { 
       socket.disconnect(); };
-  }, [])
+  }, [socket])
 
   // functions that handle game state changes
   function safeGameMutate(modify: any) {
@@ -136,15 +177,20 @@ const App = () => {
     }
   }
 
+
+
   // calls handle move and emits move with socket, returns whether or not move is valid
   function handleMoveAndSend(inputtedMove: ShortMove) {
-    let validMove = handleMove(inputtedMove)
+    const validMove = handleMove(inputtedMove)
     if (validMove) {
-      socketRef.current?.emit("sendMove", {
-        moveData: validMove,
-        moveHistory: stockfishRef.current?.moveHistory + " " + shortMoveToString(validMove),
+      const history = stockfishRef.current?.moveHistory + " " + shortMoveToString(validMove)
+      const pgn = game.pgn()
+      stockfishRef.current?.setMoveHistory(history);
+      stockfishRef.current?.setPgn(pgn);
+      socket.emit("sendMove", {
+        pgn: pgn,
+        moveHistory: history,
         roomId: roomId,
-        fen: game.fen()
       });
     }
     return validMove === null;
@@ -161,17 +207,23 @@ const App = () => {
   }
 
   return (
-    <div className="App">
+    <div className="App" style={{background: "#000000", color: "#d3d3d3"}}>
       <div className="">
         <div className="">
           <div className="">
             <p>Current date: {response}</p>
             <p>{warningMessage}</p>
-            {/* <p>{serverMessage}</p> */}
-            <button onClick={() => {socketRef.current?.emit("createGame", uuidv4())}}>Create Game</button>
+            <p>{serverMessage}</p>
+            <button onClick={() => {
+              socket.emit("createGame", uuidv4());
+              // setCookie('gameCookie', socketRef.current?.id, { path: '/', secure: true });
+            }}>Create Game</button>
             <p>Your room code: {roomId}</p>
             <input type="text" placeholder="Enter Room Code" onChange={handleRoomCodeChange}></input>
-            <button onClick={() => {socketRef.current?.emit("joinGame", roomId)}}>join</button>
+            <button onClick={() => {
+              socket.emit("joinGame", {roomId: roomId, gameKey: null});
+              // setCookie('gameCookie', socketRef.current?.id, { path: '/', secure: true });
+              }}>join</button>
 
             <section>
               <PreviewConfirmButton
