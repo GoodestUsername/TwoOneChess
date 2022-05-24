@@ -3,6 +3,7 @@ const express = require("express");
 const path = require("path");
 const http = require("http");
 const initializeConnection = require('./server/gameLogic/game_logic')
+const { uuid } = require("uuidv4");
 
 const port = process.env.PORT || 3001;
 const index = require("./routes/index");
@@ -19,6 +20,12 @@ const io = socketIO(server, {
         "Cross-Origin-Embedder-Policy"
     ],
     credentials: true,
+    cookie: {
+        name: "io",
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax"
+    }
 })
 
 io.on("connection", socket => {
