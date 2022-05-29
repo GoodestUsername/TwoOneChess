@@ -9,12 +9,14 @@ class UciEngineWorker {
     worker: Worker;
     moves: CalculatedMove[] = []
     moveHistory: string;
-    resolver: (({allMoves, bestMove}: {allMoves: CalculatedMove[], bestMove: ShortMove}) => void) | null 
+    pgn: string;
+    resolver: (({calcMoves, bestMove}: {calcMoves: CalculatedMove[], bestMove: ShortMove}) => void) | null 
 
     constructor(file: string) {
         this.worker = new Worker(file);
         this.moveHistory = "";
         this.moves = [];
+        this.pgn = "";
         this.resolver = null;
 
         let _self = this;
@@ -29,7 +31,7 @@ class UciEngineWorker {
           }
           if (best && _self.resolver) {
             let bestMove: ShortMove = { from: best[1], to: best[2], promotion: best[3]}
-            _self.resolver({allMoves:_self.moves, bestMove: bestMove});
+            _self.resolver({calcMoves:_self.moves, bestMove: bestMove});
             _self.resolver = null;
             _self.moves = [];
           }
@@ -40,8 +42,20 @@ class UciEngineWorker {
         this.moveHistory += " " + shortMoveToString(move);
     }
 
+    getMoveHistory() {
+        return this.moveHistory;
+    }
+
     setMoveHistory(moveHistory: string) {
         this.moveHistory = moveHistory;
+    }
+
+    getPgn() {
+        return this.pgn;
+    }
+
+    setPgn(pgn: string) {
+        this.pgn = pgn;
     }
 
     getMoves() {
