@@ -49,7 +49,7 @@ const App = () => {
   const stockfishRef = useRef<UciEngineWorker>();
 
   // Server Messages
-  const [warningMessage, setwarningMessage] = useState("");
+  const [warningMessage, setWarningMessage] = useState("");
   const [serverMessage, setserverMessage] = useState("");
 
   // Game State
@@ -64,8 +64,14 @@ const App = () => {
 
   // Active bot move previews
   const [botMovePreviews, setBotMovePreviews] = useState<string[][]>([]);
+  
+  // Socket functions
+  const onConnect = useCallback(() => {
+    const cookies = new Cookies();
+    socket.emit("register", cookies.get(TOKEN_KEY))
+  }, [socket])
 
-  const startGame = useCallback((data: {color: BoardOrientation, gameKey: string, roomId: string}) => {
+  const onStartGame = useCallback((data: {color: BoardOrientation, gameKey: string, roomId: string}) => {
     const cookies = new Cookies();
     setPlayerColor(data.color);
     setGameOn(true);
@@ -75,7 +81,7 @@ const App = () => {
     cookies.set(TOKEN_KEY, {...data}, { path: '/', secure: true })
   }, [])
 
-  const reconnectGame = useCallback((data: {roomId: string, gameHistory: string, pgn: string}) => {
+  const onReconnectGame = useCallback((data: {roomId: string, gameHistory: string, pgn: string}) => {
     socket.emit("syncGame", {
       roomId: data.roomId,
       gameHistory: stockfishRef.current?.moveHistory,
@@ -83,7 +89,7 @@ const App = () => {
     })
   }, [socket]);
 
-  const restoreGame = useCallback((data: {roomId: string, gameHistory: string, pgn: string}) => {
+  const onRestoreGame = useCallback((data: {roomId: string, gameHistory: string, pgn: string}) => {
     const cookies = new Cookies();
     const restoredGame = new Chess();
     restoredGame.load_pgn(data.pgn);
@@ -97,31 +103,37 @@ const App = () => {
     setGameOn(true);
   }, []);
 
+  const onOpponentMove = useCallback((msg: string) => {
+
+  }, []);
+
+  const onServerMessage = useCallback((data: {msg: string}) => {
+    setserverMessage(data.msg);
+  }, []);
+  const onIssueWarning = useCallback((data: {msg: string}) => {
+    setWarningMessage(data.msg);
+  }, []);
+
+  const onSendRoomCode = useCallback((data: {roomId: string}) => {
+      setRoomId(data.roomId);
+  }, []);
+
   useEffect(() => {
-    const cookies = new Cookies();
     stockfishRef.current = new UciEngineWorker("stockfish.js");  
 
-    socket.on("connect", () => {
-      socket.emit("register", cookies.get(TOKEN_KEY))
-    });
+    socket.on("connect", onConnect);
 
-    socket.on("reconnectGame", reconnectGame);
+    socket.on("startGame", onStartGame);
 
-    socket.on("serverMessage", data => {
-      setserverMessage(data);
-    })
+    socket.on("restoreGame", onRestoreGame);
 
-    socket.on("sendRoomCode", data => {
-      setRoomId(data);
-    });
+    socket.on("sendRoomCode", onSendRoomCode);
 
-    socket.on("startGame", startGame);
+    socket.on("issueWarning", onIssueWarning);
 
-    socket.on("restoreGame", restoreGame)
-
-    socket.on("issueWarning", data => {
-      setwarningMessage(data.message);
-    });
+    socket.on("reconnectGame", onReconnectGame);
+    
+    socket.on("serverMessage", onServerMessage);
 
     socket.on("opponentMove", data => {
       const proxyGame = new Chess();
@@ -163,8 +175,23 @@ const App = () => {
     });
 
     return () => { 
-      socket.disconnect(); };
-  }, [socket, reconnectGame, restoreGame, startGame])
+      socket.off("connect", onConnect);
+
+      socket.off("startGame", onStartGame);
+  
+      socket.off("restoreGame", onRestoreGame);
+  
+      socket.off("sendRoomCode", onSendRoomCode);
+  
+      socket.off("issueWarning", onIssueWarning);
+  
+      socket.off("reconnectGame", onReconnectGame);
+      
+      socket.off("serverMessage", onServerMessage);
+      
+      socket.disconnect(); 
+    };
+  }, [socket, onReconnectGame, onRestoreGame, onStartGame, onConnect, onSendRoomCode, onIssueWarning, onServerMessage])
 
   // function that handle game state changes
   function safeGameMutate(modify: any) {
