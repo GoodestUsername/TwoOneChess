@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Chess } from 'chess.js';
 
 // helper functions
-import { shortMoveToString, isPromoting, isPlayerTurn } from "features/engine/chessEngine";
+import { shortMoveToString, isPromoting, isPlayerTurn, areMovesEqual } from "features/engine/chessEngine";
 import Cookies from 'universal-cookie';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -37,6 +37,13 @@ const TOKEN_KEY = 'ACCESS_TOKEN';
       a[j] = x;
   }
   return a;
+}
+/**
+ * Gets a random element in array
+ * @param {Array} array items An array containing the items.
+ */
+function getRanElement(array: any[]) {
+  return array[Math.floor(Math.random() * array.length)]
 }
 
 const App = () => {
@@ -73,11 +80,16 @@ const App = () => {
 
   const onStartGame = useCallback((data: {color: BoardOrientation, gameKey: string, roomId: string}) => {
     const cookies = new Cookies();
+    const game = new Chess();
+
     setPlayerColor(data.color);
     setGameOn(true);
-    const newGame = new Chess();
-    setGame(newGame);
-    stockfishRef.current?.setPgn(newGame.pgn());
+    setGame(game);
+
+    setFBotMove(null);
+    setSBotMove(null);
+    setTBotMove(null);
+    stockfishRef.current?.setPgn(game.pgn());
     cookies.set(TOKEN_KEY, {...data}, { path: '/', secure: true })
   }, [])
 
@@ -103,8 +115,42 @@ const App = () => {
     setGameOn(true);
   }, []);
 
-  const onOpponentMove = useCallback((msg: string) => {
+  const onOpponentMove = useCallback((data: { pgn: string; moveHistory: string; }) => {
+    const proxyGame = new Chess();
+    proxyGame.load_pgn(data.pgn);
 
+    // set stockfish internal history
+    stockfishRef.current?.setMoveHistory(data.moveHistory);
+    stockfishRef.current?.setPgn(data.pgn);
+
+    setGame(proxyGame);
+    const allMoves = proxyGame.moves({verbose: true});
+    
+    stockfishRef.current?.getMoves().then(({calcMoves, bestMove}: any) => {
+      // Select bot moves
+      const calcBestMove: MoveWithAssignment = {move: bestMove, assignment: MoveAssignment.best};
+      const randCalcMove: MoveWithAssignment = {
+        move: calcMoves.find((m: { move: ShortMove; }) => !areMovesEqual(m.move, calcBestMove.move)).move
+        || getRanElement(calcMoves).move, 
+        assignment: MoveAssignment.middle};
+
+      // randomly select a move
+      const randomMove: MoveWithAssignment = {
+        move: allMoves.find((m) => !areMovesEqual(m, calcBestMove.move) && !areMovesEqual(m, randCalcMove.move))
+        || getRanElement(allMoves),
+        assignment: MoveAssignment.random
+      };
+
+      // Shuffle moves
+      const moves = shuffle([randomMove, calcBestMove, randCalcMove]);
+
+      // Set Moves
+      setFBotMove(moves[0]);
+      setSBotMove(moves[1]);
+      setTBotMove(moves[2]);
+    }).catch((msg) => {
+      console.log(msg);
+    })
   }, []);
 
   const onServerMessage = useCallback((data: {msg: string}) => {
@@ -135,63 +181,14 @@ const App = () => {
     
     socket.on("serverMessage", onServerMessage);
 
-    socket.on("opponentMove", data => {
-      const proxyGame = new Chess();
-      proxyGame.load_pgn(data.pgn);
-      setGame(proxyGame);
-
-      const availableMoves = proxyGame.moves({verbose: true});
-      
-      // set stockfish internal history
-      stockfishRef.current?.setMoveHistory(data.moveHistory)
-      stockfishRef.current?.setPgn(data.pgn)
-
-      stockfishRef.current?.getMoves().then(({allMoves, bestMove}: any) => {
-        // randomly select a move
-        let randomMove: MoveWithAssignment = {
-          move: availableMoves[Math.floor(Math.random() * availableMoves.length)],
-          assignment: MoveAssignment.random
-        };
-
-        // get best move
-        let calculatedBestMove: MoveWithAssignment = {move: bestMove, assignment: MoveAssignment.best};
-        
-        //pick a random calculated move
-        let randomCalculatedMove: MoveWithAssignment = {move: allMoves[Math.floor(Math.random() * allMoves.length)].move, assignment: MoveAssignment.best};
-        
-        let moves = [randomMove, calculatedBestMove, randomCalculatedMove];
-        let assignedMoves: number[] = [0, 1, 2];
-        let setters = [setFBotMove, setSBotMove, setTBotMove];
-
-        // set the calculated moves
-        setters.forEach(setter => {
-          let selectedMove:number = assignedMoves[Math.floor(Math.random() * assignedMoves.length)];
-          assignedMoves = [...assignedMoves.filter(aM => aM !== selectedMove)];
-          setter(moves[selectedMove]);
-        });
-      }).catch((msg) => {
-        console.log(msg)
-      })
-    });
+    socket.on("opponentMove", onOpponentMove);
 
     return () => { 
-      socket.off("connect", onConnect);
+      socket.removeAllListeners();
 
-      socket.off("startGame", onStartGame);
-  
-      socket.off("restoreGame", onRestoreGame);
-  
-      socket.off("sendRoomCode", onSendRoomCode);
-  
-      socket.off("issueWarning", onIssueWarning);
-  
-      socket.off("reconnectGame", onReconnectGame);
-      
-      socket.off("serverMessage", onServerMessage);
-      
       socket.disconnect(); 
     };
-  }, [socket, onReconnectGame, onRestoreGame, onStartGame, onConnect, onSendRoomCode, onIssueWarning, onServerMessage])
+  }, [socket, onConnect, onStartGame, onRestoreGame, onSendRoomCode, onIssueWarning, onReconnectGame, onServerMessage, onOpponentMove])
 
   // function that handle game state changes
   function safeGameMutate(modify: any) {
@@ -237,6 +234,7 @@ const App = () => {
   // calls handle move for validation and emits valid moves with socket, returns whether or not move is valid
   function handleMoveAndSend(inputtedMove: ShortMove) {
     const validMove = handleMove(inputtedMove)
+    console.log(validMove);
     if (validMove) {
       const history = stockfishRef.current?.moveHistory + " " + shortMoveToString(validMove)
       const pgn = game.pgn()
