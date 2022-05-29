@@ -1,61 +1,95 @@
-import { Context, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Chess, Square, ShortMove } from 'chess.js';
-import { Chessboard } from "react-chessboard";
-import { io, Socket } from "socket.io-client";
-import { v4 as uuidv4 } from 'uuid';
-import { useCookies } from 'react-cookie';
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { Chess } from 'chess.js';
+
+// helper functions
+import { shortMoveToString, isPromoting, isPlayerTurn } from "features/engine/chessEngine";
 import Cookies from 'universal-cookie';
-import { MoveAssignment, MoveWithAssignment, shortMoveToString, isPromoting } from "features/engine/chessEngine";
-import PreviewConfirmButton from "features/components/twoonechess/previewConfirmButton";
+import { v4 as uuidv4 } from 'uuid';
+
+// types
+import { BoardOrientation, MoveAssignment, MoveWithAssignment} from "features/engine/chessEngine";
+import { Square, ShortMove } from 'chess.js';
+import { Socket } from "socket.io-client";
+
+// worker
 import UciEngineWorker from "features/workers/stockfish";
+
+// components
+import PreviewConfirmButton from "features/components/twoonechess/previewConfirmButton";
+import { Chessboard } from "react-chessboard";
+
+// context
 import { SocketContext } from "context/socketContext";
-const URL = 'http://localhost:3001';
-// const URL = "";
+
 const TOKEN_KEY = 'ACCESS_TOKEN';
+
 const App = () => {
+  // Socket Context
+  const socket = useContext<Socket>(SocketContext);
+  // Socket room info
+  const [roomId, setRoomId] = useState<string>("");
+
+  // Worker
+  const stockfishRef = useRef<UciEngineWorker>();
+
+  // Server Messages
+  const [warningMessage, setwarningMessage] = useState("");
+  const [serverMessage, setserverMessage] = useState("");
+
+  // Game State
   const [game, setGame] = useState(new Chess());
   const [gameOn, setGameOn] = useState(false);
-  const [playerColor, setPlayerColor] = useState(undefined);
-  
+  const [playerColor, setPlayerColor] = useState<BoardOrientation>("white");
+
+  // Bot Moves
   const [fBotMove, setFBotMove]  = useState<MoveWithAssignment>(null);
   const [sBotMove, setSBotMove] = useState<MoveWithAssignment>(null);
   const [tBotMove, setTBotMove]  = useState<MoveWithAssignment>(null);
 
-  const [roomId, setRoomId] = useState<string>("");
-  const [response, setResponse] = useState("");
-  const [warningMessage, setwarningMessage] = useState("");
-  const [serverMessage, setserverMessage] = useState("");
-
+  // Active bot move previews
   const [botMovePreviews, setBotMovePreviews] = useState<string[][]>([]);
 
-  const stockfishRef = useRef<UciEngineWorker>();
-  // const socketRef = useRef<Socket>();
-  const socket = useContext<Socket>(SocketContext);
+  const startGame = useCallback((data: {color: string, gameKey: string, roomId: string}) => {
+    const cookies = new Cookies();
+    setPlayerColor(data.color);
+    setGameOn(true);
+    const newGame = new Chess();
+    setGame(newGame);
+    stockfishRef.current?.setPgn(newGame.pgn());
+    cookies.set(TOKEN_KEY, {...data}, { path: '/', secure: true })
+  }, [])
+
+  const reconnectGame = useCallback((data: {roomId: string, gameHistory: string, pgn: string}) => {
+    socket.emit("syncGame", {
+      roomId: data.roomId,
+      gameHistory: stockfishRef.current?.moveHistory,
+      pgn: stockfishRef.current?.pgn,
+    })
+  }, [socket]);
+
+  const restoreGame = useCallback((data: {roomId: string, gameHistory: string, pgn: string}) => {n
+    const cookies = new Cookies();
+    const restoredGame = new Chess();
+    restoredGame.load_pgn(data.pgn);
+
+    stockfishRef.current?.setMoveHistory(data.gameHistory);
+    stockfishRef.current?.setPgn(data.pgn);
+
+    setRoomId(data.roomId)
+    setPlayerColor(cookies.get(TOKEN_KEY).color);
+    setGame(restoredGame);
+    setGameOn(true);
+  }, []);
 
   useEffect(() => {
     const cookies = new Cookies();
     stockfishRef.current = new UciEngineWorker("stockfish.js");  
-    // socketRef.current = io(URL, {
-    //   transports: ['websocket'],
-    //   forceNew: true
-    // });
-    // const {current: socket} = socketRef;
 
     socket.on("connect", () => {
       socket.emit("register", cookies.get(TOKEN_KEY))
     });
 
-    socket.on("reconnectGame", (data: any) => {
-      socket.emit("syncGame", {
-        roomId: data.roomId,
-        gameHistory: stockfishRef.current?.moveHistory,
-        pgn: stockfishRef.current?.pgn,
-      })
-    })
-
-    socket.on("FromAPI", data => {
-      setResponse(data);
-    });
+    socket.on("reconnectGame", reconnectGame);
 
     socket.on("serverMessage", data => {
       setserverMessage(data);
@@ -65,27 +99,9 @@ const App = () => {
       setRoomId(data);
     });
 
-    socket.on("startGame", data => {
-      setPlayerColor(data.color);
-      setGameOn(true);
-      const newGame = new Chess();
-      setGame(newGame);
-      stockfishRef.current?.setPgn(newGame.pgn());
-      cookies.set(TOKEN_KEY, {...data}, { path: '/', secure: true })
-    });
+    socket.on("startGame", startGame);
 
-    socket.on("restoreGame", data => {
-      const restoredGame = new Chess();
-      restoredGame.load_pgn(data.pgn);
-
-      stockfishRef.current?.setMoveHistory(data.gameHistory);
-      stockfishRef.current?.setPgn(data.pgn);
-
-      setRoomId(data.roomId)
-      setPlayerColor(cookies.get(TOKEN_KEY).color);
-      setGame(restoredGame);
-      setGameOn(true);
-    })
+    socket.on("restoreGame", restoreGame)
 
     socket.on("issueWarning", data => {
       setwarningMessage(data.message);
@@ -96,7 +112,7 @@ const App = () => {
       proxyGame.load_pgn(data.pgn);
       setGame(proxyGame);
 
-      let availableMoves = proxyGame.moves({verbose: true});
+      const availableMoves = proxyGame.moves({verbose: true});
       
       // set stockfish internal history
       stockfishRef.current?.setMoveHistory(data.moveHistory)
@@ -114,6 +130,7 @@ const App = () => {
         
         //pick a random calculated move
         let randomCalculatedMove: MoveWithAssignment = {move: allMoves[Math.floor(Math.random() * allMoves.length)].move, assignment: MoveAssignment.best};
+        
         let moves = [randomMove, calculatedBestMove, randomCalculatedMove];
         let assignedMoves: number[] = [0, 1, 2];
         let setters = [setFBotMove, setSBotMove, setTBotMove];
@@ -124,9 +141,6 @@ const App = () => {
           assignedMoves = [...assignedMoves.filter(aM => aM !== selectedMove)];
           setter(moves[selectedMove]);
         });
-        setFBotMove(calculatedBestMove);
-        setSBotMove(randomCalculatedMove);
-        setTBotMove(randomMove);
       }).catch((msg) => {
         console.log(msg)
       })
@@ -134,9 +148,9 @@ const App = () => {
 
     return () => { 
       socket.disconnect(); };
-  }, [socket])
+  }, [socket, reconnectGame, restoreGame, startGame])
 
-  // functions that handle game state changes
+  // function that handle game state changes
   function safeGameMutate(modify: any) {
     setGame((g: any) => {
       const update = { ...g };
@@ -145,9 +159,9 @@ const App = () => {
     });
   }
 
-  // check if it is the clients turn
-  function isPlayerTurn() {
-    return (gameOn && playerColor && game.turn() === playerColor[0])
+  // handles room code changing
+  function handleRoomCodeChange(event: { target: { value: string }}) {
+      setRoomId(event.target.value)
   }
 
   // handles sending move to game state with validation, and returns move if valid or false if not
@@ -162,7 +176,7 @@ const App = () => {
     if (isPromoting(game.fen(), moveData)) { moveData.promotion = "q" }
 
     // check if it is the clients turn
-    if (!isPlayerTurn()) return null;
+    if (!isPlayerTurn(gameOn, playerColor, game.turn())) return null;
 
     // check if move is valid
     if (safeGameMutate((game: any) => { 
@@ -177,9 +191,7 @@ const App = () => {
     }
   }
 
-
-
-  // calls handle move and emits move with socket, returns whether or not move is valid
+  // calls handle move for validation and emits valid moves with socket, returns whether or not move is valid
   function handleMoveAndSend(inputtedMove: ShortMove) {
     const validMove = handleMove(inputtedMove)
     if (validMove) {
@@ -201,29 +213,18 @@ const App = () => {
     return handleMoveAndSend({from: sourceSquare, to: targetSquare})
   }
   
-  // handles room code changing
-  function handleRoomCodeChange(event: { target: { value: string }}) {
-      setRoomId(event.target.value)
-  }
 
   return (
     <div className="App" style={{background: "#000000", color: "#d3d3d3"}}>
       <div className="">
         <div className="">
           <div className="">
-            <p>Current date: {response}</p>
             <p>{warningMessage}</p>
             <p>{serverMessage}</p>
-            <button onClick={() => {
-              socket.emit("createGame", uuidv4());
-              // setCookie('gameCookie', socketRef.current?.id, { path: '/', secure: true });
-            }}>Create Game</button>
+            <button onClick={ () => { socket.emit("createGame", uuidv4()) } }>Create Game</button>
             <p>Your room code: {roomId}</p>
             <input type="text" placeholder="Enter Room Code" onChange={handleRoomCodeChange}></input>
-            <button onClick={() => {
-              socket.emit("joinGame", {roomId: roomId, gameKey: null});
-              // setCookie('gameCookie', socketRef.current?.id, { path: '/', secure: true });
-              }}>join</button>
+            <button onClick={ () => { socket.emit("joinGame", {roomId: roomId, gameKey: null}) } }>join</button>
 
             <section>
               <PreviewConfirmButton
@@ -245,12 +246,7 @@ const App = () => {
                 justifyContent: 'center '
               }}>
               <Chessboard
-                // customBoardStyle={
-                // }
-                // customSquareStyles =    {{"e1": {fontWeight: "bold"}}}
-                // customArrows={ [["", ""]]}
                 customArrows           = { botMovePreviews }
-                // customArrows={ [botMovePreviews]}
                 boardOrientation       = { playerColor }
                 customDropSquareStyle  = { {boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'} }
                 customArrowColor       = { "rgb(255,170,0)" } 
