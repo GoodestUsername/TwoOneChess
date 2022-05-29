@@ -23,6 +23,22 @@ import { SocketContext } from "context/socketContext";
 
 const TOKEN_KEY = 'ACCESS_TOKEN';
 
+/**
+ * Shuffles array in place.
+ * source: https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array/6274381#6274381
+ * @param {Array} a items An array containing the items.
+ */
+ function shuffle(a: any[]) {
+  var j, x, i;
+  for (i = a.length - 1; i > 0; i--) {
+      j = Math.floor(Math.random() * (i + 1));
+      x = a[i];
+      a[i] = a[j];
+      a[j] = x;
+  }
+  return a;
+}
+
 const App = () => {
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
@@ -42,14 +58,14 @@ const App = () => {
   const [playerColor, setPlayerColor] = useState<BoardOrientation>("white");
 
   // Bot Moves
-  const [fBotMove, setFBotMove]  = useState<MoveWithAssignment>(null);
+  const [fBotMove, setFBotMove] = useState<MoveWithAssignment>(null);
   const [sBotMove, setSBotMove] = useState<MoveWithAssignment>(null);
-  const [tBotMove, setTBotMove]  = useState<MoveWithAssignment>(null);
+  const [tBotMove, setTBotMove] = useState<MoveWithAssignment>(null);
 
   // Active bot move previews
   const [botMovePreviews, setBotMovePreviews] = useState<string[][]>([]);
 
-  const startGame = useCallback((data: {color: string, gameKey: string, roomId: string}) => {
+  const startGame = useCallback((data: {color: BoardOrientation, gameKey: string, roomId: string}) => {
     const cookies = new Cookies();
     setPlayerColor(data.color);
     setGameOn(true);
@@ -67,7 +83,7 @@ const App = () => {
     })
   }, [socket]);
 
-  const restoreGame = useCallback((data: {roomId: string, gameHistory: string, pgn: string}) => {n
+  const restoreGame = useCallback((data: {roomId: string, gameHistory: string, pgn: string}) => {
     const cookies = new Cookies();
     const restoredGame = new Chess();
     restoredGame.load_pgn(data.pgn);
