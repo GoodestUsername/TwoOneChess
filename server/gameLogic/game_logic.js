@@ -56,7 +56,7 @@ function onCreateGame(roomId) {
     this.join(roomId)
 
     // Return the Room ID (gameId)
-    this.emit('sendRoomCode', roomId);
+    this.emit('sendRoomCode', {roomId: roomId});
     serverIO.sockets.adapter.rooms.get(roomId).roomVars = { "gameKey": null };
 }   
 
