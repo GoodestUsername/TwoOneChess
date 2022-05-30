@@ -1,4 +1,4 @@
-import { ShortMove } from "chess.js";
+import { Move, ShortMove } from "chess.js";
 import { shortMoveToString } from "features/engine/chessEngine";
 export type CalculatedMove = {
     move: ShortMove
@@ -8,15 +8,12 @@ export type CalculatedMove = {
 class UciEngineWorker {
     worker: Worker;
     moves: CalculatedMove[] = []
-    moveHistory: string;
-    pgn: string;
     resolver: (({calcMoves, bestMove}: {calcMoves: CalculatedMove[], bestMove: ShortMove}) => void) | null 
 
     constructor(file: string) {
         this.worker = new Worker(file);
-        this.moveHistory = "";
+
         this.moves = [];
-        this.pgn = "";
         this.resolver = null;
 
         let _self = this;
@@ -37,28 +34,8 @@ class UciEngineWorker {
           }
           });
     }
-    
-    addMoveToHistory(move: ShortMove) {
-        this.moveHistory += " " + shortMoveToString(move);
-    }
 
-    getMoveHistory() {
-        return this.moveHistory;
-    }
-
-    setMoveHistory(moveHistory: string) {
-        this.moveHistory = moveHistory;
-    }
-
-    getPgn() {
-        return this.pgn;
-    }
-
-    setPgn(pgn: string) {
-        this.pgn = pgn;
-    }
-
-    getMoves() {
+    getMoves(history: Move[]) {
         //  this.worker.postMessage('uci');
         //  this.worker.postMessage(`position fen ${game.fen()}`);
         //  this.worker.postMessage('setoption name Skill Level value 0');
@@ -72,8 +49,8 @@ class UciEngineWorker {
             this.resolver = resolve;
             this.worker.postMessage('setoption name MultiPV value 3');
             // this.worker.postMessage('setoption name Use NNUE value true');
-            let positionMessage = "position startpos moves"
-            if (this.moveHistory) positionMessage += this.moveHistory
+            const moveHistory = history.map((move) => {return shortMoveToString(move)})
+            const positionMessage = `position startpos moves ${moveHistory}`
             this.worker.postMessage(positionMessage);
             //  this.worker.postMessage('eval');
             //  this.worker.postMessage('position startpos moves' + game.moves());

@@ -1,4 +1,4 @@
-import { Chess } from "chess.js";
+import { Chess, Move } from "chess.js";
 import type { ShortMove } from "chess.js";
 
 export type {ShortMove};
@@ -37,6 +37,11 @@ export const shortMoveToString = (move: ShortMove | undefined) => {
     }
 }
 
+export function moveToShortMove(move: Move): ShortMove {
+  if (move.promotion) return {from: move.from, to: move.to, promotion: move.promotion};
+  return {from: move.from, to: move.to};
+}
+
 export function isPromoting(fen: string, move: ShortMove): boolean {
     // @author: varunpvp
     // @from  : https://github.com/jhlywa/chess.js/issues/131
@@ -62,8 +67,8 @@ export function isPromoting(fen: string, move: ShortMove): boolean {
       .includes(move.to);
 }
 
-  // check if it is the clients turn
-  export function isPlayerTurn(gameOn: boolean, playerColor: BoardOrientation, gameTurn: "b" | "w") {
-    return (gameOn && playerColor && gameTurn === playerColor[0])
-  }
+  // // check if it is the clients turn
+  // export function isPlayerTurn(gameOn: boolean, playerColor: BoardOrientation, gameTurn: "b" | "w") {
+  //   return (gameOn && playerColor && gameTurn === playerColor[0])
+  // }
 
