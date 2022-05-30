@@ -36,11 +36,6 @@ class UciEngineWorker {
     }
 
     getMoves(history: Move[]) {
-        //  this.worker.postMessage('uci');
-        //  this.worker.postMessage(`position fen ${game.fen()}`);
-        //  this.worker.postMessage('setoption name Skill Level value 0');
-        //  this.worker.postMessage('setoption name Use NNUE value true');
-        //  this.worker.postMessage('go depth 10');
         return new Promise((resolve, reject) => {
             if (this.resolver) {
                 reject('Pending move is present');
@@ -48,12 +43,9 @@ class UciEngineWorker {
               }
             this.resolver = resolve;
             this.worker.postMessage('setoption name MultiPV value 3');
-            // this.worker.postMessage('setoption name Use NNUE value true');
             const moveHistory = history.map((move) => {return shortMoveToString(move)})
-            const positionMessage = `position startpos moves ${moveHistory}`
+            const positionMessage = `position startpos moves ${moveHistory.join(" ")}`
             this.worker.postMessage(positionMessage);
-            //  this.worker.postMessage('eval');
-            //  this.worker.postMessage('position startpos moves' + game.moves());
             this.worker.postMessage('go movetime 1000');
         })
 

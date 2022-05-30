@@ -99,7 +99,7 @@ class GameEngine {
     }
     
     async getBotMoves() {
-        if (this.gameOn) {
+        if (this.gameOn && this.isPlayerTurn()) {
             return new Promise(resolve => {
                 this.chessBot.getMoves(this.game.history({verbose:true})).then(({calcMoves, bestMove}: any) => {
                 // Select bot moves

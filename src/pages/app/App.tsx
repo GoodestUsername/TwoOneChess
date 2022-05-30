@@ -104,86 +104,6 @@ const App = () => {
     }
     fetchBotMoves();
 }, []);
-  // #region oldgamestate
-
-  // const onStartGame = useCallback((data: {color: BoardOrientation, gameKey: string, roomId: string}) => {
-  //   const cookies = new Cookies();
-  //   const game = new Chess();
-
-  //   setPlayerColor(data.color);
-  //   setGameOn(true);
-  //   setGame(game);
-
-  //   setFBotMove(null);
-  //   setSBotMove(null);
-  //   setTBotMove(null);
-  //   stockfishRef.current?.setPgn(game.pgn());
-  //   cookies.set(TOKEN_KEY, {...data}, { path: '/', secure: true })
-  // }, [])
-
-  // const onReconnectGame = useCallback((data: {roomId: string, gameHistory: string, pgn: string}) => {
-  //   socket.emit("syncGame", {
-  //     roomId: data.roomId,
-  //     gameHistory: stockfishRef.current?.moveHistory,
-  //     pgn: stockfishRef.current?.pgn,
-  //   })
-  // }, [socket]);
-
-  // const onRestoreGame = useCallback((data: {roomId: string, gameHistory: string, pgn: string}) => {
-  //   const cookies = new Cookies();
-  //   const restoredGame = new Chess();
-  //   restoredGame.load_pgn(data.pgn);
-
-  //   stockfishRef.current?.setMoveHistory(data.gameHistory);
-  //   stockfishRef.current?.setPgn(data.pgn);
-
-  //   setRoomId(data.roomId)
-  //   setPlayerColor(cookies.get(TOKEN_KEY).color);
-  //   setGame(restoredGame);
-  //   setGameOn(true);
-  // }, []);
-// #endregion oldgamestate
-
-  // const onOpponentMove = useCallback((data: { pgn: string; moveHistory: string; }) => {
-  //   const proxyGame = new Chess();
-  //   proxyGame.load_pgn(data.pgn);
-
-  //   // set stockfish internal history
-  //   stockfishRef.current?.setMoveHistory(data.moveHistory);
-  //   stockfishRef.current?.setPgn(data.pgn);
-
-  //   setGame(proxyGame);
-  //   const allMoves = proxyGame.moves({verbose: true});
-    
-  //   stockfishRef.current?.getMoves().then(({calcMoves, bestMove}: any) => {
-  //     // Select bot moves
-  //     const calcBestMove: MoveWithAssignment = {move: bestMove, assignment: MoveAssignment.best};
-  //     const randCalcMove: MoveWithAssignment = {
-  //       move: calcMoves.find((m: { move: ShortMove; }) => !areMovesEqual(m.move, calcBestMove.move)).move
-  //       || getRanElement(calcMoves).move, 
-  //       assignment: MoveAssignment.middle};
-
-  //     // randomly select a move
-  //     const randomMove: MoveWithAssignment = {
-  //       move: allMoves.find((m) => !areMovesEqual(m, calcBestMove.move) && !areMovesEqual(m, randCalcMove.move))
-  //       || getRanElement(allMoves),
-  //       assignment: MoveAssignment.random
-  //     };
-
-  //     // Shuffle moves
-  //     const moves = shuffle([randomMove, calcBestMove, randCalcMove]);
-
-  //     // Set Moves
-  //     setFBotMove(moves[0]);
-  //     setSBotMove(moves[1]);
-  //     setTBotMove(moves[2]);
-  //   }).catch((msg) => {
-  //     console.log(msg);
-  //   })
-  // }, []);
-
-
-
 
   const onServerMessage = useCallback((data: {msg: string}) => {
     setserverMessage(data.msg);
@@ -236,56 +156,15 @@ const App = () => {
     setRoomId(event.target.value);
   }
 
-  // handles sending move to game state with validation, and returns move if valid or false if not
-  // function handleMove(inputtedMove: ShortMove) {
-  //   let move = null;
-  //   let moveData: ShortMove = {
-  //     from: inputtedMove.from,
-  //     to: inputtedMove.to,
-  //     promotion: undefined,
-  //   }
-  //   // check for promotion, and set to queen for simplicity
-  //   if (isPromoting(game.fen(), moveData)) { moveData.promotion = "q" }
-
-  //   // check if it is the clients turn
-  //   if (!isPlayerTurn(gameOn, playerColor, game.turn())) return null;
-
-  //   // check if move is valid
-  //   if (safeGameMutate((game: any) => { 
-  //     move = game.move(moveData);
-  //     return move;
-  //     }) === null) return null; // illegal move, return null
-  //   else {
-  //     setFBotMove(null);
-  //     setSBotMove(null);
-  //     setTBotMove(null);
-  //     return moveData;
-  //   }
-  // }
-
-  // calls handle move for validation and emits valid moves with socket, returns whether or not move is valid
-  // function handleMoveAndSend(inputtedMove: ShortMove) {
-  //   const validMove = handleMove(inputtedMove)
-  //   console.log(validMove);
-  //   if (validMove) {
-  //     const history = stockfishRef.current?.moveHistory + " " + shortMoveToString(validMove)
-  //     const pgn = game.pgn()
-  //     stockfishRef.current?.setMoveHistory(history);
-  //     stockfishRef.current?.setPgn(pgn);
-  //     socket.emit("sendMove", {
-  //       pgn: pgn,
-  //       moveHistory: history,
-  //       roomId: roomId,
-  //     });
-  //   }
-  //   return validMove === null;
-  // }
-
   // function called on piece drop
   function handleMoveAndSend(inputtedMove: ShortMove) {
-    const validMove = gameEngineRef.current!.handleMove(inputtedMove)
+    const validMove = gameEngineRef.current!.handleMove(inputtedMove);
+    console.log(validMove);
     if (validMove) {
-      setGame(gameEngineRef.current!.game);
+      safeGameMutate((game: any) => { 
+        game.move(validMove);
+      });
+      // setGame(gameEngineRef.current!.game);
       setFBotMove(null);
       setSBotMove(null);
       setTBotMove(null);
@@ -301,7 +180,6 @@ const App = () => {
   function onDrop(sourceSquare: Square, targetSquare: Square) {
     return handleMoveAndSend({from: sourceSquare, to: targetSquare})
   }
-  
 
   return (
     <div className="App" style={{background: "#000000", color: "#d3d3d3"}}>
