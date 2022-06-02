@@ -14,33 +14,33 @@ import TwoOneChessboard from "features/components/twoonechess/TwoOneChessboard";
 const TOKEN_KEY = 'ACCESS_TOKEN';
 
 const GamePage = () => {
-    // Socket Context
-    const socket = useContext<Socket>(SocketContext);
+  // Socket Context
+  const socket = useContext<Socket>(SocketContext);
 
-    // Socket room info
-    const [roomId, setRoomId] = useState<string>("");
+  // Socket room info
+  const [roomId, setRoomId] = useState<string>("");
 
-    // Server Messages
-    const [warningMessage, setWarningMessage] = useState("");
-    const [serverMessage, setserverMessage] = useState("");
+  // Server Messages
+  const [warningMessage, setWarningMessage] = useState("");
+  const [serverMessage, setserverMessage] = useState("");
 
-    // Socket functions
-    const onConnect = useCallback(() => {
-        const cookies = new Cookies();
-        socket.emit("register", cookies.get(TOKEN_KEY))
-    }, [socket])
+  // Socket functions
+  const onConnect = useCallback(() => {
+      const cookies = new Cookies();
+      socket.emit("register", cookies.get(TOKEN_KEY))
+  }, [socket])
 
-    const onSendRoomCode = useCallback((data: {roomId: string}) => {
-        setRoomId(data.roomId);
-    }, []);
+  const onSendRoomCode = useCallback((data: {roomId: string}) => {
+      setRoomId(data.roomId);
+  }, []);
 
-    const onServerMessage = useCallback((data: {msg: string}) => {
-        setserverMessage(data.msg);
-    }, []);
+  const onServerMessage = useCallback((data: {msg: string}) => {
+      setserverMessage(data.msg);
+  }, []);
 
-    const onIssueWarning = useCallback((data: {msg: string}) => {
-        setWarningMessage(data.msg);
-    }, []);
+  const onIssueWarning = useCallback((data: {msg: string}) => {
+      setWarningMessage(data.msg);
+  }, []);
 
   useEffect(() => {
     socket.on("connect", onConnect);
