@@ -1,4 +1,4 @@
-import { SetStateAction, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Chess, ChessInstance } from 'chess.js';
 
 // helper functions
