@@ -48,7 +48,50 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
 
   // Active bot move previews
   const [botMovePreviews, setBotMovePreviews] = useState<string[][]>([]);
-  
+
+  // functions that handle game state/game ui changes
+  function safeGameMutate(modify: any) {
+    setGame((g: any) => {
+      const update = { ...g };
+      modify(update);
+      return update;
+    });
+  }
+
+  function handleGameOverConditions(): boolean {
+    const gameOverState = gameEngineRef.current?.gameOverState;
+    if (gameOverState) {
+      setChessBoardActive(false);
+      return true;
+    }
+    return false;
+  }
+
+  // handles move input and sends the move via socket
+  function handleMoveAndSend(inputtedMove: ShortMove) {
+    const validMove = gameEngineRef.current!.handleMove(inputtedMove);
+    if (handleGameOverConditions()) return false;
+    if (validMove && chessBoardActive) {
+      safeGameMutate((game: any) => {
+        game.move(validMove);
+      });
+      setFBotMove(null);
+      setSBotMove(null);
+      setTBotMove(null);
+      const pgn = gameEngineRef.current!.game.pgn();
+      socket.emit("sendMove", {
+        pgn: pgn,
+        roomId: roomId.roomId,
+      });
+    }
+    return validMove === null;
+  }
+
+  // function called on piece drop
+  function onDrop(sourceSquare: Square, targetSquare: Square) {
+    return handleMoveAndSend({from: sourceSquare, to: targetSquare})
+  }
+
   // Socket functions
   const onStartGame = useCallback((data: {color: BoardOrientation, gameKey: string, roomId: string}) => {
     const cookies = new Cookies();
@@ -80,7 +123,8 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
   }, []);
 
   const onOpponentMove = useCallback((data: { pgn: string;}) => {
-    gameEngineRef.current!.game.load_pgn(data.pgn);
+    gameEngineRef.current!.setPgn(data.pgn);
+    if (handleGameOverConditions()) return;
     setGame(gameEngineRef.current!.game);
     const fetchBotMoves = async () => {
       const moves: any = await gameEngineRef.current!.getBotMoves();
@@ -92,7 +136,7 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
       }
     }
     fetchBotMoves();
-}, []);
+  }, []);
 
   useEffect(() => {
     stockfishRef.current = new UciEngineWorker("stockfish.js");  
@@ -111,38 +155,6 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
       socket.disconnect(); 
     };
   }, [socket, onStartGame, onRestoreGame, onReconnectGame, onOpponentMove])
-
-  // function that handle game state changes
-  function safeGameMutate(modify: any) {
-    setGame((g: any) => {
-      const update = { ...g };
-      modify(update);
-      return update;
-    });
-  }
-
-  // function called on piece drop
-  function handleMoveAndSend(inputtedMove: ShortMove) {
-    const validMove = gameEngineRef.current!.handleMove(inputtedMove);
-    if (validMove && chessBoardActive) {
-      safeGameMutate((game: any) => { 
-        game.move(validMove);
-      });
-      setFBotMove(null);
-      setSBotMove(null);
-      setTBotMove(null);
-      const pgn = gameEngineRef.current!.game.pgn();
-      socket.emit("sendMove", {
-        pgn: pgn,
-        roomId: roomId.roomId,
-      });
-    }
-    return validMove === null;
-  }
-  
-  function onDrop(sourceSquare: Square, targetSquare: Square) {
-    return handleMoveAndSend({from: sourceSquare, to: targetSquare})
-  }
 
   return (
     <>

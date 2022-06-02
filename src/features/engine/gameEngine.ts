@@ -80,7 +80,7 @@ class GameEngine {
     }
     
     setPgn(pgn: string) {
-        const gameOverState = getGameOverState(this.game.pgn(), this.isPlayerTurn())
+        const gameOverState = getGameOverState(this.game.pgn(), this.isPlayerTurn());
         if (gameOverState) {
             this._gameOn = false;
             this._gameOverState = gameOverState;
@@ -97,24 +97,23 @@ class GameEngine {
             to: inputtedMove.to,
             promotion: undefined,
         }
+        const gameOverState = getGameOverState(this.game.pgn(), this.isPlayerTurn())
+        if (gameOverState) {
+            this._gameOn = false;
+            this._gameOverState = gameOverState;
+        }
+
         // if the game hasnt started or is over
         if (!this._game || !this._gameOn) return null;
 
         // check for promotion, and set to queen for simplicity
         if (isPromoting(this._game.fen(), moveData)) { moveData.promotion = "q" }
-        console.log(this.isPlayerTurn()) 
 
         // check if it is the clients turn
         if (!this.isPlayerTurn()) return null;
 
         // check if move is valid
         if (this._game.move(moveData) === null) return null; // illegal move, return null
-        console.log(this._game.history())
-        const gameOverState = getGameOverState(this.game.pgn(), this.isPlayerTurn())
-        if (gameOverState) {
-            this._gameOn = false;
-            this._gameOverState = gameOverState;
-        }
         return moveData;
     }
 
