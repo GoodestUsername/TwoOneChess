@@ -1,6 +1,6 @@
 import UciEngineWorker from "features/workers/stockfish";
 import { areMovesEqual, BoardOrientation, isPromoting, MoveAssignment, MoveWithAssignment } from "./chessEngine";
-import { Chess, ChessInstance, Move, ShortMove } from 'chess.js';;
+import { Chess, ChessInstance, ShortMove } from 'chess.js';;
 
 const stockfishFile = "stockfish.js"
 /**
@@ -93,7 +93,8 @@ class GameEngine {
         console.log(this._game.history()) 
         return moveData;
     }
-      // check if it is the clients turn
+
+    // check if it is the clients turn
     isPlayerTurn() {
         return (this._gameOn && this._clientColor && this._game.turn() === this._clientColor[0])
     }
@@ -108,15 +109,14 @@ class GameEngine {
                     const randCalcMove: MoveWithAssignment = {
                     move: calcMoves.find((m: { move: ShortMove; }) => !areMovesEqual(m.move, calcBestMove.move)).move
                     || getRanElement(calcMoves).move, 
-                    assignment: MoveAssignment.middle};
-            
+                    assignment: MoveAssignment.middle };
+
                     // randomly select a move
                     const randomMove: MoveWithAssignment = {
                     move: allMoves.find((m) => !areMovesEqual(m, calcBestMove.move) && !areMovesEqual(m, randCalcMove.move))
                     || getRanElement(allMoves),
-                    assignment: MoveAssignment.random
-                    };
-            
+                    assignment: MoveAssignment.random };
+
                     // Shuffle moves
                     resolve(shuffle([randomMove, calcBestMove, randCalcMove]));
               }).catch((msg) => {

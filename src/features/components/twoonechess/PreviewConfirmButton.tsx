@@ -1,5 +1,5 @@
 import { MoveWithAssignment, shortMoveToString } from "features/engine/chessEngine";
-import ConfirmButton from "../confirmButton";
+import ConfirmButton from "../ConfirmButton";
 
 interface PreviewConfirmButtonProps {
     botMove:MoveWithAssignment,
