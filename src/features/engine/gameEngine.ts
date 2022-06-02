@@ -1,5 +1,5 @@
 import UciEngineWorker from "features/workers/stockfish";
-import { areMovesEqual, BoardOrientation, isPromoting, MoveAssignment, MoveWithAssignment } from "./chessEngine";
+import { areMovesEqual, BoardOrientation, GameOverStates, getGameOverState, isPromoting, MoveAssignment, MoveWithAssignment } from "./chessEngine";
 import { Chess, ChessInstance, ShortMove } from 'chess.js';;
 
 const stockfishFile = "stockfish.js"
@@ -40,6 +40,10 @@ class GameEngine {
     public get gameTurn(): "w" | "b" | null {
         return this._gameTurn;
     }
+    private _gameOverState: GameOverStates | null;
+    public get gameOverState(): GameOverStates | null {
+        return this._gameOverState;
+    }
     public set gameTurn(value: "w" | "b" | null) {
         this._gameTurn = value;
     }
@@ -57,10 +61,12 @@ class GameEngine {
         this._game = new Chess();
         this._gameOn = false;
         this._gameTurn = null;
+        this._gameOverState = null;
     }
     startGame(playerColor: BoardOrientation, ) {
         this._game = new Chess();
         this._gameOn = true;
+        this._gameOverState = null;
         this._clientColor = playerColor
     }
 
@@ -68,10 +74,22 @@ class GameEngine {
         this._game = new Chess();
         this._game.load_pgn(pgn);
         this.clientColor = clientColor;
-        this._gameOn = true;
+        this._gameOn = !this.game.game_over();
+        this._gameOverState = getGameOverState(this._game.pgn(), this.isPlayerTurn());
         return this._game;
     }
     
+    setPgn(pgn: string) {
+        const gameOverState = getGameOverState(this.game.pgn(), this.isPlayerTurn())
+        if (gameOverState) {
+            this._gameOn = false;
+            this._gameOverState = gameOverState;
+        }
+        else {
+            this._game.load_pgn(pgn);
+        }
+    }
+
     // handles sending move to game state with validation, and returns move if valid or false if not
     handleMove(inputtedMove: ShortMove) {
         const moveData: ShortMove = {
@@ -79,6 +97,7 @@ class GameEngine {
             to: inputtedMove.to,
             promotion: undefined,
         }
+        // if the game hasnt started or is over
         if (!this._game || !this._gameOn) return null;
 
         // check for promotion, and set to queen for simplicity
@@ -90,13 +109,19 @@ class GameEngine {
 
         // check if move is valid
         if (this._game.move(moveData) === null) return null; // illegal move, return null
-        console.log(this._game.history()) 
+        console.log(this._game.history())
+        const gameOverState = getGameOverState(this.game.pgn(), this.isPlayerTurn())
+        if (gameOverState) {
+            this._gameOn = false;
+            this._gameOverState = gameOverState;
+        }
         return moveData;
     }
 
     // check if it is the clients turn
-    isPlayerTurn() {
-        return (this._gameOn && this._clientColor && this._game.turn() === this._clientColor[0])
+    isPlayerTurn(): boolean {
+        if (this._gameOn && this._clientColor && this._game.turn() === this._clientColor[0]) return true
+        return false;
     }
     
     async getBotMoves() {
