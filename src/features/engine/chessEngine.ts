@@ -26,6 +26,7 @@ export const areMovesEqual = (moveOne: ShortMove, moveTwo: ShortMove) => {
   if (moveOne.to !== moveTwo.to) return false;
   if (moveOne.from !== moveTwo.from) return false;
   if (moveOne.promotion !== moveTwo.promotion) return false;
+  return true;
 }
 
 export const shortMoveToString = (move: ShortMove | undefined) => {
