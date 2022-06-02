@@ -17,16 +17,26 @@ const PreviewConfirmButton: React.FC<PreviewConfirmButtonProps> = ({
             fstBtnoffByDef = { true }
             isBtnDisabled  = { (disabledSetter: Function) => {disabledSetter(botMove === null)}}
             onClickInitial = { () => { if (botMove !== null) {
+                try {
                 setBotMovePreviews((oldArray: string[][]) => 
                     [...oldArray, [botMove.move.from, botMove.move.to]])
+                }
+                catch (e){
+
+                }
             }}}
             onClickConfirm = { () => { if (botMove?.move) {
                 handleMove(botMove?.move);
                 setBotMovePreviews([]);
             }}}
             onClickCancel  = { () => { if (botMove !== null) {
-                setBotMovePreviews((oldArray: string[][]) => 
-                    [...oldArray.filter((item, _) => item === [botMove.move.from, botMove.move.to])])
+                try {
+                    setBotMovePreviews((oldArray: string[][]) => 
+                        [...oldArray.filter((item, _) => item === [botMove.move.from, botMove.move.to])])
+                    }
+                    catch (e){
+                        
+                    }
             }}}
         />
     )

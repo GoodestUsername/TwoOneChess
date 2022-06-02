@@ -1,4 +1,4 @@
-import { Chess } from "chess.js";
+import { Chess, Move } from "chess.js";
 import type { ShortMove } from "chess.js";
 
 export type {ShortMove};
@@ -26,6 +26,7 @@ export const areMovesEqual = (moveOne: ShortMove, moveTwo: ShortMove) => {
   if (moveOne.to !== moveTwo.to) return false;
   if (moveOne.from !== moveTwo.from) return false;
   if (moveOne.promotion !== moveTwo.promotion) return false;
+  return true;
 }
 
 export const shortMoveToString = (move: ShortMove | undefined) => {
@@ -35,6 +36,11 @@ export const shortMoveToString = (move: ShortMove | undefined) => {
     else {
         return ""
     }
+}
+
+export function moveToShortMove(move: Move): ShortMove {
+  if (move.promotion) return {from: move.from, to: move.to, promotion: move.promotion};
+  return {from: move.from, to: move.to};
 }
 
 export function isPromoting(fen: string, move: ShortMove): boolean {
@@ -62,8 +68,8 @@ export function isPromoting(fen: string, move: ShortMove): boolean {
       .includes(move.to);
 }
 
-  // check if it is the clients turn
-  export function isPlayerTurn(gameOn: boolean, playerColor: BoardOrientation, gameTurn: "b" | "w") {
-    return (gameOn && playerColor && gameTurn === playerColor[0])
-  }
+  // // check if it is the clients turn
+  // export function isPlayerTurn(gameOn: boolean, playerColor: BoardOrientation, gameTurn: "b" | "w") {
+  //   return (gameOn && playerColor && gameTurn === playerColor[0])
+  // }
 
