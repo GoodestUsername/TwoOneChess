@@ -81,13 +81,12 @@ function onJoinGame(data) {
 
     if (2 > roomSize) {
         this.join(data.roomId);
-        let clients = Array.from(gameRoom);
-        let gameKey = uuid();
+        const clients = Array.from(gameRoom);
+        const gameKey = uuid();
 
-        let p1Color = playerColors[Math.floor(Math.random() * playerColors.length)]
-        let p2Color = (p1Color === playerColors[0]) ? playerColors[1] : playerColors[0];
+        const p1Color = playerColors[Math.floor(Math.random() * playerColors.length)]
+        const p2Color = (p1Color === playerColors[0]) ? playerColors[1] : playerColors[0];
 
-        console.log(gameKey)
         serverIO.to(clients[0]).emit("startGame", {color: p1Color, gameKey: gameKey.toString(), roomId: data.roomId});
         serverIO.to(clients[1]).emit("startGame", {color: p2Color, gameKey: gameKey.toString(), roomId: data.roomId});
 
@@ -98,16 +97,6 @@ function onJoinGame(data) {
     }
 }
 
-// function joinGame(roomId, instance) {
-//     instance.join(roomId);
-//     let gameKey = uuid();
-//     let clients = Array.from(gameRoom);
-//     let p1Color = playerColors[Math.floor(Math.random() * playerColors.length)]
-//     let p2Color = (p1Color === playerColors[0]) ? playerColors[1] : playerColors[0];
-//     serverIO.to(clients[0]).emit("startGame", {color: p1Color, gameKey: gameKey, roomId: roomId});
-//     serverIO.to(clients[1]).emit("startGame", {color: p2Color, gameKey: gameKey, roomId: roomId});
-//     console.log("joined")
-// }
 function onSendMove(data) {
     console.log("sendMove")
     console.log(serverIO.sockets.adapter.rooms.get(data.roomId));
@@ -116,17 +105,13 @@ function onSendMove(data) {
 
 function onSyncGame(data) {
     if (data !== null) {
+        this.to(data.roomId).emit('sendRoomCode', {roomId: data.roomId});
         this.to(data.roomId).emit("restoreGame", data);
     }
 }
 
 function onDisconnect() {
-    // player.disconnected = true;
-    // console.log(allSessions);
-    // console.log();
     setTimeout(function () {
-        // if (player.disconnected) player.delete();
-        console.log(allSessions.length);
         allSessions.splice(allSessions.indexOf(gameSocket), 1);
     }, 1000);
 }
