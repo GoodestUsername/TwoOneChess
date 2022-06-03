@@ -1,13 +1,15 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
-
-import App from './pages/app/App';
 import reportWebVitals from './reportWebVitals';
-import { CookiesProvider } from 'react-cookie';
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
 // styles
 import 'bootstrap/dist/css/bootstrap.css';
-// import './scss/index.css'
+import GamePage from 'pages/game/GamePage';
+import Layout from 'features/layout/Layout';
+import NotFoundPage from 'pages/404/NotFoundPage';
 
+// import './scss/index.css'
 // icons
 // import 'utils/fontawesome';
 
@@ -16,9 +18,15 @@ const root = ReactDOM.createRoot(
 );
 
 root.render(
-  <CookiesProvider>
-    <App />
-  </CookiesProvider>
+    <BrowserRouter>
+        <Routes>
+          <Route path="/" element={< Layout/>}>
+            <Route path="*"       element={ <NotFoundPage/> }/>
+            <Route path="/"       element={ <GamePage/> }/>
+            <Route path=":roomId" element={ <GamePage/> }/>
+          </Route>
+        </Routes>
+    </BrowserRouter>
 );
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

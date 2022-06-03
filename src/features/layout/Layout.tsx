@@ -1,17 +1,18 @@
-// Components
-import GamePage from "pages/game/GamePage";
-
-// context
 import { SocketContext, socket } from "context/socketContext";
+import { CookiesProvider } from "react-cookie";
+import { Outlet } from "react-router-dom";
 
-const App = () => {
+// Components
+const Layout = () => {
   return (
     <div className="App" style={{background: "#000000", color: "#d3d3d3"}}>
       <SocketContext.Provider value={socket}>
-        <GamePage/>
+        <CookiesProvider>
+          <Outlet/>
+        </CookiesProvider>
       </SocketContext.Provider>
     </div>
   );
 }
 
-export default App;
+export default Layout;

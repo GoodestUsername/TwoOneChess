@@ -168,6 +168,21 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
 
   return (
     <>
+        <div
+            style={{ 
+            display: 'flex', 
+            justifyContent: 'center'
+            }}>
+            <Chessboard
+            customArrows           = { botMovePreviews }
+            boardOrientation       = { playerColor }
+            customDropSquareStyle  = { {boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'} }
+            customArrowColor       = { "rgb(255,170,0)" } 
+            customDarkSquareStyle  = { { backgroundColor: '#B58863' } }
+            customLightSquareStyle = { { backgroundColor: '#F0D9B5' } }
+            position               = { game.fen()} onPieceDrop={onDrop }
+            />
+        </div>
         {chessBoardActive &&
             <section>
             <PreviewConfirmButton
@@ -184,21 +199,6 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
                 setBotMovePreviews={setBotMovePreviews}/>
             </section>
         }
-        <div
-            style={{ 
-            display: 'flex', 
-            justifyContent: 'center'
-            }}>
-            <Chessboard
-            customArrows           = { botMovePreviews }
-            boardOrientation       = { playerColor }
-            customDropSquareStyle  = { {boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'} }
-            customArrowColor       = { "rgb(255,170,0)" } 
-            customDarkSquareStyle  = { { backgroundColor: '#B58863' } }
-            customLightSquareStyle = { { backgroundColor: '#F0D9B5' } }
-            position               = { game.fen()} onPieceDrop={onDrop }
-            />
-        </div>
     </>
   );
 }

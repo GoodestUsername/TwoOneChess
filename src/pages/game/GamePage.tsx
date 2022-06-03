@@ -12,15 +12,18 @@ import { Socket } from "socket.io-client";
 // context
 import { SocketContext } from "context/socketContext";
 import TwoOneChessboard from "features/components/twoonechess/TwoOneChessboard";
+import { useParams } from "react-router-dom";
 
 const TOKEN_KEY = 'ACCESS_TOKEN';
+const INVITE_LINK_URL = 'localhost:3000/';
 
 const GamePage = () => {
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
-
+  const params = useParams();
+  
   // Socket room info
-  const [roomId, setRoomId] = useState<string>("");
+  const [roomId, setRoomId] = useState<string>(params.roomId ? params.roomId : "");
 
   // Server Messages
   const [warningMessage, setWarningMessage] = useState("");
@@ -29,8 +32,9 @@ const GamePage = () => {
   // Socket functions
   const onConnect = useCallback(() => {
       const cookies = new Cookies();
+      socket.emit("joinGame", {roomId: params.roomId, gameKey: null})
       socket.emit("register", cookies.get(TOKEN_KEY))
-  }, [socket])
+  }, [params.roomId, socket])
 
   const onSendRoomCode = useCallback((data: {roomId: string}) => {
       setRoomId(data.roomId);
@@ -45,6 +49,10 @@ const GamePage = () => {
   }, []);
 
   useEffect(() => {
+
+  }, [])
+
+  useEffect(() => {
     socket.on("connect", onConnect);
     socket.on("sendRoomCode", onSendRoomCode);
     socket.on("issueWarning", onIssueWarning);
@@ -57,17 +65,10 @@ const GamePage = () => {
     };
   }, [socket, onConnect, onSendRoomCode, onIssueWarning, onServerMessage])
 
-  // handles room code changing
-  function handleRoomCodeChange(event: { target: { value: string }}) {
-    setRoomId(event.target.value);
-  }
-
   return (
     <div className="App" style={{background: "#000000", color: "#d3d3d3"}}>
-        <button onClick={ () => { socket.emit("createGame", uuidv4()) } }>Create Game</button>
-        <p>Your room code: {roomId}</p>
-        <input type="text" placeholder="Enter Room Code" onChange={handleRoomCodeChange}></input>
-        <button onClick={ () => { socket.emit("joinGame", {roomId: roomId, gameKey: null}) } }>join</button>
+        <button onClick={ () => { socket.emit("createGame", uuidv4().slice(8)) } }>Create Invite Link</button>
+        {roomId && <p>{INVITE_LINK_URL + roomId}</p>}
         <p>{warningMessage}</p>
         <p>{serverMessage}</p>
         <ToastContainer
