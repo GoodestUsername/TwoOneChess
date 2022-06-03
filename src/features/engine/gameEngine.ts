@@ -78,16 +78,18 @@ class GameEngine {
         this._gameOverState = getGameOverState(this._game.pgn(), this.isPlayerTurn());
         return this._game;
     }
-    
-    setPgn(pgn: string) {
-        const gameOverState = getGameOverState(this.game.pgn(), this.isPlayerTurn());
+
+    checkGameOver() {
+        const gameOverState = getGameOverState(this.game.pgn(), this.isPlayerTurn())
         if (gameOverState) {
             this._gameOn = false;
             this._gameOverState = gameOverState;
         }
-        else {
-            this._game.load_pgn(pgn);
-        }
+    }
+
+    setPgn(pgn: string) {
+        if (this.gameOn) { this._game.load_pgn(pgn) }
+        this.checkGameOver()
     }
 
     // handles sending move to game state with validation, and returns move if valid or false if not
@@ -96,11 +98,6 @@ class GameEngine {
             from: inputtedMove.from,
             to: inputtedMove.to,
             promotion: undefined,
-        }
-        const gameOverState = getGameOverState(this.game.pgn(), this.isPlayerTurn())
-        if (gameOverState) {
-            this._gameOn = false;
-            this._gameOverState = gameOverState;
         }
 
         // if the game hasnt started or is over
@@ -114,6 +111,8 @@ class GameEngine {
 
         // check if move is valid
         if (this._game.move(moveData) === null) return null; // illegal move, return null
+        
+        this.checkGameOver()
         return moveData;
     }
 

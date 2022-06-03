@@ -1,4 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from "react";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // helper functions
 import Cookies from 'universal-cookie';
@@ -68,6 +70,18 @@ const GamePage = () => {
         <button onClick={ () => { socket.emit("joinGame", {roomId: roomId, gameKey: null}) } }>join</button>
         <p>{warningMessage}</p>
         <p>{serverMessage}</p>
+        <ToastContainer
+          theme="colored"
+          position="top-center"
+          autoClose={false}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
         <TwoOneChessboard roomId={roomId}/>
     </div>
   );

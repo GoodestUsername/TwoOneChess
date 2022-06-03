@@ -1,11 +1,12 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Chess, ChessInstance } from 'chess.js';
+import { toast } from 'react-toastify';
 
 // helper functions
 import Cookies from 'universal-cookie';
 
 // types
-import { BoardOrientation, MoveWithAssignment} from "features/engine/chessEngine";
+import { BoardOrientation, GameOverStates, MoveWithAssignment} from "features/engine/chessEngine";
 import { Square, ShortMove } from 'chess.js';
 import { Socket } from "socket.io-client";
 
@@ -58,19 +59,27 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
     });
   }
 
-  function handleGameOverConditions(): boolean {
+  function handleGameOverConditions() {
     const gameOverState = gameEngineRef.current?.gameOverState;
     if (gameOverState) {
       setChessBoardActive(false);
-      return true;
+      switch (gameOverState) {  
+        case GameOverStates.victory:
+          toast.success(gameOverState.name)
+          break;
+        case GameOverStates.defeat:
+          toast.warning(gameOverState.name)
+          break;
+        default:
+          toast.info(gameOverState.name + " Draw")
+          break;
+      }
     }
-    return false;
   }
 
   // handles move input and sends the move via socket
   function handleMoveAndSend(inputtedMove: ShortMove) {
     const validMove = gameEngineRef.current!.handleMove(inputtedMove);
-    if (handleGameOverConditions()) return false;
     if (validMove && chessBoardActive) {
       safeGameMutate((game: any) => {
         game.move(validMove);
@@ -83,6 +92,7 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
         pgn: pgn,
         roomId: roomId.roomId,
       });
+      handleGameOverConditions()
     }
     return validMove === null;
   }
@@ -124,8 +134,8 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
 
   const onOpponentMove = useCallback((data: { pgn: string;}) => {
     gameEngineRef.current!.setPgn(data.pgn);
-    if (handleGameOverConditions()) return;
     setGame(gameEngineRef.current!.game);
+    handleGameOverConditions()
     const fetchBotMoves = async () => {
       const moves: any = await gameEngineRef.current!.getBotMoves();
       // Set Moves

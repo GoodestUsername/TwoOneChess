@@ -88,10 +88,10 @@ export const getGameOverState = (pgn: string, isPlayerTurn: boolean) => {
   game.load_pgn(pgn);
   if (game.game_over()) {
     // if stalemate
-    if (game.in_draw()) return GameOverStates.draw;
     if (game.in_stalemate()) return GameOverStates.stalemate;
     if (game.in_threefold_repetition()) return GameOverStates.threeFoldRep;
     if (game.insufficient_material()) return GameOverStates.insuffMaterials;
+    if (game.in_draw()) return GameOverStates.draw;
     
     // if lost
     if (game.in_checkmate() && isPlayerTurn) return GameOverStates.defeat;
