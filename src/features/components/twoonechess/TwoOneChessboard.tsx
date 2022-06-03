@@ -1,11 +1,12 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Chess, ChessInstance } from 'chess.js';
+import { toast } from 'react-toastify';
 
 // helper functions
 import Cookies from 'universal-cookie';
 
 // types
-import { BoardOrientation, MoveWithAssignment} from "features/engine/chessEngine";
+import { BoardOrientation, GameOverStates, MoveWithAssignment} from "features/engine/chessEngine";
 import { Square, ShortMove } from 'chess.js';
 import { Socket } from "socket.io-client";
 
@@ -48,7 +49,59 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
 
   // Active bot move previews
   const [botMovePreviews, setBotMovePreviews] = useState<string[][]>([]);
-  
+
+  // functions that handle game state/game ui changes
+  function safeGameMutate(modify: any) {
+    setGame((g: any) => {
+      const update = { ...g };
+      modify(update);
+      return update;
+    });
+  }
+
+  function handleGameOverConditions() {
+    const gameOverState = gameEngineRef.current?.gameOverState;
+    if (gameOverState) {
+      setChessBoardActive(false);
+      switch (gameOverState) {  
+        case GameOverStates.victory:
+          toast.success(gameOverState.name)
+          break;
+        case GameOverStates.defeat:
+          toast.warning(gameOverState.name)
+          break;
+        default:
+          toast.info(gameOverState.name + " Draw")
+          break;
+      }
+    }
+  }
+
+  // handles move input and sends the move via socket
+  function handleMoveAndSend(inputtedMove: ShortMove) {
+    const validMove = gameEngineRef.current!.handleMove(inputtedMove);
+    if (validMove && chessBoardActive) {
+      safeGameMutate((game: any) => {
+        game.move(validMove);
+      });
+      setFBotMove(null);
+      setSBotMove(null);
+      setTBotMove(null);
+      const pgn = gameEngineRef.current!.game.pgn();
+      socket.emit("sendMove", {
+        pgn: pgn,
+        roomId: roomId.roomId,
+      });
+      handleGameOverConditions()
+    }
+    return validMove === null;
+  }
+
+  // function called on piece drop
+  function onDrop(sourceSquare: Square, targetSquare: Square) {
+    return handleMoveAndSend({from: sourceSquare, to: targetSquare})
+  }
+
   // Socket functions
   const onStartGame = useCallback((data: {color: BoardOrientation, gameKey: string, roomId: string}) => {
     const cookies = new Cookies();
@@ -80,8 +133,9 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
   }, []);
 
   const onOpponentMove = useCallback((data: { pgn: string;}) => {
-    gameEngineRef.current!.game.load_pgn(data.pgn);
+    gameEngineRef.current!.setPgn(data.pgn);
     setGame(gameEngineRef.current!.game);
+    handleGameOverConditions()
     const fetchBotMoves = async () => {
       const moves: any = await gameEngineRef.current!.getBotMoves();
       // Set Moves
@@ -92,7 +146,7 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
       }
     }
     fetchBotMoves();
-}, []);
+  }, []);
 
   useEffect(() => {
     stockfishRef.current = new UciEngineWorker("stockfish.js");  
@@ -111,38 +165,6 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
       socket.disconnect(); 
     };
   }, [socket, onStartGame, onRestoreGame, onReconnectGame, onOpponentMove])
-
-  // function that handle game state changes
-  function safeGameMutate(modify: any) {
-    setGame((g: any) => {
-      const update = { ...g };
-      modify(update);
-      return update;
-    });
-  }
-
-  // function called on piece drop
-  function handleMoveAndSend(inputtedMove: ShortMove) {
-    const validMove = gameEngineRef.current!.handleMove(inputtedMove);
-    if (validMove && chessBoardActive) {
-      safeGameMutate((game: any) => { 
-        game.move(validMove);
-      });
-      setFBotMove(null);
-      setSBotMove(null);
-      setTBotMove(null);
-      const pgn = gameEngineRef.current!.game.pgn();
-      socket.emit("sendMove", {
-        pgn: pgn,
-        roomId: roomId.roomId,
-      });
-    }
-    return validMove === null;
-  }
-  
-  function onDrop(sourceSquare: Square, targetSquare: Square) {
-    return handleMoveAndSend({from: sourceSquare, to: targetSquare})
-  }
 
   return (
     <>

@@ -1,4 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from "react";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // helper functions
 import Cookies from 'universal-cookie';
@@ -14,33 +16,33 @@ import TwoOneChessboard from "features/components/twoonechess/TwoOneChessboard";
 const TOKEN_KEY = 'ACCESS_TOKEN';
 
 const GamePage = () => {
-    // Socket Context
-    const socket = useContext<Socket>(SocketContext);
+  // Socket Context
+  const socket = useContext<Socket>(SocketContext);
 
-    // Socket room info
-    const [roomId, setRoomId] = useState<string>("");
+  // Socket room info
+  const [roomId, setRoomId] = useState<string>("");
 
-    // Server Messages
-    const [warningMessage, setWarningMessage] = useState("");
-    const [serverMessage, setserverMessage] = useState("");
+  // Server Messages
+  const [warningMessage, setWarningMessage] = useState("");
+  const [serverMessage, setserverMessage] = useState("");
 
-    // Socket functions
-    const onConnect = useCallback(() => {
-        const cookies = new Cookies();
-        socket.emit("register", cookies.get(TOKEN_KEY))
-    }, [socket])
+  // Socket functions
+  const onConnect = useCallback(() => {
+      const cookies = new Cookies();
+      socket.emit("register", cookies.get(TOKEN_KEY))
+  }, [socket])
 
-    const onSendRoomCode = useCallback((data: {roomId: string}) => {
-        setRoomId(data.roomId);
-    }, []);
+  const onSendRoomCode = useCallback((data: {roomId: string}) => {
+      setRoomId(data.roomId);
+  }, []);
 
-    const onServerMessage = useCallback((data: {msg: string}) => {
-        setserverMessage(data.msg);
-    }, []);
+  const onServerMessage = useCallback((data: {msg: string}) => {
+      setserverMessage(data.msg);
+  }, []);
 
-    const onIssueWarning = useCallback((data: {msg: string}) => {
-        setWarningMessage(data.msg);
-    }, []);
+  const onIssueWarning = useCallback((data: {msg: string}) => {
+      setWarningMessage(data.msg);
+  }, []);
 
   useEffect(() => {
     socket.on("connect", onConnect);
@@ -68,6 +70,18 @@ const GamePage = () => {
         <button onClick={ () => { socket.emit("joinGame", {roomId: roomId, gameKey: null}) } }>join</button>
         <p>{warningMessage}</p>
         <p>{serverMessage}</p>
+        <ToastContainer
+          theme="colored"
+          position="top-center"
+          autoClose={false}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
         <TwoOneChessboard roomId={roomId}/>
     </div>
   );
