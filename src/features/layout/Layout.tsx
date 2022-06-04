@@ -1,4 +1,4 @@
-import { CssBaseline } from '@mui/material';
+import { CssBaseline, Typography } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import { SocketContext, socket } from "context/socketContext";
 import { CookiesProvider } from "react-cookie";
@@ -13,6 +13,9 @@ const Layout = () => {
           <ThemeProvider theme={darkTheme}>
             <CssBaseline />
             <div className="App">
+              <Typography variant="h3" component="h3">
+                Two-One Chess
+              </Typography>
               <Outlet/>
             </div>
           </ThemeProvider>

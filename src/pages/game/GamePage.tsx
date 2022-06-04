@@ -66,10 +66,6 @@ const GamePage = () => {
 
   return (
     <Box className="GamePage">
-      <Typography variant="h2" component="h2">
-        Two-One Chess
-      </Typography>
-
       <Button variant="contained" color="primary" onClick={ () => { socket.emit("createGame", uuidv4().slice(0, 8)) } }>Create Invite Link</Button>
       {roomId && !params.roomId &&
         <Typography>{INVITE_LINK_URL + roomId}</Typography>

@@ -186,8 +186,9 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
             />
           {chessBoardActive &&
             <ButtonGroup
-              style={{marginTop: "1rem"}}
-              fullWidth size="large" 
+              style={{marginTop: "1rem", height: "4rem"}}
+              fullWidth
+              size="large" 
               aria-label="large button group">
               <PreviewConfirmButton
                 botMove={fBotMove}

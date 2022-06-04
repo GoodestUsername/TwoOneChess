@@ -1,14 +1,16 @@
 import { createTheme } from '@material-ui/core/styles'
-
+const theme = createTheme();
 const darkTheme = createTheme({
     typography: {
+        button: {
+            color: 'white',
+        },
         allVariants: {
             color: "white"
             },
     },
     palette: {
         text: {
-
             disabled: '#FFF'
         },
         primary: {
@@ -22,10 +24,16 @@ const darkTheme = createTheme({
             default: '#101433',
             paper: 'rgba(40,51,97,0.35)',
         },
+        action: {
+            disabledBackground: theme.palette.primary.light,
+            disabled: "white"
+        }
     },
     props: {
         MuiButton: {
-            
+            style: {
+                background: 'white'
+            },
         },
     },
 });
