@@ -12,13 +12,6 @@ const initializeConnection = (io, client) => {
 
     allSessions.push(gameSocket);
 
-    // #region count
-    const count = io.engine.clientsCount;
-    const count2 = io.of("/").sockets.size;
-    console.log("clients: ", count)
-    console.log("sockets: ", count2)
-    // #endregion count
-
     //
     gameSocket.on("register", onRegister);
 
@@ -39,13 +32,11 @@ const initializeConnection = (io, client) => {
 }
 
 function onRegister(data) {
-    console.log(data);
     if (data !== null) {
         const gameRoom = serverIO.sockets.adapter.rooms.get(data.roomId);
         if (gameRoom && gameRoom.roomVars && gameRoom.roomVars.gameKey === data.gameKey) {
             this.join(data.roomId);
             this.to(data.roomId).emit("reconnectGame", data);
-            console.log("onRegister")
             return;
         }
     }
@@ -65,17 +56,17 @@ function onJoinGame(data) {
     const roomSize = gameRoom ? gameRoom.size : 0;
 
     if (gameRoom === undefined) {
-        this.emit("issueWarning", {message: "room does not exist"});
+        this.emit("issueWarning", {msg: "room does not exist"});
         return;
     }
 
     if (gameRoom.has(this.id)) {
-        this.emit("issueWarning", {message: "You have already joined this room."});
+        this.emit("issueWarning", {msg: "You have already joined this room."});
         return;
     }
 
     if (gameRoom.roomVars.gameKey !== null) {
-        this.emit("issueWarning", {message: "game has already started"});
+        this.emit("issueWarning", {msg: "game has already started"});
         return;
     }
 
@@ -93,13 +84,11 @@ function onJoinGame(data) {
         serverIO.sockets.adapter.rooms.get(data.roomId).roomVars.gameKey = gameKey;
     }
     else {
-        this.emit("issueWarning", {message: "Room full"});
+        this.emit("issueWarning", {msg: "Room full"});
     }
 }
 
 function onSendMove(data) {
-    console.log("sendMove")
-    console.log(serverIO.sockets.adapter.rooms.get(data.roomId));
     this.to(data.roomId).emit("opponentMove", data);
 }
 
