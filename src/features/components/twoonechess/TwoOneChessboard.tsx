@@ -185,7 +185,7 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
               position               = { game.fen()} onPieceDrop={onDrop }
             />
           {chessBoardActive &&
-            <ButtonGroup 
+            <ButtonGroup
               style={{marginTop: "1rem"}}
               fullWidth size="large" 
               aria-label="large button group">

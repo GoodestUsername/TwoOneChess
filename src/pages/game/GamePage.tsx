@@ -3,7 +3,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // material ui
-import { Button } from '@material-ui/core';
+import { Button, Typography, Box } from '@material-ui/core';
 
 // helper functions
 import Cookies from 'universal-cookie';
@@ -65,28 +65,31 @@ const GamePage = () => {
   }, [socket, onConnect, onSendRoomCode, onIssueWarning, onServerMessage])
 
   return (
-    <div className="GamePage">
-        <h1>Two-One Chess</h1>
-        <Button variant="contained" color="primary" onClick={ () => { socket.emit("createGame", uuidv4().slice(0, 8)) } }>Create Invite Link</Button>
-        {roomId && !params.roomId &&
-          <p>{INVITE_LINK_URL + roomId}</p>
-        }
-        <p>{warningMessage}</p>
-        <p>{serverMessage}</p>
-        <ToastContainer
-          theme="colored"
-          position="top-center"
-          autoClose={false}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
-        <TwoOneChessboard roomId={roomId}/>
-    </div>
+    <Box className="GamePage">
+      <Typography variant="h2" component="h2">
+        Two-One Chess
+      </Typography>
+
+      <Button variant="contained" color="primary" onClick={ () => { socket.emit("createGame", uuidv4().slice(0, 8)) } }>Create Invite Link</Button>
+      {roomId && !params.roomId &&
+        <Typography>{INVITE_LINK_URL + roomId}</Typography>
+      }
+      <Typography>{warningMessage}</Typography>
+      <Typography>{serverMessage}</Typography>
+      <ToastContainer
+        theme="colored"
+        position="top-center"
+        autoClose={false}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      <TwoOneChessboard roomId={roomId}/>
+  </Box>
   );
 }
 

@@ -1,6 +1,11 @@
 import { createTheme } from '@material-ui/core/styles'
 
 const darkTheme = createTheme({
+    typography: {
+        allVariants: {
+            color: "white"
+            },
+    },
     palette: {
         text: {
 
