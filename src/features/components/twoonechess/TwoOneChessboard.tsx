@@ -22,6 +22,7 @@ import { Chessboard } from "react-chessboard";
 
 // context
 import { SocketContext } from "context/socketContext";
+import { Box, ButtonGroup, Divider } from "@material-ui/core";
 
 const TOKEN_KEY = 'ACCESS_TOKEN';
 interface GamePage {
@@ -169,36 +170,41 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
   return (
     <>
         <div
-            style={{ 
-            display: 'flex', 
-            justifyContent: 'center'
-            }}>
+          style={{ 
+          display: 'flex', 
+          justifyContent: 'center'
+          }}>
+          <Box>
             <Chessboard
-            customArrows           = { botMovePreviews }
-            boardOrientation       = { playerColor }
-            customDropSquareStyle  = { {boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'} }
-            customArrowColor       = { "rgb(255,170,0)" } 
-            customDarkSquareStyle  = { { backgroundColor: '#B58863' } }
-            customLightSquareStyle = { { backgroundColor: '#F0D9B5' } }
-            position               = { game.fen()} onPieceDrop={onDrop }
+              customArrows           = { botMovePreviews }
+              boardOrientation       = { playerColor }
+              customDropSquareStyle  = { {boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'} }
+              customArrowColor       = { "rgb(255,170,0)" } 
+              customDarkSquareStyle  = { { backgroundColor: '#B58863' } }
+              customLightSquareStyle = { { backgroundColor: '#F0D9B5' } }
+              position               = { game.fen()} onPieceDrop={onDrop }
             />
-        </div>
-        {chessBoardActive &&
-            <section>
-            <PreviewConfirmButton
+          {chessBoardActive &&
+            <ButtonGroup 
+              style={{marginTop: "1rem"}}
+              fullWidth size="large" 
+              aria-label="large button group">
+              <PreviewConfirmButton
                 botMove={fBotMove}
                 handleMove={handleMoveAndSend}
                 setBotMovePreviews={setBotMovePreviews}/>
-            <PreviewConfirmButton
+              <PreviewConfirmButton
                 botMove={sBotMove}
                 handleMove={handleMoveAndSend}
                 setBotMovePreviews={setBotMovePreviews}/>
-            <PreviewConfirmButton
+              <PreviewConfirmButton
                 botMove={tBotMove}
                 handleMove={handleMoveAndSend}
                 setBotMovePreviews={setBotMovePreviews}/>
-            </section>
-        }
+            </ButtonGroup>
+          }
+          </Box>
+        </div>
     </>
   );
 }

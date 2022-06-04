@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-
+import { Box, Button } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
 interface ConfirmationButtonInterface {
     onClickInitial: Function,
     onClickConfirm: Function,
@@ -8,9 +10,23 @@ interface ConfirmationButtonInterface {
     fstBtnoffByDef: boolean,
     buttonText: string,
     defaultText: string,
-    confirmText: string
+    confirmText: string | null
+}
+const buttonStyling = {
+    fontSize: "1.5rem",
+    fontWeight: "bold",
+    borderRadius: 0,
+    maxWidth: "33.3%",
+    minHeight: "100%"
 }
 
+const confirmButtonStyling = {
+    fontSize: "1.5rem",
+    fontWeight: "bold",
+    borderRadius: 0,
+    maxWidth: "50%",
+    minHeight: "100%"
+}
 const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
     onClickInitial,
     onClickConfirm,
@@ -34,21 +50,36 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
 
     return (
         <>
-        {clickedInitial && (<><button onClick={() => {
-                                onClickConfirm();
-                                setClickedInitial(false);} }> {confirmText}
-                            </button>
-                            <button onClick={() => {
-                                onClickCancel() ;
-                                setClickedInitial(false);} }>Cancel</button>
-                            </>)
+        {clickedInitial && (<Box sx={{width: "33.33%"}}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    color="secondary"
+                                    sx={confirmButtonStyling}
+                                    onClick={() => {
+                                        onClickConfirm();
+                                        setClickedInitial(false);} }> {confirmText ? confirmText : <CheckIcon fontSize="large" />} </Button>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    color="secondary" 
+                                    sx={confirmButtonStyling}
+                                    onClick={() => {
+                                        onClickCancel() ;
+                                        setClickedInitial(false);} }><ClearIcon fontSize="large"/></Button>
+                            </Box>)
         }
         {!clickedInitial && 
-            <button onClick={() => {
-                onClickInitial();
-                setClickedInitial(true)
-                }} disabled={disableInitial}>
-                {btnText}</button>
+            <Button 
+                disabled={disableInitial}
+                fullWidth
+                variant="contained"
+                color="secondary"
+                sx={buttonStyling}
+                onClick={() => {
+                    onClickInitial();
+                    setClickedInitial(true)
+                }}>{btnText}</Button>
         }
         </>
     )

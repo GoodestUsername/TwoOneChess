@@ -1,17 +1,23 @@
+import { CssBaseline } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import { SocketContext, socket } from "context/socketContext";
 import { CookiesProvider } from "react-cookie";
 import { Outlet } from "react-router-dom";
+import darkTheme from 'theme/muiTheme/MUITheme';
 
 // Components
 const Layout = () => {
   return (
-    <div className="App" style={{background: "#000000", color: "#d3d3d3"}}>
       <SocketContext.Provider value={socket}>
         <CookiesProvider>
-          <Outlet/>
+          <ThemeProvider theme={darkTheme}>
+            <CssBaseline />
+            <div className="App">
+              <Outlet/>
+            </div>
+          </ThemeProvider>
         </CookiesProvider>
       </SocketContext.Provider>
-    </div>
   );
 }
 
