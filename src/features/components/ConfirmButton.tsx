@@ -50,7 +50,7 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
                                 <Button
                                     fullWidth
                                     variant="contained"
-                                    color="secondary"
+                                    color="primary"
                                     sx={confirmButtonStyling}
                                     onClick={() => {
                                         onClickConfirm();
@@ -58,7 +58,7 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
                                 <Button
                                     fullWidth
                                     variant="contained"
-                                    color="secondary" 
+                                    color="primary" 
                                     sx={confirmButtonStyling}
                                     onClick={() => {
                                         onClickCancel() ;

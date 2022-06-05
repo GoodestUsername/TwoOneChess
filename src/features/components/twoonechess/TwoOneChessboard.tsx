@@ -188,12 +188,12 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
                 botMove={fBotMove}
                 handleMove={handleMoveAndSend}
                 setBotMovePreviews={setBotMovePreviews}/>
-              <Divider sx={{ bgcolor: "white", borderRightWidth: 3 }} orientation="vertical" flexItem={true}/>
+              <Divider sx={{ borderRightWidth: 1, minHeight: "4rem" }} orientation="vertical" flexItem={true}/>
               <PreviewConfirmButton
                 botMove={sBotMove}
                 handleMove={handleMoveAndSend}
                 setBotMovePreviews={setBotMovePreviews}/>
-              <Divider sx={{ bgcolor: "white", borderRightWidth: 3 }} orientation="vertical" flexItem={true}/>
+              <Divider sx={{ borderRightWidth: 1, minHeight: "4rem" }} orientation="vertical" flexItem={true}/>
               <PreviewConfirmButton
                 botMove={tBotMove}
                 handleMove={handleMoveAndSend}

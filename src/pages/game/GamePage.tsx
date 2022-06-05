@@ -3,7 +3,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // material ui
-import { Button, Typography, Box } from '@material-ui/core';
+import { Button, Typography, Box  } from "@mui/material";
 
 // helper functions
 import Cookies from 'universal-cookie';

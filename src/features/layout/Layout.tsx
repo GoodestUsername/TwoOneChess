@@ -22,9 +22,6 @@ const Layout = () => {
                 style={{ minHeight: '100vh' }}
               >
                 <Grid item xs={3}>
-                  <Typography variant="h3" component="h3">
-                    Two-One Chess
-                  </Typography>
                   <Outlet/>
                 </Grid>   
               </Grid> 
