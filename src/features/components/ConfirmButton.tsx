@@ -15,13 +15,13 @@ interface ConfirmationButtonInterface {
 const buttonStyling = {
     fontWeight: "bold",
     borderRadius: 0,
+    minHeight: "100%"
 }
 
 const confirmButtonStyling = {
     ...buttonStyling,
     fontSize: "1.5rem",
-    maxWidth: "50%",
-    minHeight: "100%"
+    width: "50%",
 }
 const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
     onClickInitial,
@@ -66,15 +66,17 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
                             </Box>)
         }
         {!clickedInitial && 
+        <Box sx={{width: "33.33%"}}>
             <Button 
                 disabled={disableInitial}
                 variant="contained"
                 color="secondary"
-                sx={{...buttonStyling, width:"33.33%", fontSize: "1.3rem"}}
+                sx={{...buttonStyling, fontSize: "1.2rem"}}
                 onClick={() => {
                     onClickInitial();
                     setClickedInitial(true)
                 }}>{btnText}</Button>
+        </Box>
         }
         </>
     )

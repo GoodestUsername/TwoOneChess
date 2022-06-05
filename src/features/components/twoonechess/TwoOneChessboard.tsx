@@ -22,7 +22,9 @@ import { Chessboard } from "react-chessboard";
 
 // context
 import { SocketContext } from "context/socketContext";
-import { Box, ButtonGroup, Divider } from "@material-ui/core";
+
+// material ui
+import { Box, ButtonGroup, Divider } from "@mui/material";
 
 const TOKEN_KEY = 'ACCESS_TOKEN';
 interface GamePage {
@@ -168,12 +170,6 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
   }, [socket, onStartGame, onRestoreGame, onReconnectGame, onOpponentMove])
 
   return (
-    <>
-        <div
-          style={{ 
-          display: 'flex', 
-          justifyContent: 'center'
-          }}>
           <Box>
             <Chessboard
               customArrows           = { botMovePreviews }
@@ -187,17 +183,17 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
           {chessBoardActive &&
             <ButtonGroup
               style={{marginTop: "1rem", height: "4rem"}}
-              fullWidth
-              size="large" 
-              aria-label="large button group">
+              fullWidth={true}>
               <PreviewConfirmButton
                 botMove={fBotMove}
                 handleMove={handleMoveAndSend}
                 setBotMovePreviews={setBotMovePreviews}/>
+              <Divider sx={{ bgcolor: "white", borderRightWidth: 3 }} orientation="vertical" flexItem={true}/>
               <PreviewConfirmButton
                 botMove={sBotMove}
                 handleMove={handleMoveAndSend}
                 setBotMovePreviews={setBotMovePreviews}/>
+              <Divider sx={{ bgcolor: "white", borderRightWidth: 3 }} orientation="vertical" flexItem={true}/>
               <PreviewConfirmButton
                 botMove={tBotMove}
                 handleMove={handleMoveAndSend}
@@ -205,8 +201,6 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
             </ButtonGroup>
           }
           </Box>
-        </div>
-    </>
   );
 }
 
