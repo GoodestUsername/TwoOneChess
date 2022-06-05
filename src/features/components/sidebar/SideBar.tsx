@@ -8,7 +8,8 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import PlaylistAddCheckCircleIcon from '@mui/icons-material/PlaylistAddCheckCircle';
 import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
 import SchoolIcon from '@mui/icons-material/School';
-
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 // css
 import "react-pro-sidebar/dist/css/styles.css";
 import { useState } from 'react';
@@ -33,21 +34,24 @@ const SideBar = () => {
           <Box style={{ padding: "20px 20px", }}>
               <Typography sx={{
                 overflow: "hidden",
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
               }}>
-                Two One Chess
+                {!collapsed && "Two One Chess"}
+                <MenuItem
+                    icon={ collapsed ? <ArrowForwardIosIcon /> : <ArrowBackIosIcon /> }
+                    style={{float: "right", listStyleType: "none"}}
+                    onClick={() => setCollapsed(!collapsed)}>
+                </MenuItem>
               </Typography>
           </Box>
         </SidebarHeader>
   
         <SidebarContent>
           <Menu iconShape="circle">
-            <MenuItem icon={<PlayArrowIcon />}> Play Game</MenuItem>
-            <MenuItem icon={<SchoolIcon />}> Tutorial</MenuItem>
-            <MenuItem icon={<PlaylistAddCheckOutlinedIcon />}> Features</MenuItem>
-            <MenuItem icon={<PlaylistAddCheckCircleIcon />}> Planned</MenuItem>
-            <MenuItem icon={<InfoOutlinedIcon />}> About Me</MenuItem>
+            <MenuItem icon={ <PlayArrowIcon /> }> Play Game</MenuItem>
+            <MenuItem icon={ <SchoolIcon /> }> Tutorial</MenuItem>
+            <MenuItem icon={ <PlaylistAddCheckOutlinedIcon /> }> Features</MenuItem>
+            <MenuItem icon={ <PlaylistAddCheckCircleIcon /> }> Planned</MenuItem>
+            <MenuItem icon={ <InfoOutlinedIcon /> }> About Me</MenuItem>
           </Menu>
         </SidebarContent>
         <SidebarFooter style={{ textAlign: "center" }}>
