@@ -1,4 +1,4 @@
-import { CssBaseline, Typography } from '@mui/material';
+import { CssBaseline, Grid, Typography } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import { SocketContext, socket } from "context/socketContext";
 import { CookiesProvider } from "react-cookie";
@@ -12,11 +12,22 @@ const Layout = () => {
         <CookiesProvider>
           <ThemeProvider theme={darkTheme}>
             <CssBaseline />
-            <div className="App">
-              <Typography variant="h3" component="h3">
-                Two-One Chess
-              </Typography>
-              <Outlet/>
+            <div className="Layout">
+              <Grid
+                container
+                spacing={0}
+                direction="column"
+                alignItems="center"
+                justifyContent="center"
+                style={{ minHeight: '100vh' }}
+              >
+                <Grid item xs={3}>
+                  <Typography variant="h3" component="h3">
+                    Two-One Chess
+                  </Typography>
+                  <Outlet/>
+                </Grid>   
+              </Grid> 
             </div>
           </ThemeProvider>
         </CookiesProvider>
