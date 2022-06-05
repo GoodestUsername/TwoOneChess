@@ -1,4 +1,4 @@
-import { CssBaseline, Grid, Typography } from '@mui/material';
+import { CssBaseline, Grid } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import { SocketContext, socket } from "context/socketContext";
 import { CookiesProvider } from "react-cookie";
