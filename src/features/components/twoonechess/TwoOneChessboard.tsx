@@ -87,9 +87,6 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
       safeGameMutate((game: any) => {
         game.move(validMove);
       });
-      setFBotMove(null);
-      setSBotMove(null);
-      setTBotMove(null);
       const pgn = gameEngineRef.current!.game.pgn();
       socket.emit("sendMove", {
         pgn: pgn,
@@ -97,6 +94,9 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
       });
       handleGameOverConditions()
     }
+    setFBotMove(null);
+    setSBotMove(null);
+    setTBotMove(null);
     return validMove === null;
   }
 
