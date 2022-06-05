@@ -11,30 +11,34 @@ import SchoolIcon from '@mui/icons-material/School';
 
 // css
 import "react-pro-sidebar/dist/css/styles.css";
+import { useState } from 'react';
 
 const SideBar = () => {
+    const [toggled, setToggled] = useState<boolean>(false);
+    const [collapsed, setCollapsed] = useState<boolean>(true);
+    const handleSideBarToggle = () => {
+      setToggled(!toggled);
+    };
+
     return (
       <ProSidebar
-        style={{ height: "100vh", minWidth:"3rem"}}
+        style={{ height: "100vh", minWidth:"30px"}}
         image={undefined}
-        // rtl={rtl}
-        collapsed={false}
-        toggled={false}
-        breakPoint="sm"
-        // onToggle={handleToggleSidebar}
+        collapsed={collapsed}
+        toggled={true}
+        onToggle={handleSideBarToggle}
+        breakPoint="md"
       >
         <SidebarHeader>
-          <div
-            style={{
-              padding: "1rem",
-              textTransform: "uppercase",
-              fontWeight: "bold",
-              fontSize: 14,
-              overflow: "hidden",
-            }}
-          >
-            <Typography>Two One Chess</Typography>
-          </div>
+          <Box style={{ padding: "20px 20px", }}>
+              <Typography sx={{
+                overflow: "hidden",
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}>
+                Two One Chess
+              </Typography>
+          </Box>
         </SidebarHeader>
   
         <SidebarContent>
@@ -46,15 +50,20 @@ const SideBar = () => {
             <MenuItem icon={<InfoOutlinedIcon />}> About Me</MenuItem>
           </Menu>
         </SidebarContent>
-  
         <SidebarFooter style={{ textAlign: "center" }}>
-        <Box sx={{ padding: "1rem 3rem" }}>
-            <a href="https://github.com/GoodestUsername/TwoOneChess"
-              rel="noopener noreferrer">
-              <GitHubIcon />
-              <span> Source </span>
-            </a>
-          </Box>
+            <div
+                className="sidebar-btn-wrapper"
+                style={{ padding: "20px 24px", overflow: "hidden",
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',}}>
+                <a href="https://github.com/GoodestUsername/TwoOneChess"
+                    target="_blank"
+                    className="sidebar-btn"
+                    rel="noopener noreferrer">
+                    <GitHubIcon />
+                    <span> Source </span>
+                </a>
+            </div>
         </SidebarFooter>
       </ProSidebar>
     );
