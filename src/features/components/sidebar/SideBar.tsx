@@ -25,13 +25,11 @@ const SideBar: React.FC<SideBarInterface> = ({
   handleSideBarToggle
 }) => {
   const handleToggle = () => {
-    handleSideBarToggle(false);
-    setSideBarCollapsed(false);
+    setSideBarCollapsed(false, false);
   };
 
   const handleCollapseToggle = () => {
-    setSideBarCollapsed(!sideBarCollapsed)
-    handleSideBarToggle(false);
+    handleSideBarToggle(false, !sideBarCollapsed);
   }
   return (
     <ProSidebar

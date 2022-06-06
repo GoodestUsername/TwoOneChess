@@ -12,7 +12,6 @@ const PreviewConfirmButton: React.FC<PreviewConfirmButtonProps> = ({
     return(
         <ConfirmButton
             buttonText     = { shortMoveToString(botMove?.move) }
-            defaultText    = { "Calculating" }
             confirmText    = { null }
             fstBtnoffByDef = { true }
             isBtnDisabled  = { (disabledSetter: Function) => {disabledSetter(botMove === null)}}

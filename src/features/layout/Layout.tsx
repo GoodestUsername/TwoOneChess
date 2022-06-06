@@ -24,6 +24,7 @@ const Layout = () => {
   // sidebar states
   const [toggled, setToggled] = useState<boolean>(isMobile);
   const [sideBarCollapsed, setSideBarCollapsed] = useState<boolean>(false);
+  
   const handleSideBarToggle = (newToggle: boolean, newCollapsed: boolean) => {
     setToggled(newToggle);
     setSideBarCollapsed(newCollapsed);
