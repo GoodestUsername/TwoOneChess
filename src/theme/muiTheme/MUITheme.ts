@@ -3,7 +3,7 @@ import { alpha, createTheme, darken } from '@mui/material';
 // inspired by https://bloomui.com/product/tokyo-free-black-react-typescript-material-ui-admin-dashboard/
 const generalColors = {
     primary: "#6d5fec",
-    primaryAlt: '#0f1430',
+    primaryAlt: '#23222B',
     secondary: '#7881ac',
     success: '#49e201',
     warning: '#f88f08',

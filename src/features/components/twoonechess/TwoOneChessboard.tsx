@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useMediaQuery } from "react-responsive";
 import { Chess, ChessInstance } from 'chess.js';
 import { toast } from 'react-toastify';
 
@@ -31,6 +32,8 @@ interface GamePage {
   roomId: String;
 }
 const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
+  const isMobile = useMediaQuery({ query: '(max-width: 760px)' })
+
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
 
@@ -176,6 +179,7 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
   return (
           <Box>
             <Chessboard
+              boardWidth={isMobile ? window.innerWidth : 560}
               customArrows           = { botMovePreviews }
               boardOrientation       = { playerColor }
               customDropSquareStyle  = { {boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'} }

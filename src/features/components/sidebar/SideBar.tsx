@@ -2,76 +2,88 @@ import { ProSidebar, SidebarHeader, SidebarFooter, SidebarContent, Menu, MenuIte
 import { Box, Typography } from '@mui/material';
 
 // icons
+import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
+import PlaylistAddCheckCircleIcon from '@mui/icons-material/PlaylistAddCheckCircle';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import PlaylistAddCheckCircleIcon from '@mui/icons-material/PlaylistAddCheckCircle';
-import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
 import SchoolIcon from '@mui/icons-material/School';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-// css
-import "react-pro-sidebar/dist/css/styles.css";
-import { useState } from 'react';
 
-const SideBar = () => {
-    const [toggled, setToggled] = useState<boolean>(false);
-    const [collapsed, setCollapsed] = useState<boolean>(true);
-    const handleSideBarToggle = () => {
-      setToggled(!toggled);
-    };
+interface SideBarInterface {
+  toggled: any,
+  handleSideBarToggle: Function,
+  sideBarCollapsed: any,
+  setSideBarCollapsed: Function
+}
 
-    return (
-      <ProSidebar
-        style={{ height: "100vh", minWidth:"30px"}}
-        image={undefined}
-        collapsed={collapsed}
-        toggled={true}
-        onToggle={handleSideBarToggle}
-        breakPoint="md"
-      >
-        <SidebarHeader>
-          <Box style={{ padding: "20px 20px", }}>
-              <Typography sx={{
-                overflow: "hidden",
-              }}>
-                {!collapsed && "Two One Chess"}
-                <MenuItem
-                    icon={ collapsed ? <ArrowForwardIosIcon /> : <ArrowBackIosIcon /> }
-                    style={{float: "right", listStyleType: "none"}}
-                    onClick={() => setCollapsed(!collapsed)}>
-                </MenuItem>
-              </Typography>
-          </Box>
-        </SidebarHeader>
-  
-        <SidebarContent>
-          <Menu iconShape="circle">
-            <MenuItem icon={ <PlayArrowIcon /> }> Play Game</MenuItem>
-            <MenuItem icon={ <SchoolIcon /> }> Tutorial</MenuItem>
-            <MenuItem icon={ <PlaylistAddCheckOutlinedIcon /> }> Features</MenuItem>
-            <MenuItem icon={ <PlaylistAddCheckCircleIcon /> }> Planned</MenuItem>
-            <MenuItem icon={ <InfoOutlinedIcon /> }> About Me</MenuItem>
-          </Menu>
-        </SidebarContent>
-        <SidebarFooter style={{ textAlign: "center" }}>
-            <div
-                className="sidebar-btn-wrapper"
-                style={{ padding: "20px 24px", overflow: "hidden",
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',}}>
-                <a href="https://github.com/GoodestUsername/TwoOneChess"
-                    target="_blank"
-                    className="sidebar-btn"
-                    rel="noopener noreferrer">
-                    <GitHubIcon />
-                    <span> Source </span>
-                </a>
-            </div>
-        </SidebarFooter>
-      </ProSidebar>
-    );
+const SideBar: React.FC<SideBarInterface> = ({
+  sideBarCollapsed,
+  setSideBarCollapsed,
+  toggled, 
+  handleSideBarToggle
+}) => {
+  const handleToggle = () => {
+    handleSideBarToggle(false);
+    setSideBarCollapsed(false);
   };
+
+  const handleCollapseToggle = () => {
+    setSideBarCollapsed(!sideBarCollapsed)
+    handleSideBarToggle(false);
+  }
+  return (
+    <ProSidebar
+      style={{ height: "100vh", minWidth:"70px", maxWidth:"200px"}}
+      collapsed={sideBarCollapsed}
+      toggled={toggled}
+      onToggle={handleToggle}
+      breakPoint="md"
+    >
+      <SidebarHeader>
+        <Box style={{ padding: "20px 20px", display:"flex"}}>
+            <Typography sx={{
+              overflow: "hidden",
+            }}> {!sideBarCollapsed && "Two One Chess"}</Typography>
+            <MenuItem
+                icon={ sideBarCollapsed ? <ArrowForwardIosIcon /> : <ArrowBackIosIcon /> }
+                style={{
+                  float: "right", 
+                  listStyleType: "none", 
+                  paddingLeft: sideBarCollapsed ?  "4px" : "15px"
+                }}
+                onClick={handleCollapseToggle}>
+            </MenuItem>
+        </Box>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <Menu iconShape="circle">
+          <MenuItem icon={ <PlayArrowIcon /> }> Play Game</MenuItem>
+          <MenuItem icon={ <SchoolIcon /> }> Tutorial</MenuItem>
+          <MenuItem icon={ <PlaylistAddCheckOutlinedIcon /> }> Features</MenuItem>
+          <MenuItem icon={ <PlaylistAddCheckCircleIcon /> }> Planned</MenuItem>
+          <MenuItem icon={ <InfoOutlinedIcon /> }> About Me</MenuItem>
+        </Menu>
+      </SidebarContent>
+      <SidebarFooter style={{ textAlign: "center" }}>
+          <div
+              className="sidebar-btn-wrapper"
+              style={{ padding: "20px 24px", overflow: "hidden",
+              whiteSpace: 'nowrap',}}>
+              <a href="https://github.com/GoodestUsername/TwoOneChess"
+                  target="_blank"
+                  className="sidebar-btn"
+                  rel="noopener noreferrer">
+                  <GitHubIcon />
+                  <span> {!sideBarCollapsed && "Source"} </span>
+              </a>
+          </div>
+      </SidebarFooter>
+    </ProSidebar>
+  );
+};
   
-  export default SideBar;
+export default SideBar;
   
