@@ -57,7 +57,7 @@ const Layout = () => {
                   sx={{
                     marginLeft: sideBarCollapsed ? "0" : "200px"
                   }} 
-                  item xs={9} sm={7} md={4} lg={4} xl={3}>
+                  item xs={8} sm={8} md={8} lg={6} xl={3}>
                   <Outlet/>
                 </Grid>   
               </Grid> 
