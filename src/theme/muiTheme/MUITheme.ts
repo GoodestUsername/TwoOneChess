@@ -4,6 +4,7 @@ import { alpha, createTheme, darken } from '@mui/material';
 const generalColors = {
     primary: "#6d5fec",
     primaryAlt: '#23222B',
+    primaryAlt2: "#1D1D1D",
     secondary: '#7881ac',
     success: '#49e201',
     warning: '#f88f08',
@@ -119,7 +120,14 @@ const darkTheme = createTheme({
                     backgroundColor: darkThemeColors.primary.dark
                 }
             }
-        }
+        },
+        MuiAppBar: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: generalColors.primaryAlt2
+                }
+            }
+        },
     }
 });
 

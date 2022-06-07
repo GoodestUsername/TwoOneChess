@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import { useState } from "react";
 
 // components
-import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
+
 import SideBar from 'features/components/sidebar/SideBar';
 import { CssBaseline, Grid } from '@mui/material';
 
@@ -17,6 +17,7 @@ import "react-pro-sidebar/dist/css/styles.css";
 
 // hooks
 import { useMediaQuery } from "react-responsive";
+import LayoutAppBar from "features/components/appbar/AppBar";
 
 const Layout = () => {
   const isMobile = useMediaQuery({ query: '(max-width: 760px)' })
@@ -35,15 +36,11 @@ const Layout = () => {
         <CookiesProvider>
           <ThemeProvider theme={darkTheme}>
             <CssBaseline />
+            <LayoutAppBar handleSideBarToggle={handleSideBarToggle} />
             <div className="Layout" style={{
                   display: 'flex',
                   flexDirection: 'row',
             }}>
-              {isMobile && <ViewHeadlineIcon style={{
-                position: "absolute",
-                width: "4rem",
-                height: "4rem"
-                }} className="btn-toggle" onClick={() => handleSideBarToggle(true, false)} /> }
               <SideBar 
                 sideBarCollapsed={sideBarCollapsed}
                 toggled={toggled} 
@@ -56,7 +53,7 @@ const Layout = () => {
                 justifyContent="center"
                 style={{ minHeight: '100vh' }}
               >
-                <Grid item xs={3}>
+                <Grid item xs={8} sm={6} md={3} lg={3} xl={2}>
                   <Outlet/>
                 </Grid>   
               </Grid> 
