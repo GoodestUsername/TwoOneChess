@@ -15,28 +15,24 @@ interface SideBarInterface {
   toggled: any,
   handleSideBarToggle: Function,
   sideBarCollapsed: any,
-  setSideBarCollapsed: Function
 }
 
 const SideBar: React.FC<SideBarInterface> = ({
   sideBarCollapsed,
-  setSideBarCollapsed,
   toggled, 
   handleSideBarToggle
 }) => {
-  const handleToggle = () => {
-    setSideBarCollapsed(false, false);
-  };
 
   const handleCollapseToggle = () => {
     handleSideBarToggle(false, !sideBarCollapsed);
   }
+
   return (
     <ProSidebar
       style={{ height: "100vh", minWidth:"70px", maxWidth:"200px"}}
       collapsed={sideBarCollapsed}
       toggled={toggled}
-      onToggle={handleToggle}
+      onToggle={handleCollapseToggle}
       breakPoint="md"
     >
       <SidebarHeader>

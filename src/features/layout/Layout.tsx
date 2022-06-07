@@ -45,8 +45,7 @@ const Layout = () => {
                 height: "4rem"
                 }} className="btn-toggle" onClick={() => handleSideBarToggle(true, false)} /> }
               <SideBar 
-                sideBarCollapsed={sideBarCollapsed} 
-                setSideBarCollapsed={setSideBarCollapsed}
+                sideBarCollapsed={sideBarCollapsed}
                 toggled={toggled} 
                 handleSideBarToggle={handleSideBarToggle}/>
               <Grid

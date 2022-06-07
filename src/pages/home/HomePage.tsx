@@ -1,11 +1,11 @@
 import GamePage from "pages/game/GamePage";
 
-const App = () => {
+const HomePage = () => {
   return (
-    <div className="App">
+    <div className="HomePage">
       <GamePage/>
     </div>
   );
 }
 
-export default App;
+export default HomePage;
