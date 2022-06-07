@@ -10,6 +10,7 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SchoolIcon from '@mui/icons-material/School';
+import { useMediaQuery } from 'react-responsive';
 
 interface SideBarInterface {
   toggled: any,
@@ -22,14 +23,20 @@ const SideBar: React.FC<SideBarInterface> = ({
   toggled, 
   handleSideBarToggle
 }) => {
-
+  const isMobile = useMediaQuery({ query: '(max-width: 760px)' })
   const handleCollapseToggle = () => {
     handleSideBarToggle(false, !sideBarCollapsed);
   }
 
   return (
     <ProSidebar
-      style={{ height: "100vh", minWidth:"70px", maxWidth:"200px"}}
+      style={{ 
+        height: "100vh", 
+        minWidth:"70px", 
+        maxWidth:"200px", 
+        position: "absolute",
+        top: 0
+      }}
       collapsed={sideBarCollapsed}
       toggled={toggled}
       onToggle={handleCollapseToggle}
@@ -39,7 +46,7 @@ const SideBar: React.FC<SideBarInterface> = ({
         <Box style={{ padding: "20px 20px", display:"flex"}}>
             <Typography sx={{
               overflow: "hidden",
-            }}> {!sideBarCollapsed && "Two One Chess"}</Typography>
+            }}> {!sideBarCollapsed && "Two-One Chess"}</Typography>
             <MenuItem
                 icon={ sideBarCollapsed ? <ArrowForwardIosIcon /> : <ArrowBackIosIcon /> }
                 style={{
