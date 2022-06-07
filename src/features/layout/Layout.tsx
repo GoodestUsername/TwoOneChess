@@ -20,7 +20,7 @@ import { useMediaQuery } from "react-responsive";
 import MobileAppBar from "features/components/appbar/MobileAppBar";
 
 const Layout = () => {
-  const isMobile = useMediaQuery({ query: '(max-width: 760px)' })
+  const isMobile = useMediaQuery({ query: '(max-width: 767px)' })
 
   // sidebar states
   const [toggled, setToggled] = useState<boolean>(isMobile);
@@ -53,7 +53,11 @@ const Layout = () => {
                 justifyContent="center"
                 style={{ minHeight: '100vh' }}
               >
-                <Grid item xs={8} sm={6} md={3} lg={3} xl={2}>
+                <Grid
+                  sx={{
+                    marginLeft: sideBarCollapsed ? "0" : "200px"
+                  }} 
+                  item xs={9} sm={7} md={4} lg={4} xl={3}>
                   <Outlet/>
                 </Grid>   
               </Grid> 

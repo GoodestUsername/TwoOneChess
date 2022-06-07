@@ -32,7 +32,7 @@ interface GamePage {
   roomId: String;
 }
 const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
-  const isMobile = useMediaQuery({ query: '(max-width: 760px)' })
+  const isMobile = useMediaQuery({ query: '(max-width: 767px)' })
 
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
