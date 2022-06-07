@@ -20,7 +20,7 @@ import { useMediaQuery } from "react-responsive";
 import MobileAppBar from "features/components/appbar/MobileAppBar";
 
 const Layout = () => {
-  const isMobile = useMediaQuery({ query: '(max-width: 767px)' })
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' })
 
   // sidebar states
   const [toggled, setToggled] = useState<boolean>(isMobile);

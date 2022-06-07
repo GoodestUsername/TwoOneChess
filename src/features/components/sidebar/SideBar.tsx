@@ -29,9 +29,9 @@ const SideBar: React.FC<SideBarInterface> = ({
   return (
     <ProSidebar
       style={{ 
-        height: "100vh", 
-        minWidth:"70px", 
-        maxWidth:"200px", 
+        height: "100vh",
+        minWidth:"70px",
+        maxWidth:"200px",
         position: "absolute",
         top: 0
       }}
