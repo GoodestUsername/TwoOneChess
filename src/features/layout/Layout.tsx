@@ -17,7 +17,7 @@ import "react-pro-sidebar/dist/css/styles.css";
 
 // hooks
 import { useMediaQuery } from "react-responsive";
-import LayoutAppBar from "features/components/appbar/AppBar";
+import MobileAppBar from "features/components/appbar/MobileAppBar";
 
 const Layout = () => {
   const isMobile = useMediaQuery({ query: '(max-width: 760px)' })
@@ -36,7 +36,7 @@ const Layout = () => {
         <CookiesProvider>
           <ThemeProvider theme={darkTheme}>
             <CssBaseline />
-            <LayoutAppBar handleSideBarToggle={handleSideBarToggle} />
+            {isMobile && <MobileAppBar handleSideBarToggle={handleSideBarToggle} />}
             <div className="Layout" style={{
                   display: 'flex',
                   flexDirection: 'row',
