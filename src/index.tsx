@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import GamePage from 'pages/game/GamePage';
 import Layout from 'features/layout/Layout';
 import NotFoundPage from 'pages/404/NotFoundPage';
+import PlannedPage from 'pages/planned/PlannedPage';
 
 // import './scss/index.css'
 // icons
@@ -23,7 +24,8 @@ root.render(
           <Route path="/" element={< Layout/>}>
             <Route path="*"       element={ <NotFoundPage/> }/>
             <Route path="/"       element={ <GamePage/> }/>
-            <Route path=":roomId" element={ <GamePage/> }/>
+            <Route path="/planned"       element={ <PlannedPage/> }/>
+            <Route path="/game/:roomId" element={ <GamePage/> }/>
           </Route>
         </Routes>
     </BrowserRouter>
