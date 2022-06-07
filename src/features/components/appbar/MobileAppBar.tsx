@@ -7,7 +7,7 @@ interface LayoutAppBarInterface {
     handleSideBarToggle: Function
 }
 
-const LayoutAppBar: React.FC<LayoutAppBarInterface> = ({handleSideBarToggle}) => {
+const MobileAppBar: React.FC<LayoutAppBarInterface> = ({handleSideBarToggle}) => {
     return (
         <AppBar position="static">
             <Container maxWidth="xl">
@@ -39,4 +39,4 @@ const LayoutAppBar: React.FC<LayoutAppBarInterface> = ({handleSideBarToggle}) =>
         </AppBar>
     )
 }
-export default LayoutAppBar;
+export default MobileAppBar;
