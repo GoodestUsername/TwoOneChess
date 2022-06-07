@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
+
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
+
 interface ConfirmationButtonInterface {
     onClickInitial: Function,
     onClickConfirm: Function,
@@ -9,9 +12,9 @@ interface ConfirmationButtonInterface {
     isBtnDisabled: Function,
     fstBtnoffByDef: boolean,
     buttonText: string,
-    defaultText: string,
     confirmText: string | null
 }
+
 const buttonStyling = {
     fontWeight: "bold",
     borderRadius: 0,
@@ -30,19 +33,18 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
     isBtnDisabled,
     fstBtnoffByDef,
     buttonText,
-    defaultText,
     confirmText}) => {
     const [clickedInitial, setClickedInitial] = useState(false);
     const [disableInitial, setDisableInitial] = useState(fstBtnoffByDef);
-    const [btnText, setBtnText] = useState(defaultText);
+    const [btnText, setBtnText] = useState<string>("");
 
     useEffect(() => {
-        setBtnText(buttonText || defaultText);
+        setBtnText(buttonText);
         isBtnDisabled(setDisableInitial);
         if (!isBtnDisabled) {
             setClickedInitial(false);
         }
-    }, [buttonText, defaultText, isBtnDisabled])
+    }, [buttonText, isBtnDisabled])
 
     return (
         <>
@@ -67,15 +69,15 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
         }
         {!clickedInitial && 
         <Box sx={{width: "33.33%"}}>
-            <Button 
-                disabled={disableInitial}
+            <LoadingButton
+                loading={disableInitial}
                 variant="contained"
                 color="secondary"
                 sx={{...buttonStyling, fontSize: "1.2rem"}}
                 onClick={() => {
                     onClickInitial();
                     setClickedInitial(true)
-                }}>{btnText}</Button>
+                }}> {btnText}</LoadingButton>
         </Box>
         }
         </>

@@ -1,18 +1,53 @@
-import { CssBaseline, Grid } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
-import { SocketContext, socket } from "context/socketContext";
 import { CookiesProvider } from "react-cookie";
 import { Outlet } from "react-router-dom";
-import darkTheme from 'theme/muiTheme/MUITheme';
+import { useState } from "react";
 
-// Components
+// components
+import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
+import SideBar from 'features/components/sidebar/SideBar';
+import { CssBaseline, Grid } from '@mui/material';
+
+// context
+import { SocketContext, socket } from "context/socketContext";
+
+// css/ styles
+import { ThemeProvider } from '@mui/material/styles';
+import darkTheme from 'theme/muiTheme/MUITheme';
+import "react-pro-sidebar/dist/css/styles.css";
+
+// hooks
+import { useMediaQuery } from "react-responsive";
+
 const Layout = () => {
+  const isMobile = useMediaQuery({ query: '(max-width: 760px)' })
+
+  // sidebar states
+  const [toggled, setToggled] = useState<boolean>(isMobile);
+  const [sideBarCollapsed, setSideBarCollapsed] = useState<boolean>(false);
+  
+  const handleSideBarToggle = (newToggle: boolean, newCollapsed: boolean) => {
+    setToggled(newToggle);
+    setSideBarCollapsed(newCollapsed);
+  };
+
   return (
       <SocketContext.Provider value={socket}>
         <CookiesProvider>
           <ThemeProvider theme={darkTheme}>
             <CssBaseline />
-            <div className="Layout">
+            <div className="Layout" style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+            }}>
+              {isMobile && <ViewHeadlineIcon style={{
+                position: "absolute",
+                width: "4rem",
+                height: "4rem"
+                }} className="btn-toggle" onClick={() => handleSideBarToggle(true, false)} /> }
+              <SideBar 
+                sideBarCollapsed={sideBarCollapsed}
+                toggled={toggled} 
+                handleSideBarToggle={handleSideBarToggle}/>
               <Grid
                 container
                 spacing={0}

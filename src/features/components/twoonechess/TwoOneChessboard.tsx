@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useMediaQuery } from "react-responsive";
 import { Chess, ChessInstance } from 'chess.js';
 import { toast } from 'react-toastify';
 
@@ -31,6 +32,8 @@ interface GamePage {
   roomId: String;
 }
 const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
+  const isMobile = useMediaQuery({ query: '(max-width: 760px)' })
+
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
 
@@ -87,9 +90,6 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
       safeGameMutate((game: any) => {
         game.move(validMove);
       });
-      setFBotMove(null);
-      setSBotMove(null);
-      setTBotMove(null);
       const pgn = gameEngineRef.current!.game.pgn();
       socket.emit("sendMove", {
         pgn: pgn,
@@ -97,12 +97,25 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
       });
       handleGameOverConditions()
     }
+    setFBotMove(null);
+    setSBotMove(null);
+    setTBotMove(null);
     return validMove === null;
   }
 
   // function called on piece drop
   function onDrop(sourceSquare: Square, targetSquare: Square) {
     return handleMoveAndSend({from: sourceSquare, to: targetSquare})
+  }
+
+  const fetchBotMoves = async () => {
+    const moves: any = await gameEngineRef.current!.getBotMoves();
+    // Set Moves
+    if (gameEngineRef.current?.isPlayerTurn()) {
+      setFBotMove(moves[0]);
+      setSBotMove(moves[1]);
+      setTBotMove(moves[2]);
+    }
   }
 
   // Socket functions
@@ -113,7 +126,7 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
     setChessBoardActive(true);
     gameEngineRef.current?.startGame(data.color);
     setPlayerColor(data.color);
-
+    if (gameEngineRef.current?.isPlayerTurn()) fetchBotMoves()
     setFBotMove(null);
     setSBotMove(null);
     setTBotMove(null);
@@ -131,23 +144,17 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
     const cookies = new Cookies();
     const color =  cookies.get(TOKEN_KEY).color;
     setGame(gameEngineRef.current!.loadGame(data.pgn, color));
-    setChessBoardActive(true);
+    if (gameEngineRef.current?.isPlayerTurn()) fetchBotMoves()
     setPlayerColor(color)
+    setChessBoardActive(true);
+    handleGameOverConditions()
   }, []);
 
   const onOpponentMove = useCallback((data: { pgn: string;}) => {
     gameEngineRef.current!.setPgn(data.pgn);
     setGame(gameEngineRef.current!.game);
     handleGameOverConditions()
-    const fetchBotMoves = async () => {
-      const moves: any = await gameEngineRef.current!.getBotMoves();
-      // Set Moves
-      if (gameEngineRef.current?.isPlayerTurn()) {
-        setFBotMove(moves[0]);
-        setSBotMove(moves[1]);
-        setTBotMove(moves[2]);
-      }
-    }
+
     fetchBotMoves();
   }, []);
 
@@ -172,6 +179,7 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
   return (
           <Box>
             <Chessboard
+              boardWidth={isMobile ? window.innerWidth : 560}
               customArrows           = { botMovePreviews }
               boardOrientation       = { playerColor }
               customDropSquareStyle  = { {boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'} }
