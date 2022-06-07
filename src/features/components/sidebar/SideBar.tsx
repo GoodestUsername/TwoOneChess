@@ -10,7 +10,6 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SchoolIcon from '@mui/icons-material/School';
-import { useMediaQuery } from 'react-responsive';
 
 interface SideBarInterface {
   toggled: any,
@@ -23,7 +22,6 @@ const SideBar: React.FC<SideBarInterface> = ({
   toggled, 
   handleSideBarToggle
 }) => {
-  const isMobile = useMediaQuery({ query: '(max-width: 760px)' })
   const handleCollapseToggle = () => {
     handleSideBarToggle(false, !sideBarCollapsed);
   }
