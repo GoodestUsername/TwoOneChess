@@ -1,4 +1,5 @@
-import { Paper, Container, Box, Typography } from "@mui/material";
+import { Paper, Container, Box } from "@mui/material";
+import DocumentSection from "./DocumentSection";
 
 interface DocumentInterface {
     title : string,
@@ -7,16 +8,18 @@ interface DocumentInterface {
 
 const Document: React.FC<DocumentInterface> = ({title, children}) => {
     return (
-      <div className="PlannedPage">
-        <Paper>
-          <Container sx={{height: '90vh', minWidth: "320px", width:"30em"}}>
-            <Box pt={2}>
-              <Typography pb={2} textAlign={"center"} variant="h5">{title}</Typography>
+      <Paper color="secondary" elevation={9}>
+        <Container sx={{height: '95vh', minWidth: "320px", width:"40rem"}}>
+          <Box p={2}>
+            <DocumentSection 
+              title={title} 
+              titleStyle={{paddingBottom: 3, textAlign: "center"}}
+              titleVariant="h4">
               {children}
-            </Box>
-          </Container>
-        </Paper>
-      </div>
+            </DocumentSection>
+          </Box>
+        </Container>
+      </Paper>
     );
   }
   
