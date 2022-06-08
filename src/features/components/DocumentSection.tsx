@@ -18,7 +18,7 @@ const DocumentSection: React.FC<DocumentSectionInterface> = (
                 gutterBottom>{props.title}
             </Typography>
             <Typography>
-                {props.children}        
+                {props.children} 
             </Typography>
         </Box>
     );

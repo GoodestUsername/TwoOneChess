@@ -15,8 +15,8 @@ const Document: React.FC<DocumentInterface> = ({title, children}) => {
               title={title} 
               titleStyle={{paddingBottom: 3, textAlign: "center"}}
               titleVariant="h4">
-              {children}
             </DocumentSection>
+            {children}
           </Box>
         </Container>
       </Paper>
