@@ -9,7 +9,13 @@ interface DocumentInterface {
 const Document: React.FC<DocumentInterface> = ({title, children}) => {
     return (
       <Paper color="secondary" elevation={9}>
-        <Container sx={{height: '95vh', minWidth: "320px", width:"40rem"}}>
+        <Container sx={{
+            marginTop: "2vh",
+            height: '98vh',
+            minWidth: "320px",
+            overflowY: "auto",
+            width:"40rem"
+          }}>
           <Box p={2}>
             <DocumentSection 
               title={title} 
