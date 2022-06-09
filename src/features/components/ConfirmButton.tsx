@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button } from '@mui/material';
+import { Box, Button, ButtonGroup, Divider } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 import CheckIcon from '@mui/icons-material/Check';
@@ -24,7 +24,6 @@ const buttonStyling = {
 const confirmButtonStyling = {
     ...buttonStyling,
     fontSize: "1.5rem",
-    width: "50%",
 }
 const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
     onClickInitial,
@@ -48,7 +47,9 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
 
     return (
         <>
-        {clickedInitial && (<Box sx={{width: "33.33%"}}>
+        {clickedInitial && (<ButtonGroup
+                                style={{height: "4rem", width: "33%"}}
+                                fullWidth={true}>
                                 <Button
                                     fullWidth
                                     variant="contained"
@@ -57,6 +58,7 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
                                     onClick={() => {
                                         onClickConfirm();
                                         setClickedInitial(false);} }> {confirmText ? confirmText : <CheckIcon fontSize="large" />} </Button>
+                                <Divider sx={{ borderRightWidth: 1, minHeight: "4rem", zIndex:100 }} orientation="vertical" flexItem={true}/>
                                 <Button
                                     fullWidth
                                     variant="contained"
@@ -65,7 +67,7 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
                                     onClick={() => {
                                         onClickCancel() ;
                                         setClickedInitial(false);} }><ClearIcon fontSize="large"/></Button>
-                            </Box>)
+                            </ButtonGroup>)
         }
         {!clickedInitial && 
         <Box sx={{width: "33.33%"}}>

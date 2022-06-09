@@ -117,7 +117,10 @@ const darkTheme = createTheme({
         MuiButton: {
             styleOverrides: {
                 root: {
-                    backgroundColor: darkThemeColors.primary.dark
+                    backgroundColor: darkThemeColors.primary.dark,
+                    ":hover": {
+                        backgroundColor: darkThemeColors.primary.light,
+                    }
                 }
             }
         },
