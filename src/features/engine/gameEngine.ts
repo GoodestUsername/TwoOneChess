@@ -2,7 +2,7 @@ import UciEngineWorker from "features/workers/stockfish";
 import { areMovesEqual, BoardOrientation, GameOverStates, getGameOverState, isPromoting, MoveAssignment, MoveWithAssignment } from "./chessEngine";
 import { Chess, ChessInstance, ShortMove } from 'chess.js';;
 
-const stockfishFile = "stockfish.js"
+const stockfishFile = "/stockfish.js"
 /**
  * Gets a random element in array
  * @param {Array} array items An array containing the items.
@@ -54,7 +54,7 @@ class GameEngine {
     public set clientColor(value: BoardOrientation) {
         this._clientColor = value;
     }
-    chessBot:    UciEngineWorker;
+    chessBot: UciEngineWorker;
 
     constructor() {
         this.chessBot = new UciEngineWorker(stockfishFile);

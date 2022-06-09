@@ -1,5 +1,6 @@
 import { ProSidebar, SidebarHeader, SidebarFooter, SidebarContent, Menu, MenuItem } from 'react-pro-sidebar';
 import { Box, Typography } from '@mui/material';
+import { Link } from "react-router-dom";
 
 // icons
 import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
@@ -10,7 +11,6 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SchoolIcon from '@mui/icons-material/School';
-import { useMediaQuery } from 'react-responsive';
 
 interface SideBarInterface {
   toggled: any,
@@ -23,7 +23,6 @@ const SideBar: React.FC<SideBarInterface> = ({
   toggled, 
   handleSideBarToggle
 }) => {
-  const isMobile = useMediaQuery({ query: '(max-width: 760px)' })
   const handleCollapseToggle = () => {
     handleSideBarToggle(false, !sideBarCollapsed);
   }
@@ -31,9 +30,9 @@ const SideBar: React.FC<SideBarInterface> = ({
   return (
     <ProSidebar
       style={{ 
-        height: "100vh", 
-        minWidth:"70px", 
-        maxWidth:"200px", 
+        height: "100vh",
+        minWidth:"70px",
+        maxWidth:"200px",
         position: "absolute",
         top: 0
       }}
@@ -61,11 +60,21 @@ const SideBar: React.FC<SideBarInterface> = ({
 
       <SidebarContent>
         <Menu iconShape="circle">
-          <MenuItem icon={ <PlayArrowIcon /> }> Play Game</MenuItem>
-          <MenuItem icon={ <SchoolIcon /> }> Tutorial</MenuItem>
-          <MenuItem icon={ <PlaylistAddCheckOutlinedIcon /> }> Features</MenuItem>
-          <MenuItem icon={ <PlaylistAddCheckCircleIcon /> }> Planned</MenuItem>
-          <MenuItem icon={ <InfoOutlinedIcon /> }> About Me</MenuItem>
+          <MenuItem icon={ <PlayArrowIcon /> }>
+            <Link to={"/"}> Play Game </Link>
+          </MenuItem>
+          <MenuItem icon={ <SchoolIcon /> }>
+          <Link to={"/tutorial"}> Tutorial </Link>
+             </MenuItem>
+          <MenuItem icon={ <PlaylistAddCheckOutlinedIcon /> }> 
+            <Link to={"/features"}> Features </Link>
+          </MenuItem>
+          <MenuItem icon={ <PlaylistAddCheckCircleIcon /> }>
+          < Link to={"/planned"}> Planned </Link>
+          </MenuItem>
+          <MenuItem icon={ <InfoOutlinedIcon /> }> 
+            <Link to={"/about"}> About Me </Link>
+          </MenuItem>
         </Menu>
       </SidebarContent>
       <SidebarFooter style={{ textAlign: "center" }}>
