@@ -28,9 +28,11 @@ import { SocketContext } from "context/socketContext";
 import { Box, ButtonGroup, Divider } from "@mui/material";
 
 const TOKEN_KEY = 'ACCESS_TOKEN';
+
 interface GamePage {
   roomId: String;
 }
+
 const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
   const isMobile = useMediaQuery({ query: '(max-width: 767px)' })
 

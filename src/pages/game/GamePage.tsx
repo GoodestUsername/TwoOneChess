@@ -18,7 +18,7 @@ import TwoOneChessboard from "features/components/twoonechess/TwoOneChessboard";
 import { useParams } from "react-router-dom";
 
 const TOKEN_KEY = 'ACCESS_TOKEN';
-const INVITE_LINK_URL = 'localhost:3000/game/';
+const INVITE_LINK_URL = 'localhost:3000/';
 
 const GamePage = () => {
   // Socket Context

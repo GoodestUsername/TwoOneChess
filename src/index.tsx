@@ -9,6 +9,7 @@ import GamePage from 'pages/game/GamePage';
 import Layout from 'features/layout/Layout';
 import NotFoundPage from 'pages/404/NotFoundPage';
 import PlannedPage from 'pages/planned/PlannedPage';
+import FeaturesPage from 'pages/features/FeaturesPage';
 
 // import './scss/index.css'
 // icons
@@ -24,8 +25,9 @@ root.render(
           <Route path="/" element={< Layout/>}>
             <Route path="*"       element={ <NotFoundPage/> }/>
             <Route path="/"       element={ <GamePage/> }/>
+            <Route path="/features"       element={ <FeaturesPage/> }/>
             <Route path="/planned"       element={ <PlannedPage/> }/>
-            <Route path="/game/:roomId" element={ <GamePage/> }/>
+            <Route path="/:roomId" element={ <GamePage/> }/>
           </Route>
         </Routes>
     </BrowserRouter>
