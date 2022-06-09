@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 interface DocumentSectionInterface {
     children: React.ReactNode,
     title : string,
-    titleVariant: 'h1'|'h2'|'h3'|'h4'|'h5',
+    titleVariant: 'h1'|'h2'|'h3'|'h4'|'h5'|'h6',
     titleStyle?: React.CSSProperties | undefined,
 }
 
