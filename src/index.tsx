@@ -10,10 +10,7 @@ import Layout from 'features/layout/Layout';
 import NotFoundPage from 'pages/404/NotFoundPage';
 import PlannedPage from 'pages/planned/PlannedPage';
 import FeaturesPage from 'pages/features/FeaturesPage';
-
-// import './scss/index.css'
-// icons
-// import 'utils/fontawesome';
+import AboutMePage from 'pages/about/AboutMePage';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -27,6 +24,7 @@ root.render(
             <Route path="/"       element={ <GamePage/> }/>
             <Route path="/features"       element={ <FeaturesPage/> }/>
             <Route path="/planned"       element={ <PlannedPage/> }/>
+            <Route path="/about"       element={ <AboutMePage/> }/>
             <Route path="/:roomId" element={ <GamePage/> }/>
           </Route>
         </Routes>
