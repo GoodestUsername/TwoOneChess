@@ -16,6 +16,7 @@ import { Socket } from "socket.io-client";
 import { SocketContext } from "context/socketContext";
 import TwoOneChessboard from "features/components/twoonechess/TwoOneChessboard";
 import { useParams } from "react-router-dom";
+import GameLinkModal from "features/components/twoonechess/GameLinkModal";
 
 const TOKEN_KEY = 'ACCESS_TOKEN';
 const INVITE_LINK_URL = 'localhost:3000/';
@@ -32,6 +33,9 @@ const GamePage = () => {
   const [warningMessage, setWarningMessage] = useState("");
   const [serverMessage, setserverMessage] = useState("");
 
+  // Modal toggle
+  const [isOpen, setIsOpen] = useState(false);
+
   // Socket functions
   const onConnect = useCallback(() => {
     const cookies = new Cookies();
@@ -42,6 +46,7 @@ const GamePage = () => {
 
   const onSendRoomCode = useCallback((data: {roomId: string}) => {
     setRoomId(data.roomId);
+    setIsOpen(true);
   }, []);
 
   const onServerMessage = useCallback((data: {msg: string}) => {
@@ -67,9 +72,6 @@ const GamePage = () => {
   return (
     <Box className="GamePage">
       <Button variant="contained" color="primary" onClick={ () => { socket.emit("createGame", uuidv4().slice(0, 8)) } }>Create Invite Link</Button>
-      {roomId && !params.roomId &&
-        <Typography>{INVITE_LINK_URL + roomId}</Typography>
-      }
       <Typography>{warningMessage}</Typography>
       <Typography>{serverMessage}</Typography>
       <ToastContainer
@@ -84,6 +86,10 @@ const GamePage = () => {
         draggable
         pauseOnHover
       />
+      <GameLinkModal 
+        isOpen={isOpen}
+        inviteLink={INVITE_LINK_URL + roomId} 
+        handleClose={() => setIsOpen(false)} />
       <TwoOneChessboard roomId={roomId}/>
   </Box>
   );
