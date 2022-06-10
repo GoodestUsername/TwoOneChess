@@ -26,6 +26,7 @@ import { SocketContext } from "context/socketContext";
 
 // material ui
 import { Box, ButtonGroup, Divider } from "@mui/material";
+import useWindowDimensions from "../hooks/useWindowDimensions";
 
 const TOKEN_KEY = 'ACCESS_TOKEN';
 
@@ -35,7 +36,7 @@ interface GamePage {
 
 const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
   const isMobile = useMediaQuery({ query: '(max-width: 767px)' })
-
+  const { width } = useWindowDimensions();
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
 
@@ -181,7 +182,7 @@ const TwoOneChessboard: React.FC<GamePage> = (roomId) => {
   return (
           <Box>
             <Chessboard
-              boardWidth={isMobile ? window.innerWidth : 560}
+              boardWidth={isMobile ? width : 560}
               customArrows           = { botMovePreviews }
               boardOrientation       = { playerColor }
               customDropSquareStyle  = { {boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'} }
