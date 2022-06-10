@@ -1,8 +1,7 @@
 import { Box } from "@mui/system";
-import { Grid, IconButton, Modal, Typography } from "@mui/material";
+import { Grid, IconButton, Modal, Tooltip, Typography } from "@mui/material";
+import TextAndCopyBtn from "../TextAndCopyBtn";
 
-// Icons
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -27,6 +26,7 @@ const GameLinkModal: React.FC<GameLinkModalInterface> = ({
     inviteLink,
     handleClose
     }) => {
+
     return (
         <Modal
             open={isOpen}
@@ -38,27 +38,8 @@ const GameLinkModal: React.FC<GameLinkModalInterface> = ({
                 <Typography variant="h5" textAlign="center">
                 Invite Link
                 </Typography>
-                <Grid direction="row" alignItems="center" container>
-                    <Grid item lg="auto" xs={11} >
-                        <Box sx={{border: "1px", borderColor: "info", borderStyle: "solid", padding:"2px 4px"}}>
-                            <Typography>
-                                {inviteLink}
-                            </Typography>
-                        </Box>
-                    </Grid>
-                    <Grid item xs={1}>
-                        <IconButton onClick={() => {navigator.clipboard.writeText(inviteLink)}} aria-label="Copy">
-                            <ContentCopyIcon color="info" />
-                        </IconButton>
-                    </Grid>
-                </Grid>
-
-
-                {/* <TextField 
-                    disabled={true} 
-                    label={inviteLink} 
-                    variant="outlined"
-                    size="small" /> */}
+                
+                <TextAndCopyBtn toCopyText={inviteLink}></TextAndCopyBtn>
                 <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                     Send it to a friend or another person to play!
                 </Typography>
