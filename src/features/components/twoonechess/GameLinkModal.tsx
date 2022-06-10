@@ -1,5 +1,5 @@
 import { Box } from "@mui/system";
-import { Grid, IconButton, Modal, Tooltip, Typography } from "@mui/material";
+import { Modal, Typography } from "@mui/material";
 import TextAndCopyBtn from "../TextAndCopyBtn";
 
 
