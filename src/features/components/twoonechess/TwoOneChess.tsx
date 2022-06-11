@@ -1,5 +1,4 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { useMediaQuery } from "react-responsive";
 import { Chess, ChessInstance, Move } from 'chess.js';
 import { toast } from 'react-toastify';
 
@@ -18,25 +17,23 @@ import GameEngine from 'features/engine/gameEngine';
 import UciEngineWorker from "features/workers/stockfish";
 
 // components
-import PreviewConfirmButton from "features/components/twoonechess/PreviewConfirmButton";
-import { Chessboard } from "react-chessboard";
+import HistoryWindow from "../HistoryWindow";
+import TwoOneChessboard from "./TwoOneChessboard";
+// material ui components
+import { Box } from "@mui/material";
 
 // context
 import { SocketContext } from "context/socketContext";
 
-// material ui
-import { Box, ButtonGroup, Divider } from "@mui/material";
-import useWindowDimensions from "../hooks/useWindowDimensions";
+
 
 const TOKEN_KEY = 'ACCESS_TOKEN';
 
-interface GamePage {
+interface TwoOneChessInterface {
   roomId: String;
 }
 
-const TwoOneChess: React.FC<GamePage> = (roomId) => {
-  const isMobile = useMediaQuery({ query: '(max-width: 767px)' })
-  const { width } = useWindowDimensions();
+const TwoOneChess: React.FC<TwoOneChessInterface> = (roomId) => {
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
 
@@ -48,8 +45,10 @@ const TwoOneChess: React.FC<GamePage> = (roomId) => {
 
   // Game State
   const [game, setGame] = useState<ChessInstance>(new Chess());
+  const [gameStarted, setGameStarted] = useState(false);
   const [chessBoardActive, setChessBoardActive] = useState(false);
   const [playerColor, setPlayerColor] = useState<BoardOrientation>("white");
+  const [history, setHistory] = useState<Array<Move>|undefined>(undefined);
 
   // Bot Moves
   const [fBotMove, setFBotMove] = useState<MoveWithAssignment>(null);
@@ -68,11 +67,12 @@ const TwoOneChess: React.FC<GamePage> = (roomId) => {
     });
   }
 
-  function handleGameOverConditions() {
+  const handleGameOverConditions = useCallback(() => {
     const gameOverState = gameEngineRef.current?.gameOverState;
     if (gameOverState) {
       setChessBoardActive(false);
-      switch (gameOverState) {  
+      socket.emit("gameOver", roomId.roomId)
+      switch (gameOverState) {
         case GameOverStates.victory:
           toast.success(gameOverState.name)
           break;
@@ -84,7 +84,7 @@ const TwoOneChess: React.FC<GamePage> = (roomId) => {
           break;
       }
     }
-  }
+  }, [roomId.roomId, socket])
 
   // handles move input and sends the move via socket
   function handleMoveAndSend(inputtedMove: ShortMove) {
@@ -98,7 +98,7 @@ const TwoOneChess: React.FC<GamePage> = (roomId) => {
         pgn: pgn,
         roomId: roomId.roomId,
       });
-
+      setHistory(gameEngineRef.current?.game.history({verbose:true}));
       handleGameOverConditions()
     }
     setFBotMove(null);
@@ -127,7 +127,9 @@ const TwoOneChess: React.FC<GamePage> = (roomId) => {
     const cookies = new Cookies();
     const game = new Chess();
     setGame(game);
+    setHistory([]);
     setChessBoardActive(true);
+    setGameStarted(true);
     gameEngineRef.current?.startGame(data.color);
     setPlayerColor(data.color);
     if (gameEngineRef.current?.isPlayerTurn()) fetchBotMoves()
@@ -149,18 +151,21 @@ const TwoOneChess: React.FC<GamePage> = (roomId) => {
     const color =  cookies.get(TOKEN_KEY).color;
     setGame(gameEngineRef.current!.loadGame(data.pgn, color));
     if (gameEngineRef.current?.isPlayerTurn()) fetchBotMoves();
+    setHistory(gameEngineRef.current?.game.history({verbose:true}));
+    setGameStarted(true);
     setPlayerColor(color);
     setChessBoardActive(true);
     handleGameOverConditions();
-  }, []);
+  }, [handleGameOverConditions]);
 
   const onOpponentMove = useCallback((data: { pgn: string;}) => {
     gameEngineRef.current!.setPgn(data.pgn);
+    setHistory(gameEngineRef.current?.game.history({verbose:true}));
     setGame(gameEngineRef.current!.game);
     handleGameOverConditions();
 
     fetchBotMoves();
-  }, []);
+  }, [handleGameOverConditions]);
 
   useEffect(() => {
     stockfishRef.current = new UciEngineWorker("stockfish.js");  
@@ -173,7 +178,7 @@ const TwoOneChess: React.FC<GamePage> = (roomId) => {
 
     socket.on("opponentMove", onOpponentMove);
 
-    return () => { 
+    return () => {
       socket.removeAllListeners();
 
       socket.disconnect(); 
@@ -182,35 +187,21 @@ const TwoOneChess: React.FC<GamePage> = (roomId) => {
 
   return (
           <Box>
-            <Chessboard
-              boardWidth={isMobile ? width : 560}
-              customArrows           = { botMovePreviews }
-              boardOrientation       = { playerColor }
-              customDropSquareStyle  = { {boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'} }
-              customArrowColor       = { "rgb(255,170,0)" } 
-              customDarkSquareStyle  = { { backgroundColor: '#B58863' } }
-              customLightSquareStyle = { { backgroundColor: '#F0D9B5' } }
-              position               = { game.fen()} onPieceDrop={onDrop }
-            />
-          {chessBoardActive &&
-            <ButtonGroup
-              style={{marginTop: "1rem", height: "4rem"}}
-              fullWidth={true}>
-              <PreviewConfirmButton
-                botMove={fBotMove}
+            <TwoOneChessboard 
+                boardOrientation={playerColor}
+                position={game.fen()} 
+                customArrows={botMovePreviews} 
+                onDropHandler={onDrop} 
+                bottomButtonsActive={gameStarted}
                 handleMove={handleMoveAndSend}
-                setBotMovePreviews={setBotMovePreviews}/>
-              <Divider sx={{ borderRightWidth: 1, minHeight: "4rem" }} orientation="vertical" flexItem={true}/>
-              <PreviewConfirmButton
-                botMove={sBotMove}
-                handleMove={handleMoveAndSend}
-                setBotMovePreviews={setBotMovePreviews}/>
-              <Divider sx={{ borderRightWidth: 1, minHeight: "4rem" }} orientation="vertical" flexItem={true}/>
-              <PreviewConfirmButton
-                botMove={tBotMove}
-                handleMove={handleMoveAndSend}
-                setBotMovePreviews={setBotMovePreviews}/>
-            </ButtonGroup>
+                setPreview={setBotMovePreviews}
+                bottomButtonMoves={{
+                    fBotMove,
+                    sBotMove,
+                    tBotMove
+                }} />
+          {history && 
+            <HistoryWindow history={history}></HistoryWindow>
           }
           </Box>
   );
