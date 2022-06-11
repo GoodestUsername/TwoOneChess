@@ -14,7 +14,7 @@ import { Socket } from "socket.io-client";
 
 // context
 import { SocketContext } from "context/socketContext";
-import TwoOneChessboard from "features/components/twoonechess/TwoOneChessboard";
+import TwoOneChess from "features/components/twoonechess/TwoOneChess";
 import { useParams } from "react-router-dom";
 import GameLinkModal from "features/components/twoonechess/GameLinkModal";
 
@@ -94,7 +94,7 @@ const GamePage = () => {
         isOpen={isModalOpen}
         inviteLink={INVITE_LINK_URL + roomId} 
         handleClose={() => setIsModalOpen(false)} />
-      <TwoOneChessboard roomId={roomId}/>
+      <TwoOneChess roomId={roomId}/>
   </Box>
   );
 }
