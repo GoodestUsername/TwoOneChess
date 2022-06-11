@@ -17,7 +17,7 @@ import GameEngine from 'features/engine/gameEngine';
 import UciEngineWorker from "features/workers/stockfish";
 
 // components
-import HistoryWindow from "../HistoryWindow";
+import HistoryWindow, { toTurnHistory, TurnHistory } from "../HistoryWindow";
 import TwoOneChessboard from "./TwoOneChessboard";
 // material ui components
 import { Box } from "@mui/material";
@@ -48,7 +48,7 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   const [gameStarted, setGameStarted] = useState(false);
   const [chessBoardActive, setChessBoardActive] = useState(false);
   const [playerColor, setPlayerColor] = useState<BoardOrientation>("white");
-  const [history, setHistory] = useState<Array<Move>|undefined>(undefined);
+  const [history, setHistory] = useState<Array<TurnHistory>>([]);
 
   // Bot Moves
   const [fBotMove, setFBotMove] = useState<MoveWithAssignment>(null);
@@ -98,7 +98,8 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
         pgn: pgn,
         roomId: roomId,
       });
-      setHistory(gameEngineRef.current?.game.history({verbose:true}));
+      const turnHistory = toTurnHistory(gameEngineRef.current?.game.history({verbose:true}))
+      if (turnHistory) setHistory(turnHistory);
       handleGameOverConditions(roomId);
     }
     setFBotMove(null);
@@ -127,7 +128,6 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
     const cookies = new Cookies();
     const game = new Chess();
     setGame(game);
-    setHistory([]);
     setChessBoardActive(true);
     setGameStarted(true);
     gameEngineRef.current?.startGame(data.color);
@@ -151,7 +151,8 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
     const color =  cookies.get(TOKEN_KEY).color;
     setGame(gameEngineRef.current!.loadGame(data.pgn, color));
     if (gameEngineRef.current?.isPlayerTurn()) fetchBotMoves();
-    setHistory(gameEngineRef.current?.game.history({verbose:true}));
+    const turnHistory = toTurnHistory(gameEngineRef.current?.game.history({verbose:true}))
+    if (turnHistory) setHistory(turnHistory);
     setGameStarted(true);
     setPlayerColor(color);
     setChessBoardActive(true);
@@ -160,7 +161,8 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
 
   const onOpponentMove = useCallback((data: { pgn: string, roomId: string}) => {
     gameEngineRef.current!.setPgn(data.pgn);
-    setHistory(gameEngineRef.current?.game.history({verbose:true}));
+    const turnHistory = toTurnHistory(gameEngineRef.current?.game.history({verbose:true}))
+    if (turnHistory) setHistory(turnHistory);
     setGame(gameEngineRef.current!.game);
     handleGameOverConditions(data.roomId);
 
@@ -201,7 +203,7 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
                     tBotMove
                 }} />
           {history && 
-            <HistoryWindow history={history}></HistoryWindow>
+            <HistoryWindow history={history} />
           }
           </Box>
   );

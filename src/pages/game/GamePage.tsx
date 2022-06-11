@@ -60,6 +60,7 @@ const GamePage = () => {
   const onStartGameGamePage = useCallback(() => {
     setIsModalOpen(false);
   }, [])
+
   useEffect(() => {
     socket.on("connect", onConnect);
     socket.on("sendRoomCode", onSendRoomCode);
