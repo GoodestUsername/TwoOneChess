@@ -80,7 +80,6 @@ function onJoinGame(data) {
 
         serverIO.to(clients[0]).emit("startGame", {color: p1Color, gameKey: gameKey.toString(), roomId: data.roomId});
         serverIO.to(clients[1]).emit("startGame", {color: p2Color, gameKey: gameKey.toString(), roomId: data.roomId});
-        serverIO.to(data.roomId).emit("closeInviteModal");
         serverIO.sockets.adapter.rooms.get(data.roomId).roomVars.gameKey = gameKey;
     }
     else {
