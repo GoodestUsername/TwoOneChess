@@ -26,7 +26,7 @@ import { Box } from "@mui/material";
 import { SocketContext } from "context/socketContext";
 
 
-
+// constants
 const TOKEN_KEY = 'ACCESS_TOKEN';
 
 interface TwoOneChessInterface {

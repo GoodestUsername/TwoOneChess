@@ -44,9 +44,9 @@ const GamePage = () => {
     socket.emit("register", cookies.get(TOKEN_KEY))
   }, [params.roomId, socket])
 
-  const onSendRoomCode = useCallback((data: {roomId: string}) => {
+  const onSendRoomCode = useCallback((data: {roomId: string, newGame: boolean}) => {
     setRoomId(data.roomId);
-    setIsModalOpen(true);
+    if (data.newGame )setIsModalOpen(true);
   }, []);
 
   const onServerMessage = useCallback((data: {msg: string}) => {
