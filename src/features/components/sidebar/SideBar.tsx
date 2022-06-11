@@ -28,13 +28,18 @@ const SideBar: React.FC<SideBarInterface> = ({
   }
 
   return (
-    <ProSidebar
+    <Box
+      sx={{
+        marginRight: sideBarCollapsed ? "0" : "200px"
+      }} 
+      >
+      <ProSidebar
       style={{ 
         height: "100vh",
         minWidth:"70px",
         maxWidth:"200px",
         position: "absolute",
-        top: 0
+        top: 0,
       }}
       collapsed={sideBarCollapsed}
       toggled={toggled}
@@ -92,6 +97,8 @@ const SideBar: React.FC<SideBarInterface> = ({
           </div>
       </SidebarFooter>
     </ProSidebar>
+    </Box>
+
   );
 };
   

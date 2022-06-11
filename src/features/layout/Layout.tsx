@@ -54,12 +54,9 @@ const Layout = () => {
                 style={{ minHeight: '100vh' }}
               >
                 <Grid
-                  sx={{
-                    marginLeft: sideBarCollapsed ? "0" : "200px"
-                  }} 
                   item xs={8} sm={8} md={8} lg={6} xl={3}>
                   <Outlet/>
-                </Grid>   
+                </Grid>
               </Grid> 
             </div>
           </ThemeProvider>
