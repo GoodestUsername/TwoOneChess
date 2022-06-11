@@ -27,6 +27,9 @@ const initializeConnection = (io, client) => {
     // sync game if needed
     gameSocket.on("syncGame", onSyncGame);
 
+    // gameover, set timer to disband room
+    gameSocket.on("gameOver", onGameOver);
+
     // handle disconnect
     gameSocket.on("disconnect", onDisconnect);
 }
@@ -96,6 +99,12 @@ function onSyncGame(data) {
         this.to(data.roomId).emit('sendRoomCode', {roomId: data.roomId});
         this.to(data.roomId).emit("restoreGame", data);
     }
+}
+
+function onGameOver(roomId) {
+    setTimeout(function () {
+        serverIO.of('/').in(roomId).clients((error, socketIds) => {  if (error) throw error;  socketIds.forEach(socketId => io.sockets.sockets[socketId].leave(roomId));});
+    }, 600000);
 }
 
 function onDisconnect() {
