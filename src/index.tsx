@@ -11,6 +11,7 @@ import NotFoundPage from 'pages/404/NotFoundPage';
 import PlannedPage from 'pages/planned/PlannedPage';
 import FeaturesPage from 'pages/features/FeaturesPage';
 import AboutMePage from 'pages/about/AboutMePage';
+import TutorialPage from 'pages/tutorial/TutorialPage';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -22,6 +23,7 @@ root.render(
           <Route path="/" element={< Layout/>}>
             <Route path="*"       element={ <NotFoundPage/> }/>
             <Route path="/"       element={ <GamePage/> }/>
+            <Route path="/tutorial"       element={ <TutorialPage/> }/>
             <Route path="/features"       element={ <FeaturesPage/> }/>
             <Route path="/planned"       element={ <PlannedPage/> }/>
             <Route path="/about"       element={ <AboutMePage/> }/>
