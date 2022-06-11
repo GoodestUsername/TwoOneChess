@@ -34,7 +34,7 @@ const GamePage = () => {
   const [serverMessage, setserverMessage] = useState("");
 
   // Modal toggle
-  const [isOpen, setIsOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Socket functions
   const onConnect = useCallback(() => {
@@ -46,7 +46,7 @@ const GamePage = () => {
 
   const onSendRoomCode = useCallback((data: {roomId: string}) => {
     setRoomId(data.roomId);
-    setIsOpen(true);
+    setIsModalOpen(true);
   }, []);
 
   const onServerMessage = useCallback((data: {msg: string}) => {
@@ -57,17 +57,21 @@ const GamePage = () => {
     setWarningMessage(data.msg);
   }, []);
 
+  const onStartGameGamePage = useCallback(() => {
+    setIsModalOpen(false);
+  }, [])
   useEffect(() => {
     socket.on("connect", onConnect);
     socket.on("sendRoomCode", onSendRoomCode);
     socket.on("issueWarning", onIssueWarning);
     socket.on("serverMessage", onServerMessage);
-    
+    socket.on("startGame", onStartGameGamePage)
+
     return () => { 
       socket.removeAllListeners();
       socket.disconnect(); 
     };
-  }, [socket, onConnect, onSendRoomCode, onIssueWarning, onServerMessage])
+  }, [socket, onConnect, onSendRoomCode, onIssueWarning, onServerMessage, onStartGameGamePage])
 
   return (
     <Box className="GamePage">
@@ -87,9 +91,9 @@ const GamePage = () => {
         pauseOnHover
       />
       <GameLinkModal 
-        isOpen={isOpen}
+        isOpen={isModalOpen}
         inviteLink={INVITE_LINK_URL + roomId} 
-        handleClose={() => setIsOpen(false)} />
+        handleClose={() => setIsModalOpen(false)} />
       <TwoOneChessboard roomId={roomId}/>
   </Box>
   );
