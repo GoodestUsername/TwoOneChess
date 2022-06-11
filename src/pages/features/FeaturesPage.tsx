@@ -23,25 +23,22 @@ const FeaturesPage = () => {
         <DocumentSection title={"When its your turn, stockfish will generate moves for you!"} titleVariant={"h6"}>
           <Box
               component="img"
-              sx={{
-              }}
-              alt="Engine moves"
+              sx={{width: "100%"}}
+              alt="generated moves"
               src={featureImageMoveButtons}/>
         </DocumentSection>
         <DocumentSection title={"When its your opponents turn, stockfish will be on standby!"} titleVariant={"h6"}>
           <Box
               component="img"
-              sx={{
-              }}
-              alt="Engine moves"
+              sx={{width: "100%"}}
+              alt="loading buttons"
               src={featureImageLoadingButtons}/>
         </DocumentSection>
         <DocumentSection title={"When you click on a move it will show you an arrow of where the piece will go. Allowing you to confirm or cancel the selected move!"} titleVariant={"h6"}>
           <Box
               component="img"
-              sx={{
-              }}
-              alt="Engine moves"
+              sx={{width: "100%"}}
+              alt="Move preview"
               src={featureImageMovePreview}/>
         </DocumentSection>
       </Document>
