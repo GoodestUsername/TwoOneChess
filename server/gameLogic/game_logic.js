@@ -50,7 +50,7 @@ function onCreateGame(roomId) {
     this.join(roomId)
 
     // Return the Room ID (gameId)
-    this.emit('sendRoomCode', {roomId: roomId});
+    this.emit('sendRoomCode', {roomId: roomId, newGame: true});
     serverIO.sockets.adapter.rooms.get(roomId).roomVars = { "gameKey": null };
 }   
 
@@ -96,7 +96,7 @@ function onSendMove(data) {
 
 function onSyncGame(data) {
     if (data !== null) {
-        this.to(data.roomId).emit('sendRoomCode', {roomId: data.roomId});
+        this.to(data.roomId).emit('sendRoomCode', {roomId: data.roomId, newGame: false});
         this.to(data.roomId).emit("restoreGame", data);
     }
 }
