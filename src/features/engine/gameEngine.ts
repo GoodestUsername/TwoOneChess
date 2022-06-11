@@ -54,10 +54,16 @@ class GameEngine {
     public set clientColor(value: BoardOrientation) {
         this._clientColor = value;
     }
-    chessBot: UciEngineWorker;
+    chessBot: UciEngineWorker | null;
 
     constructor() {
-        this.chessBot = new UciEngineWorker(stockfishFile);
+        try {
+            this.chessBot = new UciEngineWorker(stockfishFile);
+        }
+        catch {
+            this.chessBot = null;
+            window.location.reload();
+        }
         this._game = new Chess();
         this._gameOn = false;
         this._gameTurn = null;
@@ -84,6 +90,7 @@ class GameEngine {
         if (gameOverState) {
             this._gameOn = false;
             this._gameOverState = gameOverState;
+            this.chessBot = null;
         }
     }
 
@@ -125,7 +132,7 @@ class GameEngine {
     async getBotMoves() {
         if (this.gameOn && this.isPlayerTurn()) {
             return new Promise(resolve => {
-                this.chessBot.getMoves(this.game.history({verbose:true})).then(({calcMoves, bestMove}: any) => {
+                this.chessBot!.getMoves(this.game.history({verbose:true})).then(({calcMoves, bestMove}: any) => {
                     // Select bot moves
                     const allMoves = this.game.moves({verbose: true});
                     const calcBestMove: MoveWithAssignment = { move: bestMove, assignment: MoveAssignment.best };
