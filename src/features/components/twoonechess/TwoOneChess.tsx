@@ -30,10 +30,10 @@ import { SocketContext } from "context/socketContext";
 const TOKEN_KEY = 'ACCESS_TOKEN';
 
 interface TwoOneChessInterface {
-  roomId: String;
+  roomId: string;
 }
 
-const TwoOneChess: React.FC<TwoOneChessInterface> = (roomId) => {
+const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
 
@@ -67,11 +67,11 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = (roomId) => {
     });
   }
 
-  const handleGameOverConditions = useCallback(() => {
+  const handleGameOverConditions = useCallback((roomId: string) => {
     const gameOverState = gameEngineRef.current?.gameOverState;
     if (gameOverState) {
       setChessBoardActive(false);
-      socket.emit("gameOver", roomId.roomId)
+      socket.emit("gameOver", roomId);
       switch (gameOverState) {
         case GameOverStates.victory:
           toast.success(gameOverState.name)
@@ -84,7 +84,7 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = (roomId) => {
           break;
       }
     }
-  }, [roomId.roomId, socket])
+  }, [socket])
 
   // handles move input and sends the move via socket
   function handleMoveAndSend(inputtedMove: ShortMove) {
@@ -96,10 +96,10 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = (roomId) => {
       const pgn = gameEngineRef.current!.game.pgn();
       socket.emit("sendMove", {
         pgn: pgn,
-        roomId: roomId.roomId,
+        roomId: roomId,
       });
       setHistory(gameEngineRef.current?.game.history({verbose:true}));
-      handleGameOverConditions()
+      handleGameOverConditions(roomId);
     }
     setFBotMove(null);
     setSBotMove(null);
@@ -155,14 +155,14 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = (roomId) => {
     setGameStarted(true);
     setPlayerColor(color);
     setChessBoardActive(true);
-    handleGameOverConditions();
+    handleGameOverConditions(data.roomId);
   }, [handleGameOverConditions]);
 
-  const onOpponentMove = useCallback((data: { pgn: string;}) => {
+  const onOpponentMove = useCallback((data: { pgn: string, roomId: string}) => {
     gameEngineRef.current!.setPgn(data.pgn);
     setHistory(gameEngineRef.current?.game.history({verbose:true}));
     setGame(gameEngineRef.current!.game);
-    handleGameOverConditions();
+    handleGameOverConditions(data.roomId);
 
     fetchBotMoves();
   }, [handleGameOverConditions]);
