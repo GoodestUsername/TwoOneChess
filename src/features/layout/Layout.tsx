@@ -51,7 +51,7 @@ const Layout = () => {
                 spacing={0}
                 direction="column"
                 alignItems="center"
-                style={{ minHeight: '100vh', justifyContent: isMobile ? "normal" : "center" }}
+                style={{ maxHeight: isMobile ? "calc(100vh - 64px)": '100vh', overflowY: "auto", }}
               >
                 <Grid
                   item sx={{}} xs={8} sm={8} md={8} lg={6} xl={3}>
