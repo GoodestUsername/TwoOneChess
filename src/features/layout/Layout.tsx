@@ -37,13 +37,14 @@ const Layout = () => {
           <ThemeProvider theme={darkTheme}>
             <CssBaseline />
             {isMobile && <MobileAppBar handleSideBarToggle={handleSideBarToggle} />}
-            <div className="Layout" style={{
-                  display: 'flex',
-                  flexDirection: 'row',
+            <div className="Layout"
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
             }}>
-              <SideBar 
+              <SideBar
                 sideBarCollapsed={sideBarCollapsed}
-                toggled={toggled} 
+                toggled={toggled}
                 handleSideBarToggle={handleSideBarToggle}/>
               <Grid
                 container

@@ -12,6 +12,10 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SchoolIcon from '@mui/icons-material/School';
 
+// hooks
+import { useMediaQuery } from 'react-responsive';
+import { useEffect, useState } from 'react';
+
 interface SideBarInterface {
   toggled: any,
   handleSideBarToggle: Function,
@@ -26,25 +30,45 @@ const SideBar: React.FC<SideBarInterface> = ({
   const handleCollapseToggle = () => {
     handleSideBarToggle(false, !sideBarCollapsed);
   }
-
+  
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
+  const sideBarStyling  = { marginRight: sideBarCollapsed ? ( isMobile ? "0px" : "80px"): "200px" };
+  const [styling, setStyling] = useState(sideBarStyling);
+  
+  useEffect(() => {
+    console.log(sideBarCollapsed);
+    if (isMobile) { 
+      setStyling(prev => {
+        const prevCopy = {...prev};
+        prevCopy.marginRight = sideBarCollapsed ? "0px": "200px";
+        return prevCopy
+      })
+    }
+    if (!isMobile) {
+      setStyling(prev => {
+        const prevCopy = {...prev};
+        prevCopy.marginRight = sideBarCollapsed ? "80px": "200px";
+        return prevCopy
+      })
+    }
+  }, [isMobile, sideBarCollapsed])
+  
   return (
     <Box
-      sx={{
-        marginRight: sideBarCollapsed ? "0" : "200px"
-      }} 
+      sx={styling} 
       >
       <ProSidebar
-      style={{ 
-        height: "100vh",
-        minWidth:"70px",
-        maxWidth:"200px",
-        position: "absolute",
-        top: 0,
-      }}
+        style={{ 
+          height: "100vh",
+          minWidth:"70px",
+          maxWidth:"200px",
+          position: "absolute",
+          top: 0
+        }}
       collapsed={sideBarCollapsed}
       toggled={toggled}
       onToggle={handleCollapseToggle}
-      breakPoint="md"
+      breakPoint={"md"}
     >
       <SidebarHeader>
         <Box style={{ padding: "20px 20px", display:"flex"}}>
