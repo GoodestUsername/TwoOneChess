@@ -19,14 +19,14 @@ const TextAndCopyBtn:React.FC<TextAndCopyBtnInterface> = ({toCopyText}) =>{
 
     return (
         <Grid direction="row" alignItems="center" container>
-            <Grid item lg="auto" xs={11} >
+            <Grid item xs={true} >
                 <Box sx={{border: "1px", borderColor: "info", borderStyle: "solid", padding:"2px 4px"}}>
                     <Typography>
                         {toCopyText}
                     </Typography>
                 </Box>
             </Grid>
-            <Grid item xs={1}>
+            <Grid item>
                 <Tooltip 
                 open={isTooltipOpen} 
                 title="Copied to clipboard!" 
