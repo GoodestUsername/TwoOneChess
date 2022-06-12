@@ -40,7 +40,7 @@ const Layout = () => {
             <div className="Layout"
               style={{
                 display: 'flex',
-                flexDirection: 'row',
+                flexDirection: 'row'
             }}>
               <SideBar
                 sideBarCollapsed={sideBarCollapsed}
@@ -51,10 +51,10 @@ const Layout = () => {
                 spacing={0}
                 direction="column"
                 alignItems="center"
-                style={{ maxHeight: isMobile ? "calc(100vh - 64px)": '100vh', overflowY: "auto", }}
+                style={{ maxHeight: isMobile ? "calc(100vh - 64px)": '100vh', overflow: "hidden"}}
               >
                 <Grid
-                  item sx={{}} xs={8} sm={8} md={8} lg={6} xl={3}>
+                  item sx={{overflowY: "scroll", minHeight: "100%"}} xs={8} sm={8} md={8} lg={6} xl={3}>
                   <Outlet/>
                 </Grid>
               </Grid> 

@@ -75,7 +75,7 @@ const GamePage = () => {
   }, [socket, onConnect, onSendRoomCode, onIssueWarning, onServerMessage, onStartGameGamePage])
 
   return (
-    <Box className="GamePage">
+    <Box sx={{marginTop: "20px"}} className="GamePage">
       <Button variant="contained" color="primary" onClick={ () => { socket.emit("createGame", uuidv4().slice(0, 8)) } }>Create Invite Link</Button>
       <Typography>{warningMessage}</Typography>
       <Typography>{serverMessage}</Typography>
