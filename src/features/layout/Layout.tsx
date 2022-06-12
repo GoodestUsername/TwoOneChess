@@ -54,7 +54,7 @@ const Layout = () => {
                 style={{ maxHeight: isMobile ? "calc(100vh - 64px)": '100vh', overflow: "hidden"}}
               >
                 <Grid
-                  item sx={{overflowY: "scroll", minHeight: "100%"}} xs={8} sm={8} md={8} lg={6} xl={3}>
+                  item sx={{overflowY: "scroll", minHeight: "100%"}} xs={"auto"} sm={"auto"} md={1} lg={6} xl={3}>
                   <Outlet/>
                 </Grid>
               </Grid> 
