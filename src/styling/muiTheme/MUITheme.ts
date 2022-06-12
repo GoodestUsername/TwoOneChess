@@ -135,9 +135,9 @@ const darkTheme = createTheme({
             // from https://stackoverflow.com/questions/53772429/mui-how-can-i-style-the-scrollbar-with-css-in-js
             styleOverrides: {
               body: {
-                    scrollbarColor: "#6b6b6b #2b2b2b",
+                    scrollbarColor: `#6b6b6b ${generalColors.primaryAlt}`,
                     "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
-                        backgroundColor: "#2b2b2b",
+                        backgroundColor: generalColors.primaryAlt,
                     },
                     "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
                         borderRadius: 8,
@@ -155,7 +155,7 @@ const darkTheme = createTheme({
                         backgroundColor: "#959595",
                     },
                     "&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner": {
-                        backgroundColor: "#2b2b2b",
+                        backgroundColor: generalColors.primaryAlt,
                     },
                 },
             },
