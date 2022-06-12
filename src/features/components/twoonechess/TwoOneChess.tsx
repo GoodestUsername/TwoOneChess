@@ -101,10 +101,10 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
       const turnHistory = toTurnHistory(gameEngineRef.current?.game.history({verbose:true}))
       if (turnHistory) setHistory(turnHistory);
       handleGameOverConditions(roomId);
+      setFBotMove(null);
+      setSBotMove(null);
+      setTBotMove(null);
     }
-    setFBotMove(null);
-    setSBotMove(null);
-    setTBotMove(null);
     return validMove === null;
   }
 
