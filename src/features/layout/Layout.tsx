@@ -12,7 +12,7 @@ import { SocketContext, socket } from "context/socketContext";
 
 // css/ styles
 import { ThemeProvider } from '@mui/material/styles';
-import darkTheme from 'theme/muiTheme/MUITheme';
+import darkTheme from 'styling/muiTheme/MUITheme';
 import "react-pro-sidebar/dist/css/styles.css";
 
 // hooks
@@ -51,11 +51,10 @@ const Layout = () => {
                 spacing={0}
                 direction="column"
                 alignItems="center"
-                justifyContent="center"
-                style={{ minHeight: '100vh' }}
+                style={{ minHeight: '100vh', justifyContent: isMobile ? "normal" : "center" }}
               >
                 <Grid
-                  item xs={8} sm={8} md={8} lg={6} xl={3}>
+                  item sx={{}} xs={8} sm={8} md={8} lg={6} xl={3}>
                   <Outlet/>
                 </Grid>
               </Grid> 

@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Chess, ChessInstance, Move } from 'chess.js';
+import { Chess, ChessInstance } from 'chess.js';
 import { toast } from 'react-toastify';
 
 // helper functions
@@ -20,7 +20,7 @@ import UciEngineWorker from "features/workers/stockfish";
 import HistoryWindow, { toTurnHistory, TurnHistory } from "../HistoryWindow";
 import TwoOneChessboard from "./TwoOneChessboard";
 // material ui components
-import { Box } from "@mui/material";
+import { Grid } from "@mui/material";
 
 // context
 import { SocketContext } from "context/socketContext";
@@ -188,8 +188,9 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   }, [socket, onStartGame, onRestoreGame, onReconnectGame, onOpponentMove])
 
   return (
-          <Box>
-            <TwoOneChessboard 
+          <Grid container>
+            <Grid item>
+              <TwoOneChessboard 
                 boardOrientation={playerColor}
                 position={game.fen()} 
                 customArrows={botMovePreviews} 
@@ -202,10 +203,13 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
                     sBotMove,
                     tBotMove
                 }} />
-          {history && 
-            <HistoryWindow history={history} />
-          }
-          </Box>
+            </Grid>
+            <Grid item>
+              {history && 
+                <HistoryWindow history={history} />
+              }
+            </Grid>
+          </Grid>
   );
 }
 
