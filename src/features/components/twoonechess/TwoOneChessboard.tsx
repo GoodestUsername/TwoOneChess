@@ -44,6 +44,7 @@ const TwoOneChessboard: React.FC<TwoOneChessboardInterface> = ({
   return (
           <>
             <Chessboard
+              // arePremovesAllowed     = { true }
               boardWidth             = { isMobile ? width : 560 }
               customArrows           = { customArrows }
               boardOrientation       = { boardOrientation }
