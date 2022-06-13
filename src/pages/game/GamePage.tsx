@@ -46,7 +46,7 @@ const GamePage = () => {
 
   const onSendRoomCode = useCallback((data: {roomId: string, newGame: boolean}) => {
     setRoomId(data.roomId);
-    if (data.newGame )setIsModalOpen(true);
+    if (data.newGame)setIsModalOpen(true);
   }, []);
 
   const onServerMessage = useCallback((data: {msg: string}) => {

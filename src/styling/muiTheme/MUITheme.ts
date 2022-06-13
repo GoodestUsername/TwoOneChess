@@ -5,7 +5,7 @@ const generalColors = {
     primary: "#6d5fec",
     primaryAlt: '#23222B',
     primaryAlt2: "#1D1D1D",
-    secondary: '#7881ac',
+    secondary: '#23222B',
     success: '#49e201',
     warning: '#f88f08',
     error: '#f60025',
@@ -128,6 +128,14 @@ const darkTheme = createTheme({
             styleOverrides: {
                 root: {
                     backgroundColor: generalColors.primaryAlt2
+                }
+            }
+        },
+        MuiTableCell: {
+            styleOverrides: {
+                root: {
+                    background: darkThemeColors.primary.dark,
+                    color: generalColors.trueWhite
                 }
             }
         },

@@ -1,0 +1,17 @@
+@import "include-media";
+
+.historyWindow {
+
+    @include media("<=tablet") {
+        width: 100vw;
+        margin-top: 10px;
+    }
+    @include media(">tablet", "<=desktop") {
+        width: 560px;
+        margin-top: 10px;
+    }
+    @include media(">desktop") {
+        width: 215px;
+        margin-left: 10px;
+    }
+}

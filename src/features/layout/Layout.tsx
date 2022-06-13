@@ -51,10 +51,10 @@ const Layout = () => {
                 spacing={0}
                 direction="column"
                 alignItems="center"
-                style={{ maxHeight: isMobile ? "calc(100vh - 64px)": '100vh', overflow: "hidden"}}
+                style={{ maxHeight: isMobile ? "calc(100vh - 64px)": '100vh'}}
               >
                 <Grid
-                  item sx={{overflowY: "scroll", minHeight: "100%"}} xs={"auto"} sm={"auto"} md={1} lg={6} xl={3}>
+                  item sx={{minHeight: "100%"}} xs={"auto"} sm={"auto"} md={1} lg={6} xl={3}>
                   <Outlet/>
                 </Grid>
               </Grid> 
