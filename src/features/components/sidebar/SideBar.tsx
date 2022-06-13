@@ -61,7 +61,7 @@ const SideBar: React.FC<SideBarInterface> = ({
       <SidebarContent>
         <Menu iconShape="circle">
           <MenuItem icon={ <PlayArrowIcon /> }>
-            <Link to={"/"} onClick={() => window.location.reload()}> Play Game </Link>
+            <Typography onClick={() => {window.location.href="/"}}> Play Game </Typography>
           </MenuItem>
           <MenuItem icon={ <SchoolIcon /> }>
           <Link to={"/tutorial"}> Tutorial </Link>
