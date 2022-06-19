@@ -2,7 +2,8 @@ import UciEngineWorker from "features/workers/stockfish";
 import { areMovesEqual, BoardOrientation, GameOverStates, getGameOverState, isPromoting, MoveAssignment, MoveWithAssignment } from "./chessEngine";
 import { Chess, ChessInstance, ShortMove } from 'chess.js';;
 
-const stockfishFile = "stockfish.js"
+const stockfishFile = "/default_stockfish/stockfish.js"
+const deadfishFile = "/deadfish/stockfish.js"
 /**
  * Gets a random element in array
  * @param {Array} array items An array containing the items.
@@ -27,7 +28,7 @@ function shuffle(a: any[]) {
     return a;
 }
 
-class GameEngine {
+class TwoOneGameEngine {
     private _game: ChessInstance;
     public get game(): ChessInstance {
         return this._game;
@@ -54,14 +55,17 @@ class GameEngine {
     public set clientColor(value: BoardOrientation) {
         this._clientColor = value;
     }
-    chessBot: UciEngineWorker | null;
+    chessBotGood: UciEngineWorker | null;
+    chessBotBad: UciEngineWorker | null;
 
     constructor() {
         try {
-            this.chessBot = new UciEngineWorker(stockfishFile);
+            this.chessBotGood = new UciEngineWorker(stockfishFile);
+            this.chessBotBad = new UciEngineWorker(deadfishFile);
         }
         catch {
-            this.chessBot = null;
+            this.chessBotGood = null;
+            this.chessBotBad = null;
             window.location.reload();
         }
         this._game = new Chess();
@@ -90,7 +94,8 @@ class GameEngine {
         if (gameOverState) {
             this._gameOn = false;
             this._gameOverState = gameOverState;
-            this.chessBot = null;
+            this.chessBotGood = null;
+            this.chessBotBad = null;
         }
     }
 
@@ -129,10 +134,10 @@ class GameEngine {
         return false;
     }
     
-    async getBotMoves() {
+    async getGoodBotMoves() {
         if (this.gameOn && this.isPlayerTurn()) {
             return new Promise(resolve => {
-                this.chessBot!.getMoves(this.game.history({verbose:true})).then(({calcMoves, bestMove}: any) => {
+                this.chessBotGood!.getMoves(this.game.history({verbose:true})).then(({calcMoves, bestMove}: any) => {
                     // Select bot moves
                     const allMoves = this.game.moves({verbose: true});
                     const calcBestMove: MoveWithAssignment = { move: bestMove, assignment: MoveAssignment.best };
@@ -155,6 +160,17 @@ class GameEngine {
             })
         }
     }
+    async getBadBotMoves() {
+        if (this.gameOn && this.isPlayerTurn()) {
+            return new Promise(resolve => {
+                this.chessBotBad!.getMoves(this.game.history({verbose:true})).then(({calcMoves, bestMove}: any) => {
+                    resolve(bestMove);
+              }).catch((msg) => {
+                  console.log(msg);
+              })
+            })
+        }
+    }
 }
 
-export default GameEngine;
+export default TwoOneGameEngine;
