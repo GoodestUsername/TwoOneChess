@@ -40,9 +40,6 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   // engine
   const gameEngineRef = useRef<GameEngine>();
 
-  // Worker
-  const stockfishRef = useRef<UciEngineWorker>();
-
   // Game State
   const [game, setGame] = useState<ChessInstance>(new Chess());
   const [gameStarted, setGameStarted] = useState(false);
@@ -170,7 +167,6 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   }, [handleGameOverConditions]);
 
   useEffect(() => {
-    stockfishRef.current = new UciEngineWorker("stockfish.js");  
     gameEngineRef.current = new GameEngine();
     socket.on("startGame", onStartGame);
 
