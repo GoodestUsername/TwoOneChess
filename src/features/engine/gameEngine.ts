@@ -137,15 +137,15 @@ class GameEngine {
                     const allMoves = this.game.moves({verbose: true});
                     const calcBestMove: MoveWithAssignment = { move: bestMove, assignment: MoveAssignment.best };
                     const randCalcMove: MoveWithAssignment = {
-                    move: calcMoves.find((m: { move: ShortMove; }) => !areMovesEqual(m.move, calcBestMove.move)).move
-                    || getRanElement(calcMoves).move, 
-                    assignment: MoveAssignment.middle };
-
+                        move: (calcMoves.length > 1 && calcMoves.find((m: { move: ShortMove; }) => !areMovesEqual(m.move, calcBestMove.move)).move)
+                        || getRanElement(calcMoves).move, 
+                        assignment: MoveAssignment.middle };
+    
                     // randomly select a move
                     const randomMove: MoveWithAssignment = {
-                    move: allMoves.find((m) => !areMovesEqual(m, calcBestMove.move) && !areMovesEqual(m, randCalcMove.move))
-                    || getRanElement(allMoves),
-                    assignment: MoveAssignment.random };
+                        move: (allMoves.length > 1 && allMoves.find((m) => !areMovesEqual(m, calcBestMove.move) && !areMovesEqual(m, randCalcMove.move)))
+                        || getRanElement(allMoves),
+                        assignment: MoveAssignment.random };
 
                     // Shuffle moves
                     resolve(shuffle([randomMove, calcBestMove, randCalcMove]));
