@@ -1,7 +1,7 @@
 import { Chess, Move } from "chess.js";
 import type { ShortMove } from "chess.js";
 
-export type {ShortMove};
+export type { ShortMove };
 
 export type BoardOrientation = "white" | "black" | undefined;
 

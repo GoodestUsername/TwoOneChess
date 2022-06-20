@@ -10,7 +10,7 @@ import { Chessboard } from "react-chessboard";
 import { ButtonGroup, Divider } from "@mui/material";
 
 // hooks
-import useWindowDimensions from "../hooks/useWindowDimensions";
+import useWindowDimensions from "../../hooks/useWindowDimensions";
 import { useMediaQuery } from "react-responsive";
 
 interface TwoOneChessboardInterface {

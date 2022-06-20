@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 
 // helper functions
 import Cookies from 'universal-cookie';
+import { shuffle } from "util/helpers";
 
 // types
 import { BoardOrientation, GameOverStates, MoveWithAssignment} from "features/engine/chessEngine";
@@ -11,19 +12,18 @@ import { Square, ShortMove } from 'chess.js';
 import { Socket } from "socket.io-client";
 
 // engine
-import GameEngine from 'features/engine/gameEngine';
-
-// worker
-import UciEngineWorker from "features/workers/stockfish";
+import GameEngine from 'features/engine/twoOneGameEngine';
 
 // components
 import HistoryWindow, { toTurnHistory, TurnHistory } from "../HistoryWindow";
 import TwoOneChessboard from "./TwoOneChessboard";
+
 // material ui components
 import { Grid } from "@mui/material";
 
 // context
 import { SocketContext } from "context/socketContext";
+
 
 
 // constants
@@ -111,7 +111,9 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   }
 
   const fetchBotMoves = async () => {
-    const moves: any = await gameEngineRef.current!.getBotMoves();
+    const goodMoves: any = await gameEngineRef.current!.getGoodBotMoves();
+    const badMove: any = await gameEngineRef.current!.getBadBotMoves();
+    const moves = shuffle([...goodMoves, badMove])
     // Set Moves
     if (gameEngineRef.current?.isPlayerTurn()) {
       setFBotMove(moves[0]);

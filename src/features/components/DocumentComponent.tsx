@@ -2,7 +2,7 @@ import { Paper, Container, Box } from "@mui/material";
 import DocumentSection from "./DocumentSection";
 
 // hooks
-import useWindowDimensions from "./hooks/useWindowDimensions";
+import useWindowDimensions from "../hooks/useWindowDimensions";
 import { useMediaQuery } from "react-responsive";
 
 interface DocumentInterface {
