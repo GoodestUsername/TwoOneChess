@@ -55,6 +55,20 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   // Active bot move previews
   const [botMovePreviews, setBotMovePreviews] = useState<string[][]>([]);
 
+  const fetchBotMoves = async () => {
+    const goodMoves: any = await gameEngineRef.current!.getGoodBotMoves();
+    const badMove: any = await gameEngineRef.current!.getBadBotMoves();
+    console.log(badMove)
+    const moves = shuffle([...goodMoves, badMove])
+    console.log(moves)
+    // Set Moves
+    if (gameEngineRef.current?.isPlayerTurn()) {
+      setFBotMove(moves[0]);
+      setSBotMove(moves[1]);
+      setTBotMove(moves[2]);
+    }
+  }
+
   // functions that handle game state/game ui changes
   function safeGameMutate(modify: any) {
     setGame((g: any) => {
@@ -110,17 +124,6 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
     return handleMoveAndSend({from: sourceSquare, to: targetSquare})
   }
 
-  const fetchBotMoves = async () => {
-    const goodMoves: any = await gameEngineRef.current!.getGoodBotMoves();
-    const badMove: any = await gameEngineRef.current!.getBadBotMoves();
-    const moves = shuffle([...goodMoves, badMove])
-    // Set Moves
-    if (gameEngineRef.current?.isPlayerTurn()) {
-      setFBotMove(moves[0]);
-      setSBotMove(moves[1]);
-      setTBotMove(moves[2]);
-    }
-  }
 
   // Socket functions
   const onStartGame = useCallback((data: {color: BoardOrientation, gameKey: string, roomId: string}) => {

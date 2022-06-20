@@ -1,10 +1,9 @@
 import UciEngineWorker from "features/workers/stockfish";
 import { areMovesEqual, BoardOrientation, GameOverStates, getGameOverState, isPromoting, MoveAssignment, MoveWithAssignment } from "./chessEngine";
-import { Chess, ChessInstance, ShortMove } from 'chess.js';import { getRanElement } from "util/helpers";
-;
-
-const stockfishFile = "/default_stockfish/stockfish.js"
-const deadfishFile = "/deadfish/stockfish.js"
+import { Chess, ChessInstance, ShortMove } from 'chess.js';
+import { getRanElement } from "util/helpers";
+const stockfishFile = "./bots/default_stockfish/stockfish.js"
+const deadfishFile = "./bots/deadfish/stockfish.js"
 
 class TwoOneGameEngine {
     private _game: ChessInstance;
@@ -133,8 +132,8 @@ class TwoOneGameEngine {
         if (this.gameOn && this.isPlayerTurn()) {
             return new Promise(resolve => {
                 this.chessBotBad!.getMoves(this.game.history({verbose:true})).then(({calcMoves, bestMove}: any) => {
-                    console.log(calcMoves)
-                    resolve(bestMove);
+                    const calcWorstMove: MoveWithAssignment = { move: bestMove, assignment: MoveAssignment.worst };
+                    resolve(calcWorstMove);
               }).catch((msg) => {
                   console.log(msg);
               })
