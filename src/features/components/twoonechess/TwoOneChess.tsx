@@ -58,9 +58,7 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   const fetchBotMoves = async () => {
     const goodMoves: any = await gameEngineRef.current!.getGoodBotMoves();
     const badMove: any = await gameEngineRef.current!.getBadBotMoves();
-    console.log(badMove)
     const moves = shuffle([...goodMoves, badMove])
-    console.log(moves)
     // Set Moves
     if (gameEngineRef.current?.isPlayerTurn()) {
       setFBotMove(moves[0]);
