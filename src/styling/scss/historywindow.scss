@@ -3,6 +3,7 @@
 .historyWindow {
     @include media("<=tablet") {
         width: 100vw;
+        max-height: "300px";
     }
     @include media(">tablet", "<=desktop") {
         width: fit-content(560px);
@@ -11,4 +12,7 @@
         width: 215px;
         height: 560px;
     }
+    overflow: 'auto';
+    max-height: "600px";
+    height: "100%";
 }

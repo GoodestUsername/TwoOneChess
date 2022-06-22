@@ -23,6 +23,7 @@ import { Grid } from "@mui/material";
 
 // context
 import { SocketContext } from "context/socketContext";
+import BoardTopBar from "./BoardTopBar";
 
 
 
@@ -192,28 +193,30 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
       spacing={1}
       direction="row"
       display="flex"
-      alignItems="stretch">
-            <Grid item>
-              <TwoOneChessboard 
-                boardOrientation={playerColor}
-                position={game.fen()} 
-                customArrows={botMovePreviews} 
-                onDropHandler={onDrop} 
-                bottomButtonsActive={gameStarted}
-                handleMove={handleMoveAndSend}
-                setPreview={setBotMovePreviews}
-                bottomButtonMoves={{
-                    fBotMove,
-                    sBotMove,
-                    tBotMove
-                }} />
-            </Grid>
-            <Grid item sx={{maxWidth: "568px", flexGrow:1, height: "inherit"}}>
-              {history && 
-                <HistoryWindow history={history} />
-              }
-            </Grid>
-          </Grid>
+      alignItems="stretch"
+      justifyContent={"Center"}>
+        <Grid item>
+          <BoardTopBar/>
+          <TwoOneChessboard 
+            boardOrientation={playerColor}
+            position={game.fen()} 
+            customArrows={botMovePreviews} 
+            onDropHandler={onDrop} 
+            bottomButtonsActive={gameStarted}
+            handleMove={handleMoveAndSend}
+            setPreview={setBotMovePreviews}
+            bottomButtonMoves={{
+                fBotMove,
+                sBotMove,
+                tBotMove
+            }} />
+        </Grid>
+        <Grid item sx={{maxWidth: "568px", flexGrow:1, height: "inherit"}}>
+          {history && 
+            <HistoryWindow history={history} />
+          }
+        </Grid>
+      </Grid>
   );
 }
 

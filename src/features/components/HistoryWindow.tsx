@@ -14,13 +14,14 @@ interface Column {
     id: 'turn' | 'white' | 'black',
     label: string,
     minWidth?: number,
+    padding?: number | string,
     background?: string
 }
 
 const columns: readonly Column[] = [
-    { id: 'turn',  label: 'Turn',  minWidth: 66, background: "secondary" },
-    { id: 'white', label: 'White', minWidth: 66, background: "primary.main" },
-    { id: 'black', label: 'Black', minWidth: 66, background: "primary.main" },
+    { id: 'turn',  label: 'Turn',  minWidth: 66, padding: "8px", background: "secondary" },
+    { id: 'white', label: 'White', minWidth: 66, padding: "8px", background: "primary.main" },
+    { id: 'black', label: 'Black', minWidth: 66, padding: "8px", background: "primary.main" },
 ];
 
 export type TurnHistory = {
@@ -61,7 +62,7 @@ const HistoryCard: React.FC<HistoryCardInterface> = ({ history }) => {
     }, [history, isDesktop]);
 
     return (
-        <Paper className="historyWindow" sx={{ overflow: 'auto', maxHeight: "560px", height: "100%"}}>
+        <Paper className="historyWindow">
             <TableContainer sx={{ height: "100%", overflowX: 'hidden' }}>
                 <Table stickyHeader>
                     <TableHead>
@@ -71,7 +72,7 @@ const HistoryCard: React.FC<HistoryCardInterface> = ({ history }) => {
                                     key={column.id}
                                     className={classes.headerCell}
                                     align="center"
-                                    sx={{ minWidth: column.minWidth }}>
+                                    sx={{ minWidth: column.minWidth, padding: column.padding }}>
                                     {column.label}
                                 </TableCell>
                             ))}
