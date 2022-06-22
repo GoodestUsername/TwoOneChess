@@ -187,7 +187,12 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   }, [socket, onStartGame, onRestoreGame, onReconnectGame, onOpponentMove])
 
   return (
-          <Grid container>
+    <Grid
+      container
+      spacing={1}
+      direction="row"
+      display="flex"
+      alignItems="stretch">
             <Grid item>
               <TwoOneChessboard 
                 boardOrientation={playerColor}
@@ -203,7 +208,7 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
                     tBotMove
                 }} />
             </Grid>
-            <Grid item>
+            <Grid item sx={{maxWidth: "568px", flexGrow:1}}>
               {history && 
                 <HistoryWindow history={history} />
               }

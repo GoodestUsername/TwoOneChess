@@ -39,8 +39,9 @@ const Layout = () => {
             {isMobile && <MobileAppBar handleSideBarToggle={handleSideBarToggle} />}
             <div className="Layout"
               style={{
-                display: 'flex',
-                flexDirection: 'row'
+                display: "flex",
+                flexDirection: "row",
+                overflowX: "hidden"
             }}>
               <SideBar
                 sideBarCollapsed={sideBarCollapsed}

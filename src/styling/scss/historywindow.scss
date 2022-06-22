@@ -4,14 +4,16 @@
 
     @include media("<=tablet") {
         width: 100vw;
-        margin-top: 10px;
+        // margin-top: 10px;
+        // margin-left: 0px;
     }
     @include media(">tablet", "<=desktop") {
-        width: 560px;
-        margin-top: 10px;
+        width: fit-content(560px);
     }
     @include media(">desktop") {
         width: 215px;
-        margin-left: 10px;
+        // margin-top: 0px;
     }
+    // margin-top: 10px;
+    // margin-left: 10px;
 }
