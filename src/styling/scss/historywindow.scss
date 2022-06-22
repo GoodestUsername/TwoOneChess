@@ -3,16 +3,17 @@
 .historyWindow {
     @include media("<=tablet") {
         width: 100vw;
+        max-width: none;
         max-height: "300px";
     }
     @include media(">tablet", "<=desktop") {
-        width: fit-content(560px);
+        width: fit-content("100%");
     }
     @include media(">desktop") {
         width: 215px;
-        height: 560px;
+        height: 600px;
     }
-    overflow: 'auto';
-    max-height: "600px";
-    height: "100%";
+    overflow: auto;
+    max-height: 600px;
+    height: 100%;
 }
