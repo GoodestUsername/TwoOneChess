@@ -1,19 +1,14 @@
 @import "include-media";
 
 .historyWindow {
-
     @include media("<=tablet") {
         width: 100vw;
-        // margin-top: 10px;
-        // margin-left: 0px;
     }
     @include media(">tablet", "<=desktop") {
         width: fit-content(560px);
     }
     @include media(">desktop") {
         width: 215px;
-        // margin-top: 0px;
+        height: 560px;
     }
-    // margin-top: 10px;
-    // margin-left: 10px;
 }

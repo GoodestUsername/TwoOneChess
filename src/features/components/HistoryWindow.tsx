@@ -61,7 +61,7 @@ const HistoryCard: React.FC<HistoryCardInterface> = ({ history }) => {
     }, [history, isDesktop]);
 
     return (
-        <Paper className="historyWindow" sx={{ overflow: 'auto', maxHeight: "560px" }}>
+        <Paper className="historyWindow" sx={{ overflow: 'auto', maxHeight: "560px", height: "100%"}}>
             <TableContainer sx={{ height: "100%", overflowX: 'hidden' }}>
                 <Table stickyHeader>
                     <TableHead>
