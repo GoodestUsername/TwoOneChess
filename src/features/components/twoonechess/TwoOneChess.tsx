@@ -208,7 +208,7 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
                     tBotMove
                 }} />
             </Grid>
-            <Grid item sx={{maxWidth: "568px", flexGrow:1}}>
+            <Grid item sx={{maxWidth: "568px", flexGrow:1, height: "inherit"}}>
               {history && 
                 <HistoryWindow history={history} />
               }
