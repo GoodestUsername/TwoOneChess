@@ -7,7 +7,7 @@ interface LayoutAppBarInterface {
 
 const MobileAppBar: React.FC<LayoutAppBarInterface> = ({handleSideBarToggle}) => {
     return (
-        <AppBar position="static">
+        <AppBar position="sticky">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <Box sx={{ flexGrow: 1 }}>
