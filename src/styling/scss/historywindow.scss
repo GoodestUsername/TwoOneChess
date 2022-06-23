@@ -4,10 +4,10 @@
     @include media("<=tablet") {
         width: 100vw;
         max-width: none;
-        max-height: "300px";
+        max-height: 300px;
     }
     @include media(">tablet", "<=desktop") {
-        width: fit-content("100%");
+        width: fit-content(100%);
     }
     @include media(">desktop") {
         width: 215px;
