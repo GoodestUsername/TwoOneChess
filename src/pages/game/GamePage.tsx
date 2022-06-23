@@ -1,22 +1,28 @@
-import { useCallback, useContext, useEffect, useState } from "react";
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
+
+// hooks
+import { useCallback, useContext, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 // material ui
-import { Button, Typography, Box  } from "@mui/material";
+import { Box } from "@mui/material";
 
 // helper functions
 import Cookies from 'universal-cookie';
-import { v4 as uuidv4 } from 'uuid';
 
 // types
 import { Socket } from "socket.io-client";
 
 // context
 import { SocketContext } from "context/socketContext";
+
+// components
 import TwoOneChess from "features/components/twoonechess/TwoOneChess";
-import { useParams } from "react-router-dom";
 import GameLinkModal from "features/components/twoonechess/GameLinkModal";
+
+// styling
+import 'react-toastify/dist/ReactToastify.css';
 
 const TOKEN_KEY = 'ACCESS_TOKEN';
 const INVITE_LINK_URL = 'localhost:3000/';
@@ -24,14 +30,12 @@ const INVITE_LINK_URL = 'localhost:3000/';
 const GamePage = () => {
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
+
+  // params
   const params = useParams();
   
   // Socket room info
   const [roomId, setRoomId] = useState<string>(params.roomId ? params.roomId : "");
-
-  // Server Messages
-  const [warningMessage, setWarningMessage] = useState("");
-  const [serverMessage, setserverMessage] = useState("");
 
   // Modal toggle
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,11 +54,11 @@ const GamePage = () => {
   }, []);
 
   const onServerMessage = useCallback((data: {msg: string}) => {
-    setserverMessage(data.msg);
+    toast.info(data.msg);
   }, []);
 
   const onIssueWarning = useCallback((data: {msg: string}) => {
-    setWarningMessage(data.msg);
+    toast.warning(data.msg);
   }, []);
 
   const onStartGameGamePage = useCallback(() => {
@@ -76,9 +80,6 @@ const GamePage = () => {
 
   return (
     <Box sx={{marginTop: "20px", height: "calc(100% - 20px)"}} className="GamePage">
-      <Button variant="contained" color="primary" onClick={ () => { socket.emit("createGame", uuidv4().slice(0, 8)) } }>Create Invite Link</Button>
-      <Typography>{warningMessage}</Typography>
-      <Typography>{serverMessage}</Typography>
       <ToastContainer
         theme="colored"
         position="top-center"
@@ -95,6 +96,7 @@ const GamePage = () => {
         isOpen={isModalOpen}
         inviteLink={INVITE_LINK_URL + roomId} 
         handleClose={() => setIsModalOpen(false)} />
+
       <TwoOneChess roomId={roomId}/>
   </Box>
   );
