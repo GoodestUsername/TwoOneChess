@@ -43,7 +43,6 @@ const Layout = () => {
                 flexDirection: "row",
                 overflowX: "hidden",
                 overflowY: "auto",
-                height: "100vh"
             }}>
               <SideBar
                 sideBarCollapsed={sideBarCollapsed}

@@ -65,17 +65,17 @@ const SideBar: React.FC<SideBarInterface> = ({
 
       <SidebarContent>
         <Menu iconShape="circle">
-          <MenuItem icon={ <PlayArrowIcon /> }>
-            <Typography onClick={() => {window.location.href="/"}}> Play Game </Typography>
+          <MenuItem onClick={() => {window.location.href="/"}} icon={ <PlayArrowIcon /> }>
+            <Typography> Play Game </Typography>
           </MenuItem>
           <MenuItem icon={ <SchoolIcon /> }>
-          <Link to={"/tutorial"}> Tutorial </Link>
-             </MenuItem>
+            <Link to={"/tutorial"}> Tutorial </Link>
+          </MenuItem>
           <MenuItem icon={ <PlaylistAddCheckOutlinedIcon /> }> 
             <Link to={"/features"}> Features </Link>
           </MenuItem>
           <MenuItem icon={ <PlaylistAddCheckCircleIcon /> }>
-          < Link to={"/planned"}> Planned </Link>
+            < Link to={"/planned"}> Planned </Link>
           </MenuItem>
           <MenuItem icon={ <InfoOutlinedIcon /> }> 
             <Link to={"/about"}> About Me </Link>
