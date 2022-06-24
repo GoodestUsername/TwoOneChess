@@ -2,9 +2,6 @@ import { ProSidebar, SidebarHeader, SidebarFooter, SidebarContent, Menu, MenuIte
 import { Box, Typography } from '@mui/material';
 import { Link } from "react-router-dom";
 
-// hooks
-import { useMediaQuery } from 'react-responsive';
-
 // icons
 import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
 import PlaylistAddCheckCircleIcon from '@mui/icons-material/PlaylistAddCheckCircle';
@@ -26,19 +23,17 @@ const SideBar: React.FC<SideBarInterface> = ({
   toggled, 
   handleSideBarToggle
 }) => {
-  const isMobile = useMediaQuery({ query: '(max-width: 768px)' })
-  
   const handleCollapseToggle = () => {
     handleSideBarToggle(false, !sideBarCollapsed);
   }
   
   return (
     <ProSidebar
-      style={{ 
+      style={{
         height: "100vh",
         minWidth:"70px",
         maxWidth:"200px",
-        position: isMobile ? "fixed" : "sticky",
+        position: "fixed",
         top: 0
       }}
       collapsed={sideBarCollapsed}

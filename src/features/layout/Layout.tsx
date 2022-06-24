@@ -53,7 +53,7 @@ const Layout = () => {
                 spacing={0}
                 direction="column"
                 alignItems="center"
-                style={{ maxHeight: isMobile ? "calc(100vh - 64px)": '100vh'}}
+                style={{ maxHeight: isMobile ? "calc(100vh - 64px)": '100vh', marginLeft: isMobile ? "0px" : "80px"}}
               >
                 <Grid
                   item sx={{minHeight: "100%"}} xs={"auto"} sm={"auto"} md={1} lg={6} xl={3}>
