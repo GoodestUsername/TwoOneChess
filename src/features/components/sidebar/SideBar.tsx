@@ -26,20 +26,20 @@ const SideBar: React.FC<SideBarInterface> = ({
   const handleCollapseToggle = () => {
     handleSideBarToggle(false, !sideBarCollapsed);
   }
-
+  
   return (
     <ProSidebar
-      style={{ 
+      style={{
         height: "100vh",
         minWidth:"70px",
         maxWidth:"200px",
-        position: "absolute",
+        position: "fixed",
         top: 0
       }}
       collapsed={sideBarCollapsed}
       toggled={toggled}
       onToggle={handleCollapseToggle}
-      breakPoint="md"
+      breakPoint={"md"}
     >
       <SidebarHeader>
         <Box style={{ padding: "20px 20px", display:"flex"}}>
@@ -60,17 +60,17 @@ const SideBar: React.FC<SideBarInterface> = ({
 
       <SidebarContent>
         <Menu iconShape="circle">
-          <MenuItem icon={ <PlayArrowIcon /> }>
-            <Link to={"/"}> Play Game </Link>
+          <MenuItem onClick={() => {window.location.href="/"}} icon={ <PlayArrowIcon /> }>
+            <Typography> Play Game </Typography>
           </MenuItem>
           <MenuItem icon={ <SchoolIcon /> }>
-          <Link to={"/tutorial"}> Tutorial </Link>
-             </MenuItem>
+            <Link to={"/tutorial"}> Tutorial </Link>
+          </MenuItem>
           <MenuItem icon={ <PlaylistAddCheckOutlinedIcon /> }> 
             <Link to={"/features"}> Features </Link>
           </MenuItem>
           <MenuItem icon={ <PlaylistAddCheckCircleIcon /> }>
-          < Link to={"/planned"}> Planned </Link>
+            < Link to={"/planned"}> Planned </Link>
           </MenuItem>
           <MenuItem icon={ <InfoOutlinedIcon /> }> 
             <Link to={"/about"}> About Me </Link>

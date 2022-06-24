@@ -4,6 +4,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 interface ConfirmationButtonInterface {
     onClickInitial: Function,
@@ -73,8 +74,10 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
         <Box sx={{width: "33.33%"}}>
             <LoadingButton
                 loading={disableInitial}
+                loadingPosition="center"
                 variant="contained"
                 color="secondary"
+                loadingIndicator={<MoreHorizIcon/>}
                 sx={{...buttonStyling, fontSize: "1.2rem"}}
                 onClick={() => {
                     onClickInitial();

@@ -12,6 +12,9 @@ const PlannedPage = () => {
         <DocumentSection title={"Game Chat"} titleVariant={"h5"}>
           Communicate and talk to your opponents!
         </DocumentSection>
+        <DocumentSection title={"Premoves"} titleVariant={"h5"}>
+          Plan out the perfect sequence, and save yourself some time!
+        </DocumentSection>
         <DocumentSection title={"Game Over Button"} titleVariant={"h5"}>
           A surrender / request stalemate button for hopeless games!
         </DocumentSection>

@@ -1,7 +1,7 @@
 import { Chess, Move } from "chess.js";
 import type { ShortMove } from "chess.js";
 
-export type {ShortMove};
+export type { ShortMove };
 
 export type BoardOrientation = "white" | "black" | undefined;
 
@@ -103,9 +103,3 @@ export const getGameOverState = (pgn: string, isPlayerTurn: boolean) => {
   // if the game is going
   return null;
 }
-
-  // // check if it is the clients turn
-  // export function isPlayerTurn(gameOn: boolean, playerColor: BoardOrientation, gameTurn: "b" | "w") {
-  //   return (gameOn && playerColor && gameTurn === playerColor[0])
-  // }
-

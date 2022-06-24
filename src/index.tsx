@@ -21,13 +21,13 @@ root.render(
     <BrowserRouter>
         <Routes>
           <Route path="/" element={< Layout/>}>
-            <Route path="*"       element={ <NotFoundPage/> }/>
-            <Route path="/"       element={ <GamePage/> }/>
-            <Route path="/tutorial"       element={ <TutorialPage/> }/>
-            <Route path="/features"       element={ <FeaturesPage/> }/>
-            <Route path="/planned"       element={ <PlannedPage/> }/>
-            <Route path="/about"       element={ <AboutMePage/> }/>
-            <Route path="/:roomId" element={ <GamePage/> }/>
+            <Route path="*"         element={ <NotFoundPage/> }/>
+            <Route path="/"         element={ <GamePage/> }/>
+            <Route path="/tutorial" element={ <TutorialPage/> }/>
+            <Route path="/features" element={ <FeaturesPage/> }/>
+            <Route path="/planned"  element={ <PlannedPage/> }/>
+            <Route path="/about"    element={ <AboutMePage/> }/>
+            <Route path="/:roomId"  element={ <GamePage/> }/>
           </Route>
         </Routes>
     </BrowserRouter>

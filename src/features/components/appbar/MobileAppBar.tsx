@@ -1,15 +1,13 @@
 import { AppBar, Container, Toolbar, Box, IconButton, Typography } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 
-const LOGO_REDIRECT_URL = "http://localhost:3000"
-
 interface LayoutAppBarInterface {
     handleSideBarToggle: Function
 }
 
 const MobileAppBar: React.FC<LayoutAppBarInterface> = ({handleSideBarToggle}) => {
     return (
-        <AppBar position="static">
+        <AppBar position="sticky">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <Box sx={{ flexGrow: 1 }}>
@@ -21,7 +19,7 @@ const MobileAppBar: React.FC<LayoutAppBarInterface> = ({handleSideBarToggle}) =>
                         variant="h5"
                         noWrap
                         component="a"
-                        href={ `${LOGO_REDIRECT_URL}` }
+                        href="/"
                         sx={{
                             mr: 2,
                             flexGrow: 1,

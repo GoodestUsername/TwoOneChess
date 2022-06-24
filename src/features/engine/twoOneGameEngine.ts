@@ -1,33 +1,11 @@
 import UciEngineWorker from "features/workers/stockfish";
 import { areMovesEqual, BoardOrientation, GameOverStates, getGameOverState, isPromoting, MoveAssignment, MoveWithAssignment } from "./chessEngine";
-import { Chess, ChessInstance, ShortMove } from 'chess.js';;
+import { Chess, ChessInstance, ShortMove } from 'chess.js';
+import { getRanElement } from "util/helpers";
+const stockfishFile = "./bots/default_stockfish/stockfish.js"
+const deadfishFile = "./bots/deadfish/stockfish.js"
 
-const stockfishFile = "/stockfish.js"
-/**
- * Gets a random element in array
- * @param {Array} array items An array containing the items.
- */
-function getRanElement(array: any[]) {
-    return array[Math.floor(Math.random() * array.length)]
-}
-
-/**
- * Shuffles array in place.
- * source: https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array/6274381#6274381
- * @param {Array} a items An array containing the items.
- */
-function shuffle(a: any[]) {
-    var j, x, i;
-    for (i = a.length - 1; i > 0; i--) {
-        j = Math.floor(Math.random() * (i + 1));
-        x = a[i];
-        a[i] = a[j];
-        a[j] = x;
-    }
-    return a;
-}
-
-class GameEngine {
+class TwoOneGameEngine {
     private _game: ChessInstance;
     public get game(): ChessInstance {
         return this._game;
@@ -54,10 +32,12 @@ class GameEngine {
     public set clientColor(value: BoardOrientation) {
         this._clientColor = value;
     }
-    chessBot: UciEngineWorker;
+    chessBotGood: UciEngineWorker | null;
+    chessBotBad: UciEngineWorker | null;
 
     constructor() {
-        this.chessBot = new UciEngineWorker(stockfishFile);
+        this.chessBotGood = new UciEngineWorker(stockfishFile);
+        this.chessBotBad = new UciEngineWorker(deadfishFile);
         this._game = new Chess();
         this._gameOn = false;
         this._gameTurn = null;
@@ -84,6 +64,8 @@ class GameEngine {
         if (gameOverState) {
             this._gameOn = false;
             this._gameOverState = gameOverState;
+            this.chessBotGood = null;
+            this.chessBotBad = null;
         }
     }
 
@@ -122,26 +104,29 @@ class GameEngine {
         return false;
     }
     
-    async getBotMoves() {
+    async getGoodBotMoves() {
         if (this.gameOn && this.isPlayerTurn()) {
             return new Promise(resolve => {
-                this.chessBot.getMoves(this.game.history({verbose:true})).then(({calcMoves, bestMove}: any) => {
+                this.chessBotGood!.getMoves(this.game.history({verbose:true})).then(({calcMoves, bestMove}: any) => {
                     // Select bot moves
-                    const allMoves = this.game.moves({verbose: true});
                     const calcBestMove: MoveWithAssignment = { move: bestMove, assignment: MoveAssignment.best };
                     const randCalcMove: MoveWithAssignment = {
-                    move: calcMoves.find((m: { move: ShortMove; }) => !areMovesEqual(m.move, calcBestMove.move)).move
-                    || getRanElement(calcMoves).move, 
-                    assignment: MoveAssignment.middle };
-
-                    // randomly select a move
-                    const randomMove: MoveWithAssignment = {
-                    move: allMoves.find((m) => !areMovesEqual(m, calcBestMove.move) && !areMovesEqual(m, randCalcMove.move))
-                    || getRanElement(allMoves),
-                    assignment: MoveAssignment.random };
-
-                    // Shuffle moves
-                    resolve(shuffle([randomMove, calcBestMove, randCalcMove]));
+                        move: (calcMoves.length > 1 && calcMoves.find((m: { move: ShortMove; }) => !areMovesEqual(m.move, calcBestMove.move)).move)
+                        || getRanElement(calcMoves).move, 
+                        assignment: MoveAssignment.middle };
+                    resolve([calcBestMove, randCalcMove]);
+              }).catch((msg) => {
+                  console.log(msg);
+              })
+            })
+        }
+    }
+    async getBadBotMoves() {
+        if (this.gameOn && this.isPlayerTurn()) {
+            return new Promise(resolve => {
+                this.chessBotBad!.getMoves(this.game.history({verbose:true})).then(({calcMoves, bestMove}: any) => {
+                    const calcWorstMove: MoveWithAssignment = { move: bestMove, assignment: MoveAssignment.worst };
+                    resolve(calcWorstMove);
               }).catch((msg) => {
                   console.log(msg);
               })
@@ -150,4 +135,4 @@ class GameEngine {
     }
 }
 
-export default GameEngine;
+export default TwoOneGameEngine;
