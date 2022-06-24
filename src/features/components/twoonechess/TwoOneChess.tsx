@@ -24,8 +24,7 @@ import { Grid } from "@mui/material";
 // context
 import { SocketContext } from "context/socketContext";
 import BoardTopBar from "./BoardTopBar";
-
-
+import { useMediaQuery } from "react-responsive";
 
 // constants
 const TOKEN_KEY = 'ACCESS_TOKEN';
@@ -37,6 +36,9 @@ interface TwoOneChessInterface {
 const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
+
+  // is mobile hook
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' })
 
   // engine
   const gameEngineRef = useRef<GameEngine>();
@@ -122,7 +124,6 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   function onDrop(sourceSquare: Square, targetSquare: Square) {
     return handleMoveAndSend({from: sourceSquare, to: targetSquare})
   }
-
 
   // Socket functions
   const onStartGame = useCallback((data: {color: BoardOrientation, gameKey: string, roomId: string}) => {
@@ -211,7 +212,7 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
                 tBotMove
             }} />
         </Grid>
-        <Grid item sx={{maxWidth: "568px", flexGrow:1, height: "inherit"}}>
+        <Grid item sx={{maxWidth: (isMobile ? "none" : "568px"), flexGrow:1, height: "inherit"}}>
           {history && 
             <HistoryWindow history={history} />
           }
