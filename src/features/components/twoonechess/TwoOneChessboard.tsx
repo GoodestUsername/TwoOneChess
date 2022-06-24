@@ -12,6 +12,7 @@ import { ButtonGroup, Divider } from "@mui/material";
 // hooks
 import useWindowDimensions from "../../hooks/useWindowDimensions";
 import { useMediaQuery } from "react-responsive";
+import { useEffect, useState } from "react";
 
 interface TwoOneChessboardInterface {
   boardOrientation: BoardOrientation,
@@ -39,12 +40,20 @@ const TwoOneChessboard: React.FC<TwoOneChessboardInterface> = ({
   setPreview,
   bottomButtonMoves
 }) => {
-  const isMobile = useMediaQuery({ query: '(max-width: 767px)' })
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' })
   const { width } = useWindowDimensions();
+  const [desktopBoardWidth, setDesktopBoardWidth ] = useState(560);
+
+  useEffect(() => {
+    if (width > 768 && width <= 850) {
+      setDesktopBoardWidth(560 - (850 - width))
+    }
+  }, [width]);
+
   return (
           <>
             <Chessboard
-              boardWidth             = { isMobile ? width : 560 }
+              boardWidth             = { isMobile ? width : desktopBoardWidth }
               customArrows           = { customArrows }
               boardOrientation       = { boardOrientation }
               customDropSquareStyle  = { {boxShadow: 'inset 0 0 1px 6px rgba(0,255,255,0.75)'} }
