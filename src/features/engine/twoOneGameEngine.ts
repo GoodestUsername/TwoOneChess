@@ -36,15 +36,8 @@ class TwoOneGameEngine {
     chessBotBad: UciEngineWorker | null;
 
     constructor() {
-        try {
-            this.chessBotGood = new UciEngineWorker(stockfishFile);
-            this.chessBotBad = new UciEngineWorker(deadfishFile);
-        }
-        catch {
-            this.chessBotGood = null;
-            this.chessBotBad = null;
-            window.location.reload();
-        }
+        this.chessBotGood = new UciEngineWorker(stockfishFile);
+        this.chessBotBad = new UciEngineWorker(deadfishFile);
         this._game = new Chess();
         this._gameOn = false;
         this._gameTurn = null;

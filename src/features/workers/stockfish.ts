@@ -6,20 +6,31 @@ export type CalculatedMove = {
 }
 
 class UciEngineWorker {
-    worker: Worker;
+    worker: Worker | undefined;
     moves: CalculatedMove[] = []
     resolver: (({calcMoves, bestMove}: {calcMoves: CalculatedMove[], bestMove: ShortMove}) => void) | null 
 
     constructor(file: string) {
-        this.worker = new Worker(file);
+        try {
+            this.worker = new Worker(file);
+            this.worker.addEventListener("error", (error) => {
+                // put in actual fix later cant find solution
+                window.location.reload();
+            }, false)
+        }
 
+        catch {
+            // put in actual fix later cant find solution
+            this.worker = undefined;
+            window.location.reload();
+        }
         this.moves = [];
         this.resolver = null;
 
         const _self = this;
         
-        this.worker.postMessage('uci');
-        this.worker.addEventListener('message', function (e) {  
+        this.worker!.postMessage('uci');
+        this.worker!.addEventListener('message', function (e) {  
             const best  = e.data.match(/^bestmove ([a-h][1-8])([a-h][1-8])([qrbn])?/);
             const move  = e.data.match(/pv ([a-h][1-8])([a-h][1-8])([qrbn])?/);
             const cp    = e.data.match(/cp ([0-9]+)?/);
@@ -40,7 +51,11 @@ class UciEngineWorker {
             if (this.resolver) {
                 reject('Pending move is present');
                 return;
-              }
+            }
+            if (this.worker === undefined) {
+                reject('No worker is present');
+                return;
+            }
             this.resolver = resolve;
             this.worker.postMessage('setoption name MultiPV value 3');
             const moveHistory = history.map((move) => {return shortMoveToString(move)})
@@ -48,7 +63,6 @@ class UciEngineWorker {
             this.worker.postMessage(positionMessage);
             this.worker.postMessage('go movetime 1000');
         })
-
     }
 }
 
