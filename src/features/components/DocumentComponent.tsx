@@ -11,7 +11,7 @@ interface DocumentInterface {
 }
 
 const Document: React.FC<DocumentInterface> = ({title, children}) => {
-  const isMobile = useMediaQuery({ query: '(max-width: 767px)' })
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' })
   const { width } = useWindowDimensions();
     return (
       <Paper color="secondary" elevation={9}>

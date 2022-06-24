@@ -1,11 +1,9 @@
 import { alpha, createTheme, darken } from '@mui/material';
 
 // inspired by https://bloomui.com/product/tokyo-free-black-react-typescript-material-ui-admin-dashboard/
-const generalColors = {
-    primary: "#6d5fec",
-    primaryAlt: '#23222B',
-    primaryAlt2: "#1D1D1D",
-    secondary: '#23222B',
+const generalDarkColors = {
+    primary: "#23222B",
+    secondary: '#220dde',
     success: '#49e201',
     warning: '#f88f08',
     error: '#f60025',
@@ -17,34 +15,34 @@ const generalColors = {
 
 const darkThemeColors = {
     primary: {
-        main: generalColors.primary,
-        dark: darken(generalColors.primary, 0.5),
-        light: alpha(generalColors.primary, 0.6)
+        main: generalDarkColors.primary,
+        dark: darken(generalDarkColors.primary, 0.5),
+        light: alpha(generalDarkColors.primary, 0.1)
     },
     secondary: {
-        main: generalColors.secondary,
-        dark: darken(generalColors.secondary, 0.3),
-        light: alpha(generalColors.secondary, 0.4)
+        main: generalDarkColors.secondary,
+        dark: darken(generalDarkColors.secondary, 0.8),
+        light: alpha(generalDarkColors.secondary, 0.8)
     },
     success: {
-      main: generalColors.success,
-      dark: darken(generalColors.success, 0.3),
-      light: alpha(generalColors.success, 0.4)
+      main: generalDarkColors.success,
+      dark: darken(generalDarkColors.success, 0.3),
+      light: alpha(generalDarkColors.success, 0.4)
     },
     warning: {
-      main: generalColors.warning,
-      dark: darken(generalColors.warning, 0.3),
-      light: alpha(generalColors.warning, 0.4)
+      main: generalDarkColors.warning,
+      dark: darken(generalDarkColors.warning, 0.3),
+      light: alpha(generalDarkColors.warning, 0.4)
     },
     error: {
-      main: generalColors.error,
-      dark: darken(generalColors.error, 0.3),
-      light: alpha(generalColors.error, 0.4)
+      main: generalDarkColors.error,
+      dark: darken(generalDarkColors.error, 0.3),
+      light: alpha(generalDarkColors.error, 0.4)
     },
     info: {
-      main: generalColors.info,
-      dark: darken(generalColors.info, 0.3),
-      light: alpha(generalColors.info, 0.4)
+      main: generalDarkColors.info,
+      dark: darken(generalDarkColors.info, 0.3),
+      light: alpha(generalDarkColors.info, 0.4)
     }
 }
 const darkTheme = createTheme({
@@ -58,25 +56,25 @@ const darkTheme = createTheme({
     },
     palette: {
         text: {
-            disabled: generalColors.trueWhite
+            disabled: generalDarkColors.trueWhite
         },
         primary: {
             main: darkThemeColors.primary.main,
             dark: darkThemeColors.primary.dark,
             light: darkThemeColors.primary.light,
-            contrastText: generalColors.trueWhite
+            contrastText: generalDarkColors.trueWhite
         },
         secondary: {
             main: darkThemeColors.secondary.main,
             dark: darkThemeColors.secondary.dark,
             light: darkThemeColors.secondary.light,
-            contrastText: generalColors.trueWhite
+            contrastText: generalDarkColors.trueWhite
         },
         success: {
             main: darkThemeColors.success.main,
             dark: darkThemeColors.success.dark,
             light: darkThemeColors.success.light,
-            contrastText: generalColors.trueWhite
+            contrastText: generalDarkColors.trueWhite
         },
         warning: {
             main: darkThemeColors.warning.main,
@@ -87,16 +85,16 @@ const darkTheme = createTheme({
             main: darkThemeColors.error.main,
             dark: darkThemeColors.error.dark,
             light: darkThemeColors.error.light,
-            contrastText: generalColors.trueWhite
+            contrastText: generalDarkColors.trueWhite
         },
         info: {
             main: darkThemeColors.info.main,
             dark: darkThemeColors.info.dark,
             light: darkThemeColors.info.light,
-            contrastText: generalColors.trueWhite
+            contrastText: generalDarkColors.trueWhite
         },
         background: {
-          default: generalColors.primaryAlt,
+          default: generalDarkColors.primary,
           paper: 'rgba(40,51,97,0.35)',
         },
         divider: 'rgba(255,255,255,100)',
@@ -109,7 +107,7 @@ const darkTheme = createTheme({
         MuiDivider: {
             styleOverrides: {
                 root: {
-                    background: generalColors.trueWhite,
+                    background: generalDarkColors.trueWhite,
                     opacity: "50%"
                 }
             }
@@ -117,9 +115,9 @@ const darkTheme = createTheme({
         MuiButton: {
             styleOverrides: {
                 root: {
-                    backgroundColor: darkThemeColors.primary.dark,
+                    backgroundColor: darkThemeColors.secondary.light,
                     ":hover": {
-                        backgroundColor: darkThemeColors.primary.light,
+                        backgroundColor: darkThemeColors.secondary.main,
                     }
                 }
             }
@@ -127,15 +125,15 @@ const darkTheme = createTheme({
         MuiAppBar: {
             styleOverrides: {
                 root: {
-                    backgroundColor: generalColors.primaryAlt2
+                    backgroundColor: generalDarkColors.primary
                 }
             }
         },
         MuiTableCell: {
             styleOverrides: {
                 root: {
-                    background: darkThemeColors.primary.dark,
-                    color: generalColors.trueWhite
+                    background: darkThemeColors.secondary.dark,
+                    color: generalDarkColors.trueWhite
                 }
             }
         },
@@ -143,9 +141,9 @@ const darkTheme = createTheme({
             // from https://stackoverflow.com/questions/53772429/mui-how-can-i-style-the-scrollbar-with-css-in-js
             styleOverrides: {
               body: {
-                    scrollbarColor: `#6b6b6b ${generalColors.primaryAlt}`,
+                    scrollbarColor: `#6b6b6b ${generalDarkColors.primary}`,
                     "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
-                        backgroundColor: generalColors.primaryAlt,
+                        backgroundColor: generalDarkColors.primary,
                     },
                     "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
                         borderRadius: 8,
@@ -163,7 +161,7 @@ const darkTheme = createTheme({
                         backgroundColor: "#959595",
                     },
                     "&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner": {
-                        backgroundColor: generalColors.primaryAlt,
+                        backgroundColor: generalDarkColors.primary,
                     },
                 },
             },

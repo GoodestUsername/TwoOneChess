@@ -15,13 +15,14 @@ interface Column {
     label: string,
     minWidth?: number,
     padding?: number | string,
-    background?: string
+    backgroundColor: string,
+    border?: string
 }
 
 const columns: readonly Column[] = [
-    { id: 'turn',  label: 'Turn',  minWidth: 66, padding: "8px", background: "secondary" },
-    { id: 'white', label: 'White', minWidth: 66, padding: "8px", background: "primary.main" },
-    { id: 'black', label: 'Black', minWidth: 66, padding: "8px", background: "primary.main" },
+    { id: 'turn',  label: 'Turn',  minWidth: 48, padding: "6px", backgroundColor: "secondary.light"},
+    { id: 'white', label: 'White', minWidth: 66, padding: "6px", backgroundColor: "secondary.light"},
+    { id: 'black', label: 'Black', minWidth: 66, padding: "6px", backgroundColor: "secondary.light"},
 ];
 
 export type TurnHistory = {
@@ -72,7 +73,7 @@ const HistoryCard: React.FC<HistoryCardInterface> = ({ history }) => {
                                     key={column.id}
                                     className={classes.headerCell}
                                     align="center"
-                                    sx={{ minWidth: column.minWidth, padding: column.padding }}>
+                                    sx={{ minWidth: column.minWidth, padding: column.padding, backgroundColor: column.backgroundColor }}>
                                     {column.label}
                                 </TableCell>
                             ))}
