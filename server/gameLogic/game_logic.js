@@ -103,8 +103,8 @@ function onSyncGame(data) {
 
 function onGameOver(roomId) {
     setTimeout(function () {
-        serverIO.of('/').in(roomId).clients((error, socketIds) => {  if (error) throw error;  socketIds.forEach(socketId => io.sockets.sockets[socketId].leave(roomId));});
-    }, 600000);
+        serverIO.in(roomId).socketsLeave(roomId);
+    }, 1000);
 }
 
 function onDisconnect() {
