@@ -54,11 +54,11 @@ const GamePage = () => {
   }, []);
 
   const onServerMessage = useCallback((data: {msg: string}) => {
-    toast.info(data.msg);
+    toast.info(data.msg, {autoClose: 5000});
   }, []);
 
   const onIssueWarning = useCallback((data: {msg: string}) => {
-    toast.warning(data.msg);
+    toast.warning(data.msg, {autoClose: 5000});
   }, []);
 
   const onStartGameGamePage = useCallback(() => {
