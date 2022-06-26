@@ -55,7 +55,7 @@ interface HistoryCardInterface {
 
 const HistoryCard: React.FC<HistoryCardInterface> = ({ history }) => {
     const lastMoveInHistoryRef = useRef<any>(null);
-    const isDesktop = useMediaQuery({ query: '(min-width: 1025px)' })
+    const isDesktop = useMediaQuery({ query: '(min-width: 769px)' })
     const classes = useStyles()
     
     useEffect(() => {
@@ -98,7 +98,6 @@ const HistoryCard: React.FC<HistoryCardInterface> = ({ history }) => {
                             <TableCell sx={{padding: "0px"}} color="secondary">
                                 <div ref={lastMoveInHistoryRef} key="ref"></div>               
                             </TableCell>
-
                         </TableRow>
                     </TableBody>
                 </Table>
