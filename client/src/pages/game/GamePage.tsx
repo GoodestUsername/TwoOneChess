@@ -43,9 +43,9 @@ const GamePage = () => {
   // Socket functions
   const onConnect = useCallback(() => {
     const cookies = new Cookies();
-    if (params.roomId) socket.emit("joinGame", {roomId: params.roomId, gameKey: null})
-
-    socket.emit("register", cookies.get(TOKEN_KEY))
+    socket.emit("register", cookies.get(TOKEN_KEY), (response: { status: boolean}) => {
+      if (params.roomId && !response.status) socket.emit("joinGame", {roomId: params.roomId, gameKey: null})
+    })
   }, [params.roomId, socket])
 
   const onSendRoomCode = useCallback((data: {roomId: string, newGame: boolean}) => {
