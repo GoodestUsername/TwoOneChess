@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Box, Button, ButtonGroup, Divider } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 
@@ -10,7 +10,7 @@ interface ConfirmationButtonInterface {
     onClickInitial: Function,
     onClickConfirm: Function,
     onClickCancel: Function,
-    isBtnDisabled: Function,
+    setIsBtnDisabled: Function,
     fstBtnoffByDef: boolean,
     buttonText: string,
     confirmText: string | null
@@ -30,25 +30,29 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
     onClickInitial,
     onClickConfirm,
     onClickCancel,
-    isBtnDisabled,
+    setIsBtnDisabled,
     fstBtnoffByDef,
     buttonText,
     confirmText}) => {
-    const [clickedInitial, setClickedInitial] = useState(false);
+    const clickedInitialRef = useRef(false);
     const [disableInitial, setDisableInitial] = useState(fstBtnoffByDef);
     const [btnText, setBtnText] = useState<string>("");
 
     useEffect(() => {
         setBtnText(buttonText);
-        isBtnDisabled(setDisableInitial);
-        if (!isBtnDisabled) {
-            setClickedInitial(false);
+        setIsBtnDisabled(setDisableInitial);
+    }, [buttonText, setIsBtnDisabled])
+
+    useEffect(() => {
+        if (clickedInitialRef.current) {
+            clickedInitialRef.current = false;
         }
-    }, [buttonText, isBtnDisabled])
+    }, [buttonText])
+
 
     return (
         <>
-        {clickedInitial && (<ButtonGroup
+        {clickedInitialRef.current && (<ButtonGroup
                                 style={{height: "4rem", width: "33%"}}
                                 fullWidth={true}>
                                 <Button
@@ -58,7 +62,7 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
                                     sx={confirmButtonStyling}
                                     onClick={() => {
                                         onClickConfirm();
-                                        setClickedInitial(false);} }> {confirmText ? confirmText : <CheckIcon fontSize="large" />} </Button>
+                                        clickedInitialRef.current = false} }> {confirmText ? confirmText : <CheckIcon fontSize="large" />} </Button>
                                 <Divider sx={{ borderRightWidth: 1, minHeight: "4rem", zIndex:100 }} orientation="vertical" flexItem={true}/>
                                 <Button
                                     fullWidth
@@ -67,10 +71,10 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
                                     sx={confirmButtonStyling}
                                     onClick={() => {
                                         onClickCancel() ;
-                                        setClickedInitial(false);} }><ClearIcon fontSize="large"/></Button>
+                                        clickedInitialRef.current = false;} }><ClearIcon fontSize="large"/></Button>
                             </ButtonGroup>)
         }
-        {!clickedInitial && 
+        {!clickedInitialRef.current && 
         <Box sx={{width: "33.33%"}}>
             <LoadingButton
                 loading={disableInitial}
@@ -81,7 +85,7 @@ const ConfirmButton: React.FC<ConfirmationButtonInterface> = ({
                 sx={{...buttonStyling, fontSize: "1.2rem"}}
                 onClick={() => {
                     onClickInitial();
-                    setClickedInitial(true)
+                    clickedInitialRef.current = true;
                 }}> {btnText}</LoadingButton>
         </Box>
         }
