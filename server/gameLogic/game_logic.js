@@ -34,15 +34,17 @@ const initializeConnection = (io, client) => {
     gameSocket.on("disconnect", onDisconnect);
 }
 
-function onRegister(data) {
+function onRegister(data, callback) {
     if (data !== null) {
         const gameRoom = serverIO.sockets.adapter.rooms.get(data.roomId);
         if (gameRoom && gameRoom.roomVars && gameRoom.roomVars.gameKey === data.gameKey) {
+            callback({status: true})
             this.join(data.roomId);
             this.to(data.roomId).emit("reconnectGame", data);
             return;
         }
     }
+    callback({status: false})
 }
 
 function onCreateGame(roomId) {
