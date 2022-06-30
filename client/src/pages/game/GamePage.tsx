@@ -5,9 +5,6 @@ import { toast } from 'react-toastify';
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-// material ui
-import { Box } from "@mui/material";
-
 // helper functions
 import Cookies from 'universal-cookie';
 
