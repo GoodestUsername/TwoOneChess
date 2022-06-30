@@ -37,9 +37,9 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
 
-  // is mobile hook
+  // is screen size hooks
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' })
-
+  
   // engine
   const gameEngineRef = useRef<GameEngine>();
 
@@ -189,34 +189,35 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   }, [socket, onStartGame, onRestoreGame, onReconnectGame, onOpponentMove])
 
   return (
-    <Grid
-      container
-      spacing={1}
-      direction="row"
-      display="flex"
-      alignItems="stretch"
-      justifyContent={"Center"}>
-        <Grid item>
-          <BoardTopBar/>
-          <TwoOneChessboard 
-            boardOrientation={playerColor}
-            position={game.fen()} 
-            customArrows={botMovePreviews} 
-            onDropHandler={onDrop} 
-            bottomButtonsActive={gameStarted}
-            handleMove={handleMoveAndSend}
-            setPreview={setBotMovePreviews}
-            bottomButtonMoves={{
-                fBotMove,
-                sBotMove,
-                tBotMove
-            }} />
-        </Grid>
-        <Grid item sx={{maxWidth: (isMobile ? "none" : "568px"), flexGrow:1, height: "inherit"}}>
-          {history && 
-            <HistoryWindow history={history} />
-          }
-        </Grid>
+      <Grid
+        container
+        sx={{marginTop: "20px"}}
+        spacing={1}
+        direction="row"
+        display="flex"
+        alignItems="stretch"
+        justifyContent={"Center"}>
+          <Grid item>
+            <BoardTopBar/>
+            <TwoOneChessboard
+              boardOrientation={playerColor}
+              position={game.fen()} 
+              customArrows={botMovePreviews} 
+              onDropHandler={onDrop} 
+              bottomButtonsActive={gameStarted}
+              handleMove={handleMoveAndSend}
+              setPreview={setBotMovePreviews}
+              bottomButtonMoves={{
+                  fBotMove,
+                  sBotMove,
+                  tBotMove
+              }} />
+          </Grid>
+          <Grid item sx={{maxWidth: (isMobile ? "none" : "568px"), flexGrow:1, height: "inherit"}}>
+            {history && 
+              <HistoryWindow history={history} />
+            }
+          </Grid>
       </Grid>
   );
 }

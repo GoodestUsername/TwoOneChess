@@ -79,7 +79,7 @@ const GamePage = () => {
   }, [socket, onConnect, onSendRoomCode, onIssueWarning, onServerMessage, onStartGameGamePage])
 
   return (
-    <Box sx={{marginTop: "20px", height: "calc(100% - 20px)"}} className="GamePage">
+    <>
       <ToastContainer
         theme="colored"
         position="top-center"
@@ -98,7 +98,7 @@ const GamePage = () => {
         handleClose={() => setIsModalOpen(false)} />
 
       <TwoOneChess roomId={roomId}/>
-  </Box>
+  </>
   );
 }
 

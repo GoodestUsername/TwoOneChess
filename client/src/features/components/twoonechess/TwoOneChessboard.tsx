@@ -52,7 +52,7 @@ const TwoOneChessboard: React.FC<TwoOneChessboardInterface> = ({
       setDesktopBoardWidth(560)
     }
     if (width > height && width > 1080) {
-      setDesktopBoardWidth((height * 0.7));
+      setDesktopBoardWidth((height * 0.7) - 100);
       console.log(560 + (height - 1080))
     }
   }, [height, width]);
