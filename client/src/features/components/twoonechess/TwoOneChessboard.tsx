@@ -42,11 +42,17 @@ const TwoOneChessboard: React.FC<TwoOneChessboardInterface> = ({
 }) => {
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' })
   const { width } = useWindowDimensions();
-  const [desktopBoardWidth, setDesktopBoardWidth ] = useState(560);
+  const [desktopBoardWidth, setDesktopBoardWidth] = useState(560);
 
   useEffect(() => {
     if (width > 768 && width <= 850) {
       setDesktopBoardWidth(560 - (850 - width))
+    }
+    if (width > 850 && 1080 >= width) {
+      setDesktopBoardWidth(560)
+    }
+    if (width > 1080) {
+      setDesktopBoardWidth(560 + 3 * Math.sqrt((width - 1080)));
     }
   }, [width]);
 
