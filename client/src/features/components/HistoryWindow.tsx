@@ -80,13 +80,20 @@ const HistoryCard: React.FC<HistoryCardInterface> = ({ history }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {history.map((turn) => {
+                        {history.map((turn, i) => {
+                            const isLastTurn = !history[i + 1];
                             return(
                                 <TableRow key={turn.turn}>
                                     {columns.map((column) => {
                                         const cellValue = turn[column.id];
+                                        let isLastMove = false;
+                                        if (isLastTurn) {
+                                            isLastMove = ((column.id === 'black' && turn.black !== "") ||
+                                                        (column.id === 'white' && turn.black === ""))
+                                        }
                                         return(
-                                            <TableCell key={turn.turn + column.id} align="center">
+                                            <TableCell key={turn.turn + column.id} align="center"
+                                                sx={{background: isLastMove ? "grey": null}} >
                                                 { cellValue }
                                             </TableCell>
                                         )
