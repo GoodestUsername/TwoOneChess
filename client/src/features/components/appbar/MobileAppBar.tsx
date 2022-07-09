@@ -3,10 +3,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 
 // redux
 import { toggleCollapse, toggleSidebar } from "features/components/sidebar/sidebarSlice";
-import { useDispatch } from "react-redux";
+import { useAppDispatch } from "util/store";
 
 const MobileAppBar = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     return (
         <AppBar position="sticky">
             <Container maxWidth="xl">

@@ -4,10 +4,11 @@ import { Link } from "react-router-dom";
 
 // hooks
 import { useMediaQuery } from 'react-responsive';
-import { useSelector, useDispatch } from 'react-redux';
 
 // redux
 import { selectCollapse, selectToggle, toggleCollapse, toggleSidebar } from './sidebarSlice';
+import { useAppDispatch } from 'util/store';
+import { useSelector } from 'react-redux';
 
 // icons
 import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
@@ -23,7 +24,7 @@ const SideBar = () => {
   const minFullSizeWidth = useMediaQuery({maxWidth: 950});
   const toggle = useSelector(selectToggle);
   const collapse = useSelector(selectCollapse);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const handleCollapseToggle = () => {
     dispatch(toggleCollapse())

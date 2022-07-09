@@ -26,7 +26,9 @@ import { Grid } from "@mui/material";
 import { SocketContext } from "context/socketContext";
 import BoardTopBar from "./BoardTopBar";
 import { useMediaQuery } from "react-responsive";
-import { useDispatch } from "react-redux";
+
+// redux
+import { useAppDispatch } from "util/store";
 
 // constants
 const TOKEN_KEY = 'ACCESS_TOKEN';
@@ -37,7 +39,7 @@ interface TwoOneChessInterface {
 
 const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   // redux
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
