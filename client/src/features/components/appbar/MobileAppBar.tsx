@@ -1,17 +1,21 @@
 import { AppBar, Container, Toolbar, Box, IconButton, Typography } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 
-interface LayoutAppBarInterface {
-    handleSideBarToggle: Function
-}
+// redux
+import { toggleCollapse, toggleSidebar } from "features/components/sidebar/sidebarSlice";
+import { useDispatch } from "react-redux";
 
-const MobileAppBar: React.FC<LayoutAppBarInterface> = ({handleSideBarToggle}) => {
+const MobileAppBar = () => {
+    const dispatch = useDispatch();
     return (
         <AppBar position="sticky">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <Box sx={{ flexGrow: 1 }}>
-                        <IconButton color="inherit" onClick={() => handleSideBarToggle(true, false)} >
+                        <IconButton color="inherit" onClick={() => {
+                            dispatch(toggleCollapse())
+                            dispatch(toggleSidebar())
+                        }} >
                             <MenuIcon sx={{ height: "2.5rem", width: "2.5rem" }}/>
                         </IconButton>
                     </Box>
