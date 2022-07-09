@@ -2,11 +2,10 @@ const socketIO = require("socket.io");
 const express = require("express");
 const path = require("path");
 const http = require("http");
-const initializeConnection = require('./server/gameLogic/game_logic')
+const initializeConnection = require('./gameLogic/game_logic')
 const { uuid } = require("uuidv4");
 
 const port = process.env.PORT || 3001;
-const index = require("./routes/index");
 
 const app = express();
 
