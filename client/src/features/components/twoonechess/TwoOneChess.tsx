@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 // helper functions
 import Cookies from 'universal-cookie';
 import { shuffle } from "util/helpers";
+import { addMoveToHistory, setHistory, toTurnHistory } from "features/components/twoonechess/historySlice";
 
 // types
 import { BoardOrientation, GameOverStates, MoveWithAssignment} from "features/engine/chessEngine";
@@ -15,7 +16,7 @@ import { Socket } from "socket.io-client";
 import GameEngine from 'features/engine/twoOneGameEngine';
 
 // components
-import HistoryWindow, { toTurnHistory, TurnHistory } from "../HistoryWindow";
+import HistoryWindow from "features/components/twoonechess/HistoryWindow";
 import TwoOneChessboard from "./TwoOneChessboard";
 
 // material ui components
@@ -25,6 +26,7 @@ import { Grid } from "@mui/material";
 import { SocketContext } from "context/socketContext";
 import BoardTopBar from "./BoardTopBar";
 import { useMediaQuery } from "react-responsive";
+import { useDispatch } from "react-redux";
 
 // constants
 const TOKEN_KEY = 'ACCESS_TOKEN';
@@ -34,6 +36,9 @@ interface TwoOneChessInterface {
 }
 
 const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
+  // redux
+  const dispatch = useDispatch();
+
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
 
@@ -48,7 +53,6 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   const [gameStarted, setGameStarted] = useState(false);
   const [chessBoardActive, setChessBoardActive] = useState(false);
   const [playerColor, setPlayerColor] = useState<BoardOrientation>("white");
-  const [history, setHistory] = useState<Array<TurnHistory>>([]);
 
   // Bot Moves
   const [fBotMove, setFBotMove] = useState<MoveWithAssignment>(null);
@@ -69,6 +73,11 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
       setTBotMove(moves[2]);
     }
   }
+
+  const addNewMoveToHistory = useCallback(() => {
+    const gameHistory = gameEngineRef.current?.game.history({verbose:true})
+    if (gameHistory?.at(-1)) dispatch(addMoveToHistory({newMove: gameHistory.at(-1)}));
+  }, [dispatch])
 
   // functions that handle game state/game ui changes
   function safeGameMutate(modify: any) {
@@ -110,8 +119,7 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
         pgn: pgn,
         roomId: roomId,
       });
-      const turnHistory = toTurnHistory(gameEngineRef.current?.game.history({verbose:true}))
-      if (turnHistory) setHistory(turnHistory);
+      addNewMoveToHistory();
       handleGameOverConditions(roomId);
       setFBotMove(null);
       setSBotMove(null);
@@ -154,22 +162,21 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
     setGame(gameEngineRef.current!.loadGame(data.pgn, color));
     if (gameEngineRef.current?.isPlayerTurn()) fetchBotMoves();
     const turnHistory = toTurnHistory(gameEngineRef.current?.game.history({verbose:true}))
-    if (turnHistory) setHistory(turnHistory);
+    if (turnHistory) dispatch(setHistory({ newHistory: turnHistory }));
     setGameStarted(true);
     setPlayerColor(color);
     setChessBoardActive(true);
     handleGameOverConditions(data.roomId);
-  }, [handleGameOverConditions]);
+  }, [dispatch, handleGameOverConditions]);
 
   const onOpponentMove = useCallback((data: { pgn: string, roomId: string}) => {
     gameEngineRef.current!.setPgn(data.pgn);
-    const turnHistory = toTurnHistory(gameEngineRef.current?.game.history({verbose:true}))
-    if (turnHistory) setHistory(turnHistory);
+    addNewMoveToHistory();
     setGame(gameEngineRef.current!.game);
     handleGameOverConditions(data.roomId);
 
     fetchBotMoves();
-  }, [handleGameOverConditions]);
+  }, [addNewMoveToHistory, handleGameOverConditions]);
 
   useEffect(() => {
     gameEngineRef.current = new GameEngine();
@@ -214,9 +221,7 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
               }} />
           </Grid>
           <Grid item sx={{maxWidth: (isMobile ? "none" : "568px"), flexGrow:1, height: "inherit"}}>
-            {history && 
-              <HistoryWindow history={history} />
-            }
+            <HistoryWindow/>
           </Grid>
       </Grid>
   );

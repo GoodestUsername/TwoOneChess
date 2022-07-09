@@ -1,14 +1,14 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Theme } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 
-import { shortMoveToString } from "features/engine/chessEngine";
-import { Move } from "chess.js";
+import { selectHistory } from "features/components/twoonechess/historySlice";
 
 // hooks
 import { useRef, useEffect } from "react";
 
 import "styling/scss/historywindow.scss"
 import { useMediaQuery } from "react-responsive";
+import { useSelector } from "react-redux";
 
 interface Column {
     id: 'turn' | 'white' | 'black',
@@ -25,38 +25,18 @@ const columns: readonly Column[] = [
     { id: 'black', label: 'Black', minWidth: 66, padding: "6px", backgroundColor: "secondary.light"},
 ];
 
-export type TurnHistory = {
-    turn: number,
-    white: string,
-    black: string
-}
-
-
-export const toTurnHistory = (moveList: Move[] | undefined): Array<TurnHistory>=> {
-    if (moveList === undefined) return [];
-    const turns:Array<TurnHistory> = [];
-
-    for (let i = 0, turnNum = 1; i < moveList.length; i += 2, turnNum += 1) {
-        const turn:TurnHistory = { turn: turnNum, white: shortMoveToString(moveList[i]), black: shortMoveToString(moveList[i + 1])};
-        turns.push(turn);
-    }
-    return turns;
-}
-
 const useStyles = makeStyles((theme: Theme) => ({
     headerCell: {
         backgroundColor: theme.palette.secondary.main,
     }, 
 }))
 
-interface HistoryCardInterface {
-    history: Array<TurnHistory>;
-}
-
-const HistoryCard: React.FC<HistoryCardInterface> = ({ history }) => {
+const HistoryCard= () => {
     const lastMoveInHistoryRef = useRef<any>(null);
     const isDesktop = useMediaQuery({ query: '(min-width: 769px)' })
     const classes = useStyles()
+
+    const history = useSelector(selectHistory)
     
     useEffect(() => {
         if (isDesktop) lastMoveInHistoryRef.current?.scrollIntoView();
