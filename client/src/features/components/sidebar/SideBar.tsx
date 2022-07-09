@@ -1,7 +1,13 @@
 import { ProSidebar, SidebarHeader, SidebarFooter, SidebarContent, Menu, MenuItem } from 'react-pro-sidebar';
 import { Box, Typography } from '@mui/material';
 import { Link } from "react-router-dom";
+
+// hooks
 import { useMediaQuery } from 'react-responsive';
+import { useSelector, useDispatch } from 'react-redux';
+
+// redux
+import { selectCollapse, selectToggle, toggleCollapse, toggleSidebar } from './sidebarSlice';
 
 // icons
 import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
@@ -13,22 +19,16 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SchoolIcon from '@mui/icons-material/School';
 
-interface SideBarInterface {
-  toggled: any,
-  handleSideBarToggle: Function,
-  sideBarCollapsed: any,
-}
-
-const SideBar: React.FC<SideBarInterface> = ({
-  sideBarCollapsed,
-  toggled, 
-  handleSideBarToggle
-}) => {
-  const handleCollapseToggle = () => {
-    handleSideBarToggle(false, !sideBarCollapsed);
-  }
+const SideBar = () => {
   const minFullSizeWidth = useMediaQuery({maxWidth: 950});
+  const toggle = useSelector(selectToggle);
+  const collapse = useSelector(selectCollapse);
+  const dispatch = useDispatch();
 
+  const handleCollapseToggle = () => {
+    dispatch(toggleCollapse())
+    dispatch(toggleSidebar())
+  }
   return (
     <ProSidebar
       style={{
@@ -38,8 +38,8 @@ const SideBar: React.FC<SideBarInterface> = ({
         position: minFullSizeWidth? "fixed": "sticky",
         top: 0
       }}
-      collapsed={sideBarCollapsed}
-      toggled={toggled}
+      collapsed={collapse}
+      toggled={toggle}
       onToggle={handleCollapseToggle}
       breakPoint={"md"}
     >
@@ -47,13 +47,13 @@ const SideBar: React.FC<SideBarInterface> = ({
         <Box style={{ padding: "20px 20px", display:"flex"}}>
             <Typography sx={{
               overflow: "hidden",
-            }}> {!sideBarCollapsed && "Two-One Chess"}</Typography>
+            }}> {!collapse && "Two-One Chess"}</Typography>
             <MenuItem
-                icon={ sideBarCollapsed ? <ArrowForwardIosIcon /> : <ArrowBackIosIcon /> }
+                icon={ collapse ? <ArrowForwardIosIcon /> : <ArrowBackIosIcon /> }
                 style={{
                   float: "right", 
                   listStyleType: "none", 
-                  paddingLeft: sideBarCollapsed ?  "4px" : "15px"
+                  paddingLeft: collapse ?  "4px" : "15px"
                 }}
                 onClick={handleCollapseToggle}>
             </MenuItem>
@@ -89,7 +89,7 @@ const SideBar: React.FC<SideBarInterface> = ({
                   className="sidebar-btn"
                   rel="noopener noreferrer">
                   <GitHubIcon />
-                  <span> {!sideBarCollapsed && "Source"} </span>
+                  <span> {!collapse && "Source"} </span>
               </a>
           </div>
       </SidebarFooter>
