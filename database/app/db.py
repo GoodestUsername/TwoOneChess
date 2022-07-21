@@ -8,7 +8,7 @@ class database:
         self.disconnect()
     
     def connect_db(self):
-        self.db = my.sql.connector.connect(
+        self.db = mysql.connector.connect(
             user="root",
             password="password",
             database="twonedb",
