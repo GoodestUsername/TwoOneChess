@@ -1,0 +1,17 @@
+version: '3'
+services:
+  twonedb:
+    image: twonedb:latest
+    ports:
+      - 80:80
+    volumes:
+      - ./app
+  db:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    ports:
+      - '800:80'
+  
