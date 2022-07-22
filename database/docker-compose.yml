@@ -7,7 +7,7 @@ services:
     volumes:
       - ./app
   db:
-    image: mariadb
+    image: sqlite
     environment:
       MYSQL_ROOT_PASSWORD: password
   phpmyadmin:
