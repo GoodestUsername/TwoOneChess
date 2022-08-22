@@ -1,7 +1,8 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Theme } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 
-import { selectHistory } from "features/components/twoonechess/historySlice";
+// redux
+import { selectHistory, TurnHistory } from "features/components/twoonechess/historySlice";
 
 // hooks
 import { useRef, useEffect } from "react";
@@ -28,10 +29,14 @@ const columns: readonly Column[] = [
 const useStyles = makeStyles((theme: Theme) => ({
     headerCell: {
         backgroundColor: theme.palette.secondary.main,
-    }, 
+    }
 }))
 
-const HistoryCard= () => {
+/**
+ * history table component
+ * @returns HistoryCard component
+ */
+const HistoryCard = () => {
     const lastMoveInHistoryRef = useRef<any>(null);
     const isDesktop = useMediaQuery({ query: '(min-width: 769px)' })
     const classes = useStyles()
@@ -39,6 +44,7 @@ const HistoryCard= () => {
     const history = useSelector(selectHistory)
     
     useEffect(() => {
+        // everytime history changes, scroll the table to the last move made
         if (isDesktop) lastMoveInHistoryRef.current?.scrollIntoView();
     }, [history, isDesktop]);
 
@@ -48,6 +54,7 @@ const HistoryCard= () => {
                 <Table stickyHeader>
                     <TableHead>
                         <TableRow>
+                            {/* create header columns */}
                             {columns.map((column) => (
                                 <TableCell
                                     key={column.id}
@@ -60,17 +67,23 @@ const HistoryCard= () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {history.map((turn, i) => {
+                        {/* creates turn history table rows */}
+                        {history.map((turn: TurnHistory, i: number) => {
+                            // check if it is the last item(turn) in the array
                             const isLastTurn = !history[i + 1];
+
                             return(
                                 <TableRow key={turn.turn}>
                                     {columns.map((column) => {
                                         const cellValue = turn[column.id];
                                         let isLastMove = false;
                                         if (isLastTurn) {
+                                            // last move can only be black if black contains a move,
+                                            // it can only be white if black is empty, since white moves before black
                                             isLastMove = ((column.id === 'black' && turn.black !== "") ||
                                                         (column.id === 'white' && turn.black === ""))
                                         }
+                                        // last move is highlighted in sx
                                         return(
                                             <TableCell key={turn.turn + column.id} align="center"
                                                 sx={{background: isLastMove ? "grey": null}} >
