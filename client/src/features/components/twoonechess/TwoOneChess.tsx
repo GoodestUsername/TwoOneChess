@@ -171,8 +171,7 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
     // set the cookeis
     const cookies = new Cookies();
     cookies.set(TOKEN_KEY, {...data}, { path: '/', secure: true })
-    console.log("173 twoonechesstsx")
-    console.log(data)
+    
     // sets the game to a new Chess object
     const game = new Chess();
     setGame(game);
