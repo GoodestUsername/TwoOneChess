@@ -27,6 +27,7 @@ import { SocketContext } from "context/socketContext";
 import BoardTopBar from "./BoardTopBar";
 import { useMediaQuery } from "react-responsive";
 import { useDispatch } from "react-redux";
+import { AppDispatch } from "util/store";
 
 // constants
 const TOKEN_KEY = 'ACCESS_TOKEN';
@@ -35,9 +36,14 @@ interface TwoOneChessInterface {
   roomId: string;
 }
 
+/**
+ * Chessboard component that allows the user to play the game
+ * @param {String} {roomId} roomcode of socket room
+ * @returns TwoOneChess component
+ */
 const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   // redux
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   // Socket Context
   const socket = useContext<Socket>(SocketContext);
@@ -62,6 +68,9 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
   // Active bot move previews
   const [botMovePreviews, setBotMovePreviews] = useState<string[][]>([]);
 
+  /**
+   * Fetch bot moves from the engine and sets them to the 3 bot moves
+   */
   const fetchBotMoves = async () => {
     const goodMoves: any = await gameEngineRef.current!.getGoodBotMoves();
     const badMove: any = await gameEngineRef.current!.getBadBotMoves();
@@ -74,12 +83,17 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
     }
   }
 
+  /**
+   * Adds the last move in game engine history to movehistory in store
+   */
   const addNewMoveToHistory = useCallback(() => {
     const gameHistory = gameEngineRef.current?.game.history({verbose:true})
     if (gameHistory?.at(-1)) dispatch(addMoveToHistory({newMove: gameHistory.at(-1)}));
   }, [dispatch])
 
-  // functions that handle game state/game ui changes
+  /**
+   * functions that handle game state/game ui changes
+   */
   function safeGameMutate(modify: any) {
     setGame((g: any) => {
       const update = { ...g };
@@ -88,6 +102,10 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
     });
   }
 
+  /** 
+   * Checks if the game state is in a game over state, and ends the game and emits gameOver if it is.
+   * @param {String} {roomId} roomcode of socket room
+   */
   const handleGameOverConditions = useCallback((roomId: string) => {
     const gameOverState = gameEngineRef.current?.gameOverState;
     if (gameOverState) {
@@ -107,7 +125,11 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
     }
   }, [socket])
 
-  // handles move input and sends the move via socket
+  /**
+   * handles move input and sends the move via socket
+   * @param {ShortMove} inputtedMove
+   * @returns true if move is valid else false
+   */
   function handleMoveAndSend(inputtedMove: ShortMove) {
     const validMove = gameEngineRef.current!.handleMove(inputtedMove);
     if (validMove && chessBoardActive) {
@@ -128,27 +150,55 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
     return validMove === null;
   }
 
-  // function called on piece drop
+  /**
+   * Function called on piece drop
+   * @param {Square} sourceSquare { Source square }
+   * @param {Square} targetSquare { target square }
+   * @returns boolean handled by handleMoveAndSend, true if the move is valid, else false
+   */
   function onDrop(sourceSquare: Square, targetSquare: Square) {
     return handleMoveAndSend({from: sourceSquare, to: targetSquare})
   }
 
   // Socket functions
+  /** 
+   * Function called on starting the game
+   * @param {BoardOrientation} color { Board orientation in color, black or white }
+   * @param {gameKey} string{ gamekey for socket } 
+   * @param {roomId} string} { roomcode for socket }
+   */
   const onStartGame = useCallback((data: {color: BoardOrientation, gameKey: string, roomId: string}) => {
+    // set the cookeis
     const cookies = new Cookies();
+    cookies.set(TOKEN_KEY, {...data}, { path: '/', secure: true })
+    console.log("173 twoonechesstsx")
+    console.log(data)
+    // sets the game to a new Chess object
     const game = new Chess();
     setGame(game);
+
+    // set boardactive and game started to true
     setChessBoardActive(true);
     setGameStarted(true);
+
+    // sets the player color
     gameEngineRef.current?.startGame(data.color);
     setPlayerColor(data.color);
-    if (gameEngineRef.current?.isPlayerTurn()) fetchBotMoves()
+
+    // calculate bot moves if it is the players turn
+    if (gameEngineRef.current?.isPlayerTurn()) { fetchBotMoves(); return; }
+
+    // empty all bot moves
     setFBotMove(null);
     setSBotMove(null);
     setTBotMove(null);
-    cookies.set(TOKEN_KEY, {...data}, { path: '/', secure: true })
   }, [])
 
+  /** 
+   * Function called on reconnecting the game
+   * @param {roomId} string} { roomcode for socket }
+   * @param {pgn} string{ chess game state in pgn format } 
+   */
   const onReconnectGame = useCallback((data: {roomId: string, pgn: string}) => {
     socket.emit("syncGame", {
       roomId: data.roomId,
@@ -156,25 +206,52 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
     })
   }, [socket]);
 
+  /** 
+   * Function called on restoring the game
+   * @param {roomId} string} { roomcode for socket }
+   * @param {pgn} string{ chess game state in pgn format } 
+   */
   const onRestoreGame = useCallback((data: {roomId: string, pgn: string}) => {
+    // get color from cookies and set it
     const cookies = new Cookies();
     const color =  cookies.get(TOKEN_KEY).color;
+    setPlayerColor(color);
+
+    // load Chess state in gameEngine with pgn
     setGame(gameEngineRef.current!.loadGame(data.pgn, color));
+
+    // fetch moves if it is the players turn
     if (gameEngineRef.current?.isPlayerTurn()) fetchBotMoves();
+
+    // sets the turn and move history
     const turnHistory = toTurnHistory(gameEngineRef.current?.game.history({verbose:true}))
     if (turnHistory) dispatch(setHistory({ newHistory: turnHistory }));
+
+    // set gamestarted, chessboardactive to true
     setGameStarted(true);
-    setPlayerColor(color);
     setChessBoardActive(true);
+
+    // check if game is over
     handleGameOverConditions(data.roomId);
   }, [dispatch, handleGameOverConditions]);
 
+  /** 
+   * Function called when the opponent moves
+   * @param {roomId} string} { roomcode for socket }
+   * @param {pgn} string{ chess game state in pgn format } 
+   */
   const onOpponentMove = useCallback((data: { pgn: string, roomId: string}) => {
+    // set the gamestate with pgn
     gameEngineRef.current!.setPgn(data.pgn);
-    addNewMoveToHistory();
     setGame(gameEngineRef.current!.game);
+
+    // add the new move to history
+    addNewMoveToHistory();
+
+    // check if the game is over
     handleGameOverConditions(data.roomId);
 
+    // fetch engine moves
     fetchBotMoves();
   }, [addNewMoveToHistory, handleGameOverConditions]);
 
@@ -189,6 +266,7 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
     socket.on("opponentMove", onOpponentMove);
 
     return () => {
+      // clean up
       socket.removeAllListeners();
 
       socket.disconnect(); 
@@ -220,6 +298,7 @@ const TwoOneChess: React.FC<TwoOneChessInterface> = ({roomId}) => {
                   tBotMove
               }} />
           </Grid>
+          {/* remove margin if the device is on mobile */}
           <Grid item sx={{maxWidth: (isMobile ? "none" : "568px"), flexGrow:1, height: "inherit"}}>
             <HistoryWindow/>
           </Grid>

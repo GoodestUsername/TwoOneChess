@@ -40,25 +40,38 @@ const GamePage = () => {
   // Socket functions
   const onConnect = useCallback(() => {
     const cookies = new Cookies();
+    console.log("on connect")
+    console.log(params)
+    console.log(socket)
     socket.emit("register", cookies.get(TOKEN_KEY), (response: { status: boolean}) => {
+      console.log("44 gamepage")
+      console.log(response);
       if (params.roomId && !response.status) socket.emit("joinGame", {roomId: params.roomId, gameKey: null})
     })
   }, [params.roomId, socket])
 
   const onSendRoomCode = useCallback((data: {roomId: string, newGame: boolean}) => {
+    console.log("51 gamepage")
+    console.log(data);
     setRoomId(data.roomId);
     if (data.newGame)setIsModalOpen(true);
   }, []);
 
   const onServerMessage = useCallback((data: {msg: string}) => {
+    console.log("58 gamepage")
+    console.log(data);
     toast.info(data.msg, {autoClose: 5000});
   }, []);
 
   const onIssueWarning = useCallback((data: {msg: string}) => {
+    console.log("64 gamepage")
+    console.log(data);
     toast.warning(data.msg, {autoClose: 5000});
   }, []);
 
   const onStartGameGamePage = useCallback(() => {
+    console.log("70 gamepage")
+    console.log();
     setIsModalOpen(false);
   }, [])
 

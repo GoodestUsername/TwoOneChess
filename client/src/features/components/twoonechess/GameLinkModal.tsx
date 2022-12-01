@@ -2,7 +2,7 @@ import { Box } from "@mui/system";
 import { Modal, Typography } from "@mui/material";
 import TextAndCopyBtn from "../TextAndCopyBtn";
 
-
+// modal styling
 const style = {
     position: 'absolute' as 'absolute',
     top: '50%',
@@ -21,12 +21,20 @@ interface GameLinkModalInterface {
     handleClose: Function,
 }
 
+/**
+ * Modal that displays the invite link to the user
+ * @param {*} {
+ *     isOpen,
+ *     inviteLink,
+ *     handleClose
+ *     }
+ * @returns 
+ */
 const GameLinkModal: React.FC<GameLinkModalInterface> = ({
     isOpen,
     inviteLink,
     handleClose
     }) => {
-
     return (
         <Modal
             open={isOpen}

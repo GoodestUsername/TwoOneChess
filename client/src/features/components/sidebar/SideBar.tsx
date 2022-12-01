@@ -18,13 +18,20 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SchoolIcon from '@mui/icons-material/School';
-
+/**
+ * sidebar component of app
+ * @returns Sidebar component
+ */
 const SideBar = () => {
+  // media query hook
   const minFullSizeWidth = useMediaQuery({maxWidth: 950});
+
+  // redux hooks
   const toggle = useSelector(selectToggle);
   const collapse = useSelector(selectCollapse);
   const dispatch = useDispatch();
 
+  /** function called when collapse is toggled */
   const handleCollapseToggle = () => {
     dispatch(toggleCollapse())
     dispatch(toggleSidebar())
@@ -45,9 +52,11 @@ const SideBar = () => {
     >
       <SidebarHeader>
         <Box style={{ padding: "20px 20px", display:"flex"}}>
+          {/* hide text if collapsed */}
             <Typography sx={{
-              overflow: "hidden",
+              overflow: "hidden"
             }}> {!collapse && "Two-One Chess"}</Typography>
+            {/* change to > icon if collapsed < if not collapsed */}
             <MenuItem
                 icon={ collapse ? <ArrowForwardIosIcon /> : <ArrowBackIosIcon /> }
                 style={{
@@ -80,6 +89,7 @@ const SideBar = () => {
         </Menu>
       </SidebarContent>
       <SidebarFooter style={{ textAlign: "center" }}>
+        {/* link to github source code */}
           <div
               className="sidebar-btn-wrapper"
               style={{ padding: "20px 24px", overflow: "hidden",

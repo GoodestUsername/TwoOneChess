@@ -11,13 +11,23 @@ const sidebarInitialState: SidebarState = {
     toggle: true
 }
 
+// sidebar slice, contains boolean state for collapse and toggled properties for sidebar
 const sidebarSlice = createSlice({
     name: 'sidebar',
     initialState: sidebarInitialState,
+    // reducers flip boolean for each state toggle propety
     reducers: {
+        /** 
+         * Flips the boolean value of collapse
+         *  @param {SidebarState} state { current sidebar slice state, boolean for collapse and toggle}
+         */
         toggleCollapse: state => {
             state.collapse = !state.collapse;
         },
+        /** 
+         * Flips the boolean value of toggle
+         *  @param {SidebarState} state { current sidebar slice state, boolean for collapse and toggle}
+         */
         toggleSidebar: state => {
             state.toggle = !state.toggle;
         },
