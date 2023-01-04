@@ -1,5 +1,6 @@
 TwoOneChess
 A personal project.
+Still WIP, lots of bugs need ironing out.
 It is a chess website with engine assisted moves for both players. Each player for their turn receives 3 moves.
 Two from stockfish, and two from a modified stockfish for bad moves.
 This is built using React, stockfish.js, express and socket io.
